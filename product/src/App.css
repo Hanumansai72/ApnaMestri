@@ -1,0 +1,9 @@
+.hero-header {
+  padding: 140px 0 80px;
+  background: radial-gradient(circle at right, rgba(255, 107, 0, 0.2), transparent 60%),
+              linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 1)),
+              url("https://www.civilclick.com/wp-content/uploads/2021/07/types-of-building-materials.jpg") no-repeat center center;
+  background-size: cover;
+  position: relative;
+  z-index: 1;
+}

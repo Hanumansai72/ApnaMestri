@@ -1,0 +1,43 @@
+.hero-section {
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.parallax-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 130%;
+  background: radial-gradient(circle at center, #0f0f0f 0%, #1a1a1a 100%);
+  background-attachment: fixed;
+  z-index: 0;
+}
+
+.gradient-btn {
+  background: linear-gradient(90deg, #FF8C00, #FF6B00);
+  border: none;
+  border-radius: 50px;
+  padding: 10px 25px;
+  font-weight: 600;
+}
+
+.outline-btn {
+  border: 2px solid #FF6B00;
+  color: #FF6B00;
+  background: transparent;
+  border-radius: 50px;
+  padding: 8px 25px;
+  font-weight: 600;
+}
+
+.animated-bounce {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
