@@ -1,130 +1,182 @@
-import React from "react";
-import { Container, Row, Col, Card, Button, Image } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Footer from './footer';
-import NavaPro from './navbarproduct';
+// frontend/src/pages/ProfessionalServicePage.jsx
+import React, { useEffect, useState } from "react";
+import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { useParams } from "react-router-dom";
+import NavaPro from "./navbarproduct";
+import Footer from "./footer";
 
-export default function ProfessionalServicePage() {
+const ProfessionalServicePage = () => {
+  const { id } = useParams(); // get vendor id from URL
+  const [vendor, setVendor] = useState(null);
+
+  useEffect(() => {
+    const fetchVendor = async () => {
+      try {
+        const res = await fetch(`https://backend-d6mx.vercel.app/profesionaldetails/${id}`);
+        const data = await res.json();
+        setVendor(data);
+      } catch (err) {
+        console.error("Error fetching vendor:", err);
+      }
+    };
+    fetchVendor();
+  }, [id]);
+
+  if (!vendor) {
+    return (
+      <div className="text-center mt-5">
+        <h4>Loading profile...</h4>
+      </div>
+    );
+  }
+
   return (
     <>
-      <NavaPro></NavaPro>
-    <Container className="my-4">
-      {/* Profile Header */}
-      <Card className="p-3 shadow-sm border-0 mb-4">
-        <Row className="align-items-center">
-          <Col md={2} className="text-center">
-            <Image
-              src="https://via.placeholder.com/120"
-              roundedCircle
-              alt="Profile"
-              width={120}
-              height={120}
-            />
-          </Col>
-          <Col md={7}>
-            <h4 className="mb-1">Rajesh Kumar</h4>
-            <p className="text-muted mb-1">
-              Electrical Installation & Repairs – Technical
-            </p>
-            <p className="mb-0">
-              ⭐ 4.8 | 112 reviews | Hyderabad, India
-            </p>
-          </Col>
-          <Col md={3} className="text-md-end mt-3 mt-md-0">
-            <Button variant="warning" className="fw-bold">
-              Contact Now
-            </Button>
-          </Col>
-        </Row>
-      </Card>
-
-      {/* About the Service */}
-      <Card className="p-4 shadow-sm border-0 mb-4">
-        <h5 className="mb-3">About the Service</h5>
-        <p>
-          With 10+ years of experience in residential and commercial electrical
-          work, I provide a wide range of services including wiring installation,
-          repairs, and electrical maintenance. Safety and precision are my top priorities.
-        </p>
-
-        <Row>
-          <Col md={6}>
-            <ul>
-              <li>✔ Wiring & rewiring</li>
-              <li>✔ Electrical troubleshooting</li>
-              <li>✔ Panel upgrades</li>
-            </ul>
-          </Col>
-          <Col md={6}>
-            <ul>
-              <li>✔ Fan & Light installation</li>
-              <li>✔ Appliance installation</li>
-              <li>✔ Emergency electrical repairs</li>
-            </ul>
-          </Col>
-        </Row>
-
-        <p className="mt-3"><strong>Experience:</strong> 10 Years</p>
-        <p><strong>Languages:</strong> English, Hindi, Telugu</p>
-        <p><strong>Work Area:</strong> Hyderabad & 25km radius</p>
-      </Card>
-
-      {/* Customer Reviews */}
-      <Card className="p-4 shadow-sm border-0 mb-4">
-        <h5 className="mb-3">Customer Reviews</h5>
-
-        <div className="mb-4 border-bottom pb-3">
-          <strong>Riya Sharma</strong>
-          <p className="mb-1 text-warning">⭐⭐⭐⭐⭐</p>
-          <p>
-            Rajesh was very professional and fixed our electrical issues quickly.
-            Highly recommended!
-          </p>
-        </div>
-
-        <div className="mb-4 border-bottom pb-3">
-          <strong>Amit Patel</strong>
-          <p className="mb-1 text-warning">⭐⭐⭐⭐⭐</p>
-          <p>
-            Excellent service, fixed our fan and light issues. Great workmanship.
-          </p>
-        </div>
-
-        <div>
-          <strong>Sunil Mehra</strong>
-          <p className="mb-1 text-warning">⭐⭐⭐⭐</p>
-          <p>
-            Did a great job, completed the work on time and was very polite.
-          </p>
-        </div>
-      </Card>
-
-      {/* Similar Services */}
-      <h5 className="mb-3">Similar Services You May Like</h5>
-      <Row>
-        {["John Doe", "Amit Singh", "Ravi Kumar", "Michael Lee"].map((name, idx) => (
-          <Col key={idx} md={3} sm={6} className="mb-3">
-            <Card className="shadow-sm border-0">
-              <Image
-                src={`https://i.pravatar.cc/300?img=${idx + 10}`}
-                alt={name}
-                className="card-img-top"
+      <NavaPro />
+      <Container className="py-4" style={{ background: "#fff" }}>
+        {/* Header Section */}
+        <Card className="p-4 mb-4 shadow-sm border-0">
+          <Row>
+            <Col md={2} className="text-center">
+              <img
+                src={vendor.Profile_Image}
+                alt="profile"
+                className="rounded-circle"
+                width="120"
+                height="120"
               />
-              <Card.Body>
-                <Card.Title>{name}</Card.Title>
-                <Card.Text>Electrical Services</Card.Text>
-                <Button variant="outline-primary" size="sm">
-                  View Profile
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-    </Container>
-      <Footer></Footer>
-      </>
+            </Col>
+            <Col md={7}>
+              <h3>{vendor.Owner_name}</h3>
+              <h6 className="text-muted">{vendor.Business_Name}</h6>
+              <p className="text-secondary">
+                {vendor.Business_address}
+              </p>
+            </Col>
+            <Col md={3} className="text-md-end text-center">
+              <Button
+                style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
+                className="mb-2 w-100"
+              >
+                Hire Now
+              </Button>
+              <Button variant="outline-dark" className="w-100">
+                Message
+              </Button>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* About Section */}
+        <Card className="p-4 mb-4 shadow-sm border-0">
+          <h5>About {vendor.Owner_name}</h5>
+          <p>
+            With years of experience in {vendor.Category} ({vendor.Sub_Category?.join(", ")}),
+            I specialize in delivering high-quality solutions tailored to client needs. 
+            My focus is always on durability, functionality, and customer satisfaction.
+          </p>
+        </Card>
+
+        {/* Recent Projects (Dummy for now) */}
+        <Card className="p-4 mb-4 shadow-sm border-0">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5>Recent Projects</h5>
+            <Button
+              size="sm"
+              style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
+            >
+              All Projects
+            </Button>
+          </div>
+          <Row>
+            {[
+              {
+                title: "Modern Living Room Makeover",
+                img: "https://via.placeholder.com/300x200",
+                location: "Bandra, Mumbai",
+                date: "March 10, 2023",
+              },
+              {
+                title: "Premium Kitchen Renovation",
+                img: "https://via.placeholder.com/300x200",
+                location: "Juhu, Mumbai",
+                date: "Nov 12, 2022",
+              },
+              {
+                title: "Home Office Setup",
+                img: "https://via.placeholder.com/300x200",
+                location: "Andheri, Mumbai",
+                date: "Jan 20, 2023",
+              },
+            ].map((project, i) => (
+              <Col md={4} key={i} className="mb-3">
+                <Card className="h-100 shadow-sm border-0">
+                  <Card.Img variant="top" src={project.img} />
+                  <Card.Body>
+                    <Card.Title>{project.title}</Card.Title>
+                    <p className="text-muted mb-1">{project.location}</p>
+                    <small>{project.date}</small>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Card>
+
+        {/* Client Reviews (Dummy for now) */}
+        <Card className="p-4 mb-4 shadow-sm border-0">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5>Client Reviews</h5>
+            <span className="fw-bold">⭐ 4.8 (124 reviews)</span>
+          </div>
+          <Row>
+            {[
+              {
+                name: "Priya Sharma",
+                review:
+                  "Rajesh transformed our living room with his incredible craftsmanship. Highly recommended!",
+                date: "March 10, 2023",
+              },
+              {
+                name: "Anil Kapoor",
+                review:
+                  "We hired Rajesh for our kitchen renovation and couldn’t be happier with the results.",
+                date: "Nov 12, 2022",
+              },
+              {
+                name: "Meera Desai",
+                review:
+                  "Perfect home office setup. Professional, punctual, and a pleasure to work with.",
+                date: "Jan 20, 2023",
+              },
+              {
+                name: "Vikram Singh",
+                review:
+                  "Needed stylish furniture for my restaurant. Rajesh delivered exactly what I wanted.",
+                date: "Feb 11, 2023",
+              },
+            ].map((rev, i) => (
+              <Col md={6} key={i} className="mb-3">
+                <Card className="p-3 shadow-sm border-0">
+                  <h6>{rev.name}</h6>
+                  <p className="text-muted">{rev.review}</p>
+                  <small className="text-secondary">{rev.date}</small>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          <div className="text-center">
+            <Button
+              style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
+            >
+              View All Reviews
+            </Button>
+          </div>
+        </Card>
+      </Container>
+      <Footer />
+    </>
   );
-}
+};
 
-
+export default ProfessionalServicePage;

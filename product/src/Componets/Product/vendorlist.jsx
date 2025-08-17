@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Container, Row, Col, Card, Button, Badge, Spinner, Dropdown, Pagination, Form, InputGroup
+  Container, Row, Col, Card, Button, Badge, Spinner, Pagination, Form, InputGroup
 } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
@@ -36,6 +36,10 @@ const ProfessionalListPage = () => {
   function booknow(vendorId) {
     localStorage.setItem("Customerid", vendorId);
     navigate("/myorder/service");
+  }
+
+  function viewDetails(vendorId) {
+    navigate(`/service/details/${vendorId}`);
   }
 
   useEffect(() => {
@@ -85,7 +89,7 @@ const ProfessionalListPage = () => {
       <div style={{ backgroundColor: '#fff', color: '#000', minHeight: '100vh', padding: '2rem 0' }}>
         <Container>
           <header className="text-center mb-5">
-            <h1 className="fw-bold" style={{ color: '#FFD700' }}>Find Trusted Professionals</h1>
+            <h1 className="fw-bold" style={{ color: '#FFD700', fontFamily: "'Poppins', sans-serif" }}>Find Trusted Professionals</h1>
             <p style={{ color: '#555' }}>{description}</p>
             <div className="d-flex justify-content-center gap-4 mt-3" style={{ color: '#555' }}>
               <span><i className="bi bi-patch-check-fill me-2" style={{ color: '#FFD700' }}></i>Verified Professionals</span>
@@ -143,54 +147,91 @@ const ProfessionalListPage = () => {
                 <Col><p className="text-center">No vendors found for "{search}".</p></Col>
               ) : (
                 paginatedVendors.map((vendor, index) => (
-                  <Col md={4} lg={4} className="mb-4" key={vendor._id || index}>
-                    <Card style={{
-                      border: '1px solid #FFD700',
-                      borderRadius: '12px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{ position: 'relative', height: '220px' }}>
-                        <Card.Img
-                          variant="top"
-                          src={`https://i.pravatar.cc/300?img=${(vendor._id.slice(-2).charCodeAt(0) % 70) + 1}`}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                        <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', gap: '5px' }}>
-                          <Badge style={{ backgroundColor: '#FFD700', color: '#000' }} pill>
-                            <i className="bi bi-check-circle-fill me-1"></i>Verified
-                          </Badge>
-                          <Badge bg={index % 3 !== 1 ? 'success' : 'danger'} pill>
-                            {index % 3 !== 1 ? 'Available' : 'Busy'}
-                          </Badge>
-                        </div>
-                        <div style={{
-                          position: 'absolute',
-                          bottom: '10px',
-                          right: '10px',
-                          backgroundColor: 'rgba(0,0,0,0.6)',
-                          color: 'white',
-                          padding: '5px 10px',
-                          borderRadius: '20px',
-                          fontWeight: 'bold'
-                        }}>
-                          ₹{Math.floor(Math.random() * (2500 - 500 + 1)) + 500}/day
-                        </div>
-                      </div>
-                      <Card.Body className="text-center">
-                        <Card.Title className="fw-bold">{vendor.Business_Name?.trim()}</Card.Title>
-                        <Card.Text style={{ color: '#777' }}>{vendor.Category}</Card.Text>
-                        <Button
+                  <Col md={6} className="mb-4" key={vendor._id || index}>
+                    <Card
+                      style={{
+                        border: '1px solid #FFD700',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        padding: '1rem'
+                      }}
+                      className="d-flex flex-row align-items-center"
+                    >
+                      {/* Left Side - Image */}
+                      <div style={{ flexShrink: 0, marginRight: '15px' }}>
+                        <img
+                          src={vendor.Profile_Image}
+                          alt="profile"
                           style={{
-                            width: '100%',
-                            backgroundColor: '#FFD700',
-                            border: 'none',
-                            color: '#000',
-                            fontWeight: 'bold'
+                            width: '100px',
+                            height: '100px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            border: '3px solid #FFD700'
                           }}
-                          onClick={() => booknow(vendor._id)}
+                        />
+                      </div>
+
+                      {/* Right Side - Content */}
+                      <Card.Body style={{ textAlign: 'left' }}>
+                        <Card.Title
+                          style={{
+                            fontFamily: "'Poppins', sans-serif",
+                            fontWeight: '600',
+                            marginBottom: '8px'
+                          }}
                         >
-                          Book Now
-                        </Button>
+                          {vendor.Business_Name?.trim()}
+                        </Card.Title>
+
+                        <div style={{ marginBottom: '8px' }}>
+                          {Array.isArray(vendor.Sub_Category) && vendor.Sub_Category.length > 0 ? (
+                            vendor.Sub_Category.map((sub, i) => (
+                              <Badge
+                                key={i}
+                                style={{
+                                  backgroundColor: '#FFD700',
+                                  color: '#000',
+                                  margin: '2px',
+                                  padding: '5px 10px'
+                                }}
+                              >
+                                {sub}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge style={{ backgroundColor: '#FFD700', color: '#000' }}>General</Badge>
+                          )}
+                        </div>
+
+                        <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#333' }}>
+                          ₹{vendor.Charge_Per_Hour_or_Day}/{vendor.Charge_Type}
+                        </div>
+
+                        <div className="d-flex gap-2">
+                          <Button
+                            style={{
+                              backgroundColor: '#FFD700',
+                              border: 'none',
+                              color: '#000',
+                              fontWeight: 'bold'
+                            }}
+                            onClick={() => booknow(vendor._id)}
+                          >
+                            Book Now
+                          </Button>
+                          <Button
+                            variant="outline-dark"
+                            style={{
+                              borderColor: '#FFD700',
+                              color: '#000',
+                              fontWeight: 'bold'
+                            }}
+                            onClick={() => viewDetails(vendor._id)}
+                          >
+                            View Details
+                          </Button>
+                        </div>
                       </Card.Body>
                     </Card>
                   </Col>
