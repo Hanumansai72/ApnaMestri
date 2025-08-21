@@ -132,7 +132,7 @@ const verifyOtp = async (e) => {
                     <Row className="g-0 min-vh-100">
                         <Col xs={12} md={5} className="d-flex align-items-center justify-content-center p-4 p-md-5 form-panel">
                             <motion.div className="w-100 form-container" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
-                                <h1 className="brand-title">Civil Mestri</h1>
+                                <h1 className="brand-title">Apna Mestri</h1>
                                 <p className="brand-subtitle mb-4">Welcome back to your platform</p>
 
                                 <Form onSubmit={handleSubmit}>
