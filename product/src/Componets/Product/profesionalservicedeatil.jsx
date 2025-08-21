@@ -8,7 +8,9 @@ import Footer from "./footer";
 const ProfessionalServicePage = () => {
   const { id } = useParams(); // get vendor id from URL
   const [vendor, setVendor] = useState(null);
+  const [projects, setProjects] = useState([]);
 
+  // fetch vendor details
   useEffect(() => {
     const fetchVendor = async () => {
       try {
@@ -20,6 +22,20 @@ const ProfessionalServicePage = () => {
       }
     };
     fetchVendor();
+  }, [id]);
+
+  // fetch vendor projects
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch(`https://backend-d6mx.vercel.app/api/projects/${id}`);
+        const data = await res.json();
+        setProjects(data);
+      } catch (err) {
+        console.error("Error fetching projects:", err);
+      }
+    };
+    fetchProjects();
   }, [id]);
 
   if (!vendor) {
@@ -71,59 +87,46 @@ const ProfessionalServicePage = () => {
         <Card className="p-4 mb-4 shadow-sm border-0">
           <h5>About {vendor.Owner_name}</h5>
           <p>
-            With years of experience in {vendor.Category} ({vendor.Sub_Category?.join(", ")}),
-            I specialize in delivering high-quality solutions tailored to client needs. 
-            My focus is always on durability, functionality, and customer satisfaction.
+            {vendor.description} <br />
+            <strong>Category:</strong> {vendor.Category} (
+            {vendor.Sub_Category?.join(", ")})
           </p>
         </Card>
 
-        {/* Recent Projects (Dummy for now) */}
+        {/* Recent Projects from DB */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Recent Projects</h5>
-            <Button
-              size="sm"
-              style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
-            >
-              All Projects
-            </Button>
           </div>
           <Row>
-            {[
-              {
-                title: "Modern Living Room Makeover",
-                img: "https://via.placeholder.com/300x200",
-                location: "Bandra, Mumbai",
-                date: "March 10, 2023",
-              },
-              {
-                title: "Premium Kitchen Renovation",
-                img: "https://via.placeholder.com/300x200",
-                location: "Juhu, Mumbai",
-                date: "Nov 12, 2022",
-              },
-              {
-                title: "Home Office Setup",
-                img: "https://via.placeholder.com/300x200",
-                location: "Andheri, Mumbai",
-                date: "Jan 20, 2023",
-              },
-            ].map((project, i) => (
-              <Col md={4} key={i} className="mb-3">
-                <Card className="h-100 shadow-sm border-0">
-                  <Card.Img variant="top" src={project.img} />
-                  <Card.Body>
-                    <Card.Title>{project.title}</Card.Title>
-                    <p className="text-muted mb-1">{project.location}</p>
-                    <small>{project.date}</small>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
+            {projects.length > 0 ? (
+              projects.map((project) => (
+                <Col md={4} key={project._id} className="mb-3">
+                  <Card className="h-100 shadow-sm border-0">
+                    <Card.Img
+                      variant="top"
+                      src={project.image}
+                      alt={project.title}
+                      style={{ height: "200px", objectFit: "cover" }}
+                    />
+                    <Card.Body>
+                      <Card.Title>{project.title}</Card.Title>
+                      <p className="text-muted mb-1">{project.category}</p>
+                      <p>{project.description}</p>
+                      <small className="text-secondary">
+                        {new Date(project.createdAt).toLocaleDateString()}
+                      </small>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))
+            ) : (
+              <p>No projects uploaded yet.</p>
+            )}
           </Row>
         </Card>
 
-        {/* Client Reviews (Dummy for now) */}
+        {/* Client Reviews (still dummy for now) */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Client Reviews</h5>
@@ -143,18 +146,6 @@ const ProfessionalServicePage = () => {
                   "We hired Rajesh for our kitchen renovation and couldn’t be happier with the results.",
                 date: "Nov 12, 2022",
               },
-              {
-                name: "Meera Desai",
-                review:
-                  "Perfect home office setup. Professional, punctual, and a pleasure to work with.",
-                date: "Jan 20, 2023",
-              },
-              {
-                name: "Vikram Singh",
-                review:
-                  "Needed stylish furniture for my restaurant. Rajesh delivered exactly what I wanted.",
-                date: "Feb 11, 2023",
-              },
             ].map((rev, i) => (
               <Col md={6} key={i} className="mb-3">
                 <Card className="p-3 shadow-sm border-0">
@@ -165,13 +156,6 @@ const ProfessionalServicePage = () => {
               </Col>
             ))}
           </Row>
-          <div className="text-center">
-            <Button
-              style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
-            >
-              View All Reviews
-            </Button>
-          </div>
         </Card>
       </Container>
       <Footer />
