@@ -128,11 +128,13 @@ function Services() {
             <Card.Body>
               <Card.Title style={{ color: '#ffcc00' }}>Select Date & Time</Card.Title>
               <Form.Control
-                type="date"
-                value={serviceDate}
-                onChange={(e) => setServiceDate(e.target.value)}
-                style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
-              />
+  type="date"
+  value={serviceDate}
+  onChange={(e) => setServiceDate(e.target.value)}
+  min={new Date().toISOString().split("T")[0]} // 🔒 Block past dates
+  style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
+/>
+
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                 {['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'].map((slot) => (
                   <Button
