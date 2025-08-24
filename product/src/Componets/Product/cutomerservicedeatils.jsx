@@ -5,6 +5,7 @@ import {
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 function Services() {
   const [location, setLocation] = useState({ latitude: '', longitude: '' });
@@ -25,6 +26,7 @@ function Services() {
   const [serviceTime, setServiceTime] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [locating, setLocating] = useState(false);
+  const naviaget=useNavigate();
 
   const savedid = localStorage.getItem("Customerid");
   const pid = localStorage.getItem("userid");
@@ -110,7 +112,9 @@ function Services() {
         return;
       }
       await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
+
       toast.success("Booking submitted successfully!");
+      naviaget("/myorder")
     } catch {
       toast.error("Failed to submit booking.");
     }
