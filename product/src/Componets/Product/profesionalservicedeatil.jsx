@@ -4,12 +4,17 @@ import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import NavaPro from "./navbarproduct";
 import Footer from "./footer";
+import { useNavigate } from "react-router-dom";
 
 const ProfessionalServicePage = () => {
   const { id } = useParams(); // get vendor id from URL
   const [vendor, setVendor] = useState(null);
   const [projects, setProjects] = useState([]);
-
+  const navigate=useNavigate();
+function booknow(vendorId) {
+    localStorage.setItem("Customerid", vendorId);
+    navigate("/myorder/service");
+  }
   // fetch vendor details
   useEffect(() => {
     const fetchVendor = async () => {
@@ -71,11 +76,12 @@ const ProfessionalServicePage = () => {
             </Col>
             <Col md={3} className="text-md-end text-center">
               <Button
-                style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
-                className="mb-2 w-100"
-              >
-                Hire Now
-              </Button>
+    style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
+    className="mb-2 w-100"
+    onClick={() => booknow(vendor._id)}
+  >
+    Hire Now
+  </Button>
               <Button variant="outline-dark" className="w-100">
                 Message
               </Button>
