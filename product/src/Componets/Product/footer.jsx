@@ -70,9 +70,9 @@ const Footer = () => {
           <Col md={3}>
             <h6 className="fw-bold text-light">Contact</h6>
             <ul className="list-unstyled text-white-50 small">
-              <li><FaPhoneAlt className="me-2 text-warning" />+91 9876543210</li>
-              <li><FaEnvelope className="me-2 text-danger" />support@civilmestri.com</li>
-              <li><FaMapMarkerAlt className="me-2 text-warning" />Mumbai, Maharashtra, India</li>
+              <li><FaPhoneAlt className="me-2 text-warning" />+91 8555965140</li>
+              <li><FaEnvelope className="me-2 text-danger" />help@apnamestri.com</li>
+              <li><FaMapMarkerAlt className="me-2 text-warning" />Hyderabadm India</li>
               <li><FaRegClock className="me-2 text-info" />24/7 Available</li>
             </ul>
           </Col>
@@ -80,7 +80,7 @@ const Footer = () => {
 
         {/* Bottom links */}
         <div className="d-flex justify-content-between border-top border-secondary pt-3 text-white-50 small flex-column flex-md-row">
-          <p className="mb-2 mb-md-0">© 2024 Civil Mestri. All rights reserved.</p>
+          <p className="mb-2 mb-md-0">© 2025 Civil Mestri. All rights reserved.</p>
           <div className="d-flex gap-3">
             <a href="#" className="text-white-50">Privacy Policy</a>
             <a href="#" className="text-white-50">Terms of Service</a>

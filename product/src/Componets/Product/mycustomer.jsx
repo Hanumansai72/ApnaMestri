@@ -1,49 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Badge,
-  Form,
-  Tabs,
-  Tab,
-  Modal,
-} from "react-bootstrap";
-import axios from "axios";
-import NavaPro from "./navbarproduct";
-import Footer from "./footer";
+  Container, Row, Col, Card, Button, Badge, Form, Tabs, Tab
+} from 'react-bootstrap';
+import axios from 'axios';
+import NavaPro from './navbarproduct';
+import Footer from './footer';
 
 function MyOrders() {
   const [productList, setProductList] = useState([]);
   const [serviceOrders, setServiceOrders] = useState([]);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All Orders");
-  const [showReviewModal, setShowReviewModal] = useState(false);
-  const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState(null);
-
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Orders');
   const id = localStorage.getItem("userid");
 
   useEffect(() => {
     if (!id) return;
 
-    axios
-      .get(`https://backend-d6mx.vercel.app/orderdetails/${id}`)
-      .then((res) => setProductList(res.data))
-      .catch((err) => console.error("Failed to fetch orders:", err));
+    axios.get(`https://backend-d6mx.vercel.app/orderdetails/${id}`)
+      .then(res => setProductList(res.data))
+      .catch(err => console.error('Failed to fetch orders:', err));
 
-    axios
-      .get(`https://backend-d6mx.vercel.app/cart/service/${id}`)
-      .then((res) => setServiceOrders(res.data))
-      .catch((err) => console.error("Failed to fetch service orders:", err));
+    axios.get(`https://backend-d6mx.vercel.app/cart/service/${id}`)
+      .then(res => setServiceOrders(res.data))
+      .catch(err => console.error('Failed to fetch service orders:', err));
   }, [id]);
 
   const groupedOrders = productList.reduce((acc, curr) => {
-    const key = curr.orderedAt + "-" + curr.shippingAddress.fullAddress;
+    const key = curr.orderedAt + '-' + curr.shippingAddress.fullAddress;
     if (!acc[key]) {
       acc[key] = {
         orderId: curr._id,
@@ -51,7 +35,7 @@ function MyOrders() {
         orderStatus: curr.orderStatus,
         paymentStatus: curr.paymentStatus,
         address: curr.shippingAddress,
-        items: [],
+        items: []
       };
     }
     acc[key].items.push(curr);
@@ -60,74 +44,47 @@ function MyOrders() {
 
   const orderGroups = Object.values(groupedOrders);
 
-  const filteredOrders = orderGroups.filter((order) => {
+  const filteredOrders = orderGroups.filter(order => {
     const orderDate = new Date(order.orderedAt);
     const isInDateRange =
       (!startDate || orderDate >= new Date(startDate)) &&
       (!endDate || orderDate <= new Date(endDate));
 
     const matchesStatus =
-      statusFilter === "All Orders" || order.orderStatus === statusFilter;
+      statusFilter === 'All Orders' || order.orderStatus === statusFilter;
 
     return isInDateRange && matchesStatus;
   });
 
   const yellowBtn = {
-    backgroundColor: "#FFD700",
-    color: "#000",
-    border: "none",
-    fontWeight: "bold",
+    backgroundColor: '#FFD700',
+    color: '#000',
+    border: 'none',
+    fontWeight: 'bold'
   };
 
   const whiteCard = {
-    backgroundColor: "#fff",
-    borderRadius: "8px",
-    padding: "16px",
-    boxShadow: "0px 2px 6px rgba(0,0,0,0.1)",
-    width: "100%",
-  };
-
-  // Handle Review Submit
-  const handleSubmitReview = async () => {
-    if (!selectedOrder) return;
-
-    try {
-      await axios.post("https://backend-d6mx.vercel.app/servicereview", {
-        orderId: selectedOrder._id,
-        customerId: id,
-        rating,
-        comment,
-      });
-
-      alert("Review submitted successfully!");
-      setShowReviewModal(false);
-      setRating(5);
-      setComment("");
-      setSelectedOrder(null);
-    } catch (err) {
-      console.error("Failed to submit review:", err);
-      alert("Failed to submit review. Try again.");
-    }
+    backgroundColor: '#fff',
+    borderRadius: '8px',
+    padding: '16px',
+    boxShadow: '0px 2px 6px rgba(0,0,0,0.1)',
+    width: '100%'
   };
 
   return (
     <div>
       <NavaPro />
       <Container className="my-4">
-        <h4 style={{ fontWeight: "bold" }}>My Orders</h4>
+        <h4 style={{ fontWeight: 'bold' }}>My Orders</h4>
         <Tabs defaultActiveKey="product" id="orders-tabs" className="mb-4">
-          {/* Product Orders */}
-          <Tab
-            eventKey="product"
-            title={`Product Orders (${filteredOrders.length})`}
-          >
+          <Tab eventKey="product" title={`Product Orders (${filteredOrders.length})`}>
             <Row className="mb-3 align-items-end">
               <Col md={3}>
                 <Form.Label>Start date:</Form.Label>
                 <Form.Control
                   type="date"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={e => setStartDate(e.target.value)}
                 />
               </Col>
               <Col md={3}>
@@ -135,7 +92,7 @@ function MyOrders() {
                 <Form.Control
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={e => setEndDate(e.target.value)}
                 />
               </Col>
               <Col md={2}>
@@ -145,7 +102,7 @@ function MyOrders() {
                 <Form.Label>Status:</Form.Label>
                 <Form.Select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={e => setStatusFilter(e.target.value)}
                 >
                   <option>All Orders</option>
                   <option>Delivered</option>
@@ -165,41 +122,26 @@ function MyOrders() {
                     <div>
                       <h6>
                         Order #{order.orderId}
-                        <Badge bg="info" className="ms-2">
-                          {order.orderStatus}
-                        </Badge>
+                        <Badge bg="info" className="ms-2">{order.orderStatus}</Badge>
                       </h6>
                       <div className="text-muted">
-                        Placed on{" "}
-                        {new Date(order.orderedAt).toLocaleDateString()}
+                        Placed on {new Date(order.orderedAt).toLocaleDateString()}
                       </div>
                     </div>
                     <div className="text-end fw-bold">
-                      ₹
-                      {order.items.reduce(
-                        (sum, item) => sum + item.totalPrice,
-                        0
-                      )}
-                      <div className="fw-normal text-muted">
-                        {order.items.length} items
-                      </div>
+                      ₹{order.items.reduce((sum, item) => sum + item.totalPrice, 0)}
+                      <div className="fw-normal text-muted">{order.items.length} items</div>
                     </div>
                   </div>
                   <hr />
                   {order.items.map((item, i) => (
                     <Row key={i} className="mb-3 align-items-center">
                       <Col md={1}>
-                        <img
-                          src={item.productImage}
-                          alt={item.productName}
-                          className="img-fluid"
-                        />
+                        <img src={item.productImage} alt={item.productName} className="img-fluid" />
                       </Col>
                       <Col md={4}>
                         <div>{item.productName}</div>
-                        <small className="text-muted">
-                          Qty: {item.quantity}
-                        </small>
+                        <small className="text-muted">Qty: {item.quantity}</small>
                       </Col>
                       <Col md={2}>₹{item.totalPrice}</Col>
                       <Col md={5}>
@@ -209,71 +151,30 @@ function MyOrders() {
                   ))}
                   <hr />
                   <div className="text-muted">
-                    Delivery Address: {order.address.fullAddress},{" "}
-                    {order.address.city}, {order.address.state} -{" "}
-                    {order.address.pincode}
+                    Delivery Address: {order.address.fullAddress}, {order.address.city}, {order.address.state} - {order.address.pincode}
                   </div>
                   <div className="mt-3 d-flex justify-content-end gap-2">
-                    <Button style={yellowBtn} size="sm">
-                      Track Order
-                    </Button>
-                    <Button style={yellowBtn} size="sm">
-                      Leave Review
-                    </Button>
-                    <Button style={yellowBtn} size="sm">
-                      Reorder
-                    </Button>
+                    <Button style={yellowBtn} size="sm">Track Order</Button>
+                    <Button style={yellowBtn} size="sm">Leave Review</Button>
+                    <Button style={yellowBtn} size="sm">Reorder</Button>
                   </div>
                 </Card>
               ))
             )}
           </Tab>
 
-          {/* Service Orders */}
-          <Tab
-            eventKey="service"
-            title={`Service Orders (${serviceOrders.length})`}
-          >
+          <Tab eventKey="service" title={`Service Orders (${serviceOrders.length})`}>
             {serviceOrders.length === 0 ? (
               <p>No service orders found.</p>
             ) : (
               serviceOrders.map((order) => (
                 <Card key={order._id} style={whiteCard} className="mb-3">
                   <Card.Body>
-                    <h6 className="mb-2">
-                      Service Date:{" "}
-                      {new Date(order.serviceDate).toLocaleDateString()}
-                    </h6>
-                    <p className="mb-1">
-                      <strong>Time:</strong> {order.serviceTime}
-                    </p>
-                    <p className="mb-1">
-                      <strong>Status:</strong>{" "}
-                      <span className="text-success">{order.status}</span>
-                    </p>
-                    <p className="mb-1">
-                      <strong>Amount Paid:</strong> ₹
-                      {order.totalAmount.toFixed(2)}
-                    </p>
-                    <p className="mb-0 text-muted">
-                      <strong>Address:</strong> {order.address.street},{" "}
-                      {order.address.city}
-                    </p>
-
-                    {/* Show review button if completed */}
-                    {order.status === "Completed" && (
-                      <div className="mt-3 text-end">
-                        <Button
-                          style={yellowBtn}
-                          onClick={() => {
-                            setSelectedOrder(order);
-                            setShowReviewModal(true);
-                          }}
-                        >
-                          Leave Review
-                        </Button>
-                      </div>
-                    )}
+                    <h6 className="mb-2">Service Date: {new Date(order.serviceDate).toLocaleDateString()}</h6>
+                    <p className="mb-1"><strong>Time:</strong> {order.serviceTime}</p>
+                    <p className="mb-1"><strong>Status:</strong> <span className="text-success">{order.status}</span></p>
+                    <p className="mb-1"><strong>Amount Paid:</strong> ₹{order.totalAmount.toFixed(2)}</p>
+                    <p className="mb-0 text-muted"><strong>Address:</strong> {order.address.street}, {order.address.city}</p>
                   </Card.Body>
                 </Card>
               ))
@@ -281,52 +182,6 @@ function MyOrders() {
           </Tab>
         </Tabs>
       </Container>
-
-      {/* Review Modal */}
-      <Modal show={showReviewModal} onHide={() => setShowReviewModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Leave a Review</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Form.Label>Rating</Form.Label>
-              <Form.Select
-                value={rating}
-                onChange={(e) => setRating(Number(e.target.value))}
-              >
-                {[5, 4, 3, 2, 1].map((num) => (
-                  <option key={num} value={num}>
-                    {num} Star{num > 1 ? "s" : ""}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mt-3">
-              <Form.Label>Comment</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Write your feedback..."
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowReviewModal(false)}
-          >
-            Cancel
-          </Button>
-          <Button style={yellowBtn} onClick={handleSubmitReview}>
-            Submit Review
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
       <Footer />
     </div>
   );
