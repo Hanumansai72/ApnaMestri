@@ -33,11 +33,12 @@ const ProfessionalListPage = () => {
     return R * c;
   }
 
-  function booknow(vendorId) {
-    localStorage.setItem("Customerid", vendorId);
-    localStorage.setItem("Price",Charge_Per_Hour_or_Day)
-    navigate("/myorder/service");
-  }
+  function booknow(vendorId, price) {
+  localStorage.setItem("Customerid", vendorId);
+  localStorage.setItem("Price", price);
+  navigate("/myorder/service");
+}
+
 
   function viewDetails(vendorId) {
     navigate(`/service/details/${vendorId}`);
@@ -217,7 +218,7 @@ const ProfessionalListPage = () => {
                               color: '#000',
                               fontWeight: 'bold'
                             }}
-                            onClick={() => booknow(vendor._id)}
+                            onClick={() => booknow(vendor._id, vendor.Charge_Per_Hour_or_Day)}
                           >
                             Book Now
                           </Button>
