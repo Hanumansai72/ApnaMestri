@@ -173,7 +173,10 @@ function MyOrders() {
                     <h6 className="mb-2">Service Date: {new Date(order.serviceDate).toLocaleDateString()}</h6>
                     <p className="mb-1"><strong>Time:</strong> {order.serviceTime}</p>
                     <p className="mb-1"><strong>Status:</strong> <span className="text-success">{order.status}</span></p>
-                    <p className="mb-1"><strong>Amount Paid:</strong> ₹{order.totalAmount.toFixed(2)}</p>
+                    <p className="mb-1">
+  <strong>Amount Paid:</strong> ₹{order.totalAmount?.toFixed(2) || '0.00'}
+</p>
+
                     <p className="mb-0 text-muted"><strong>Address:</strong> {order.address.street}, {order.address.city}</p>
                   </Card.Body>
                 </Card>

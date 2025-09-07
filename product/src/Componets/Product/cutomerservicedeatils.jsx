@@ -119,7 +119,9 @@ function Services() {
         specialInstructions: formData.instructions
       },
       saveAddress: true,
-      payment: { method: formData.paymentMethod }
+      payment: { method: formData.paymentMethod },
+     totalAmount
+
     };
 
     try {
