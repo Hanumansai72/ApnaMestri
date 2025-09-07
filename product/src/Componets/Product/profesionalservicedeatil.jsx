@@ -1,20 +1,23 @@
 // frontend/src/pages/ProfessionalServicePage.jsx
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NavaPro from "./navbarproduct";
 import Footer from "./footer";
-import { useNavigate } from "react-router-dom";
 
 const ProfessionalServicePage = () => {
-  const { id } = useParams(); // get vendor id from URL
+  const { id } = useParams(); // vendor id from URL
   const [vendor, setVendor] = useState(null);
   const [projects, setProjects] = useState([]);
-  const navigate=useNavigate();
-function booknow(vendorId) {
-    localStorage.setItem("Customerid", vendorId);
+  const navigate = useNavigate();
+
+  // ✅ Book Now function (stores vendorId + price)
+  function booknow(vendorId, price) {
+    localStorage.setItem("VendorId", vendorId);
+    localStorage.setItem("VendorPrice", price);
     navigate("/myorder/service");
   }
+
   // fetch vendor details
   useEffect(() => {
     const fetchVendor = async () => {
@@ -70,18 +73,19 @@ function booknow(vendorId) {
             <Col md={7}>
               <h3>{vendor.Owner_name}</h3>
               <h6 className="text-muted">{vendor.Business_Name}</h6>
-              <p className="text-secondary">
-                {vendor.Business_address}
+              <p className="text-secondary">{vendor.Business_address}</p>
+              <p className="fw-bold">
+                ₹{vendor.Charge_Per_Hour_or_Day}/{vendor.Charge_Type}
               </p>
             </Col>
             <Col md={3} className="text-md-end text-center">
               <Button
-    style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
-    className="mb-2 w-100"
-    onClick={() => booknow(vendor._id)}
-  >
-    Hire Now
-  </Button>
+                style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
+                className="mb-2 w-100"
+                onClick={() => booknow(vendor._id, vendor.Charge_Per_Hour_or_Day)}
+              >
+                Hire Now
+              </Button>
               <Button variant="outline-dark" className="w-100">
                 Message
               </Button>
@@ -99,7 +103,7 @@ function booknow(vendorId) {
           </p>
         </Card>
 
-        {/* Recent Projects from DB */}
+        {/* Recent Projects */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Recent Projects</h5>
@@ -132,7 +136,7 @@ function booknow(vendorId) {
           </Row>
         </Card>
 
-        {/* Client Reviews (still dummy for now) */}
+        {/* Reviews (dummy for now) */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Client Reviews</h5>
