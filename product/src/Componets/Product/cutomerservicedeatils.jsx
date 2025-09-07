@@ -26,39 +26,20 @@ function Services() {
   const [serviceTime, setServiceTime] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [locating, setLocating] = useState(false);
-
-  // ✅ State to hold vendor price from backend
   const [vendorPrice, setVendorPrice] = useState(0);
+  const serviceCharge = 250; // Fixed service charge
 
   const navigate = useNavigate();
-  const savedid = localStorage.getItem("Customerid"); // Vendor ID
-  const pid = localStorage.getItem("userid");        // Customer ID
+  const savedid = localStorage.getItem("Customerid");
+  const pid = localStorage.getItem("userid");
 
-  // ✅ Fixed service charge
-  const serviceCharge = 250;
-  const totalAmount = vendorPrice + serviceCharge;
-
-  // ✅ Fetch vendor price when page loads
+  // Fetch vendor price on load
   useEffect(() => {
-    const fetchVendorPrice = async () => {
-      try {
-        if (!savedid) {
-          console.warn("⚠️ No Vendor ID found in localStorage");
-          return;
-        }
-
-        const res = await axios.get(`https://backend-d6mx.vercel.app/api/vendor/${savedid}`);
-        if (res.data && res.data.Charge_Per_Hour_or_Day) {
-          setVendorPrice(res.data.Charge_Per_Hour_or_Day);
-          console.log("✅ Vendor Price from DB:", res.data.Charge_Per_Hour_or_Day);
-          console.log("✅ Total Amount (with Service Charge):", res.data.Charge_Per_Hour_or_Day + serviceCharge);
-        }
-      } catch (error) {
-        console.error("❌ Failed to fetch vendor price:", error);
-      }
-    };
-
-    fetchVendorPrice();
+    if (savedid) {
+      axios.get(`https://backend-d6mx.vercel.app/api/vendor/${savedid}/price`)
+        .then(res => setVendorPrice(res.data.vendorPrice))
+        .catch(err => console.log("Failed to fetch vendor price:", err));
+    }
   }, [savedid]);
 
   const handleLocateMe = () => {
@@ -79,7 +60,7 @@ function Services() {
           const neighbourhood = address.neighbourhood || '';
           const fullStreet = `${houseNumber} ${road} ${neighbourhood}`.trim();
 
-          setFormData((prev) => ({
+          setFormData(prev => ({
             ...prev,
             address: fullStreet,
             city: address.city || address.town || address.village || '',
@@ -100,14 +81,16 @@ function Services() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!pid) {
+      toast.error("Please Login to Continue");
+      return;
+    }
 
     const finalData = {
       Vendorid: savedid,
@@ -130,34 +113,19 @@ function Services() {
         specialInstructions: formData.instructions
       },
       saveAddress: true,
-      payment: {
-        method: formData.paymentMethod
-      }
+      payment: { method: formData.paymentMethod }
     };
 
     try {
-      if (!pid) {
-        toast.error("Please Login to Continue");
-        return;
-      }
-
       const res = await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
-
-      // ✅ Confirm vendor price from backend (again)
-      const confirmedPrice = res.data.vendorprice || vendorPrice;
-      setVendorPrice(confirmedPrice);
-
-      console.log("💾 Booking API returned Vendor Price:", confirmedPrice);
-      console.log("💾 Final Total (Price + Service Charge):", confirmedPrice + serviceCharge);
-
-      toast.success("Booking successful!");
+      toast.success("Booking Successful!");
       navigate("/myorder");
-
-    } catch (error) {
-      console.error("❌ Booking failed:", error);
+    } catch {
       toast.error("Failed to submit booking.");
     }
   };
+
+  const totalAmount = vendorPrice + serviceCharge;
 
   return (
     <Container style={{ padding: '20px', backgroundColor: '#fff9e6' }}>
@@ -166,7 +134,7 @@ function Services() {
       <p style={{ color: '#666' }}>Complete your booking by providing the details below</p>
 
       <Row>
-        {/* Left Side - Date, Time & Payment Summary */}
+        {/* Left: Date, Time, Payment Summary */}
         <Col md={4}>
           <Card style={{ marginBottom: '20px', borderColor: '#ffcc00' }}>
             <Card.Body>
@@ -175,12 +143,12 @@ function Services() {
                 type="date"
                 value={serviceDate}
                 onChange={(e) => setServiceDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]} 
+                min={new Date().toISOString().split("T")[0]}
                 style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
               />
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                {['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'].map((slot) => (
+                {['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'].map(slot => (
                   <Button
                     key={slot}
                     style={{
@@ -189,10 +157,7 @@ function Services() {
                       borderColor: '#ffcc00'
                     }}
                     size="sm"
-                    onClick={() => {
-                      setSelectedTime(slot);
-                      setServiceTime(slot);
-                    }}
+                    onClick={() => { setSelectedTime(slot); setServiceTime(slot); }}
                   >
                     {slot}
                   </Button>
@@ -214,12 +179,11 @@ function Services() {
           </Card>
         </Col>
 
-        {/* Right Side - Form */}
+        {/* Right: Customer Form */}
         <Col md={8}>
           <Card style={{ borderColor: '#ffcc00' }}>
             <Card.Body>
               <Form onSubmit={handleSubmit}>
-                {/* Customer Info */}
                 <h5 style={{ color: '#ffcc00' }}>Customer Information</h5>
                 <Row>
                   <Col md={6}>
@@ -266,7 +230,6 @@ function Services() {
                   </Col>
                 </Row>
 
-                {/* Address */}
                 <h5 style={{ color: '#ffcc00', marginTop: '20px' }}>Service Address</h5>
                 <Form.Control
                   name="address"
@@ -334,12 +297,11 @@ function Services() {
                   style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
                 />
 
-                {/* Payment Method */}
                 <h5 style={{ color: '#ffcc00', marginTop: '20px' }}>Payment Method</h5>
                 <Tabs
                   defaultActiveKey="card"
                   style={{ marginBottom: '10px' }}
-                  onSelect={(key) => setFormData((prev) => ({ ...prev, paymentMethod: key }))}
+                  onSelect={(key) => setFormData(prev => ({ ...prev, paymentMethod: key }))}
                 >
                   <Tab eventKey="card" title="Card">
                     <Form.Control placeholder="Card Number" style={{ marginBottom: '5px', borderColor: '#ffcc00' }} />
