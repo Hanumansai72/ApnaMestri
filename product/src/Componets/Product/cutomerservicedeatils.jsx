@@ -37,8 +37,14 @@ function Services() {
   useEffect(() => {
     if (savedid) {
       axios.get(`https://backend-d6mx.vercel.app/api/vendor/${savedid}/price`)
-        .then(res => setVendorPrice(res.data.vendorPrice))
-        .catch(err => console.log("Failed to fetch vendor price:", err));
+        .then(res => {
+          const price = Number(res.data.vendorPrice); // ensure numeric
+          setVendorPrice(isNaN(price) ? 0 : price);
+        })
+        .catch(err => {
+          console.log("Failed to fetch vendor price:", err);
+          setVendorPrice(0);
+        });
     }
   }, [savedid]);
 
@@ -117,7 +123,7 @@ function Services() {
     };
 
     try {
-      const res = await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
+      await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
       toast.success("Booking Successful!");
       navigate("/myorder");
     } catch {
@@ -125,7 +131,9 @@ function Services() {
     }
   };
 
-  const totalAmount = vendorPrice + serviceCharge;
+  // Ensure numeric values before displaying
+  const numericVendorPrice = Number(vendorPrice) || 0;
+  const totalAmount = numericVendorPrice + serviceCharge;
 
   return (
     <Container style={{ padding: '20px', backgroundColor: '#fff9e6' }}>
@@ -170,7 +178,7 @@ function Services() {
             <Card.Body>
               <Card.Title style={{ color: '#ffcc00' }}>Payment Summary</Card.Title>
               <ul style={{ listStyle: 'none', padding: 0 }}>
-                <li>Base Price: ₹{vendorPrice.toFixed(2)}</li>
+                <li>Base Price: ₹{numericVendorPrice.toFixed(2)}</li>
                 <li>Service Charge: ₹{serviceCharge.toFixed(2)}</li>
                 <hr />
                 <li><strong>Total: ₹{totalAmount.toFixed(2)}</strong></li>
