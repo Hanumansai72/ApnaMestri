@@ -35,7 +35,6 @@ const ProfessionalListPage = () => {
 
   function booknow(vendorId, price) {
   localStorage.setItem("Customerid", vendorId);
-  localStorage.setItem("VendorPrice", price);
   navigate("/myorder/service");
 }
 
@@ -218,7 +217,7 @@ const ProfessionalListPage = () => {
                               color: '#000',
                               fontWeight: 'bold'
                             }}
-                            onClick={() => booknow(vendor._id, vendor.Charge_Per_Hour_or_Day)}
+                            onClick={() => booknow(vendor._id)}
                           >
                             Book Now
                           </Button>

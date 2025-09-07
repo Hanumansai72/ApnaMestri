@@ -30,11 +30,10 @@ function Services() {
 
   const savedid = localStorage.getItem("Customerid");
   const pid = localStorage.getItem("userid");
-  const basePrice = parseFloat(localStorage.getItem("VendorPrice")) || 0;
 
   // Add your service/delivery charge here
   const serviceCharge = 250; // Example fixed charge
-  const totalAmount = basePrice + serviceCharge;
+  
 
   const handleLocateMe = () => {
     setLocating(true);
@@ -81,51 +80,59 @@ function Services() {
     }));
   };
 
+  
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const finalData = {
-      Vendorid: savedid,
-      customerid: pid,
-      serviceDate,
-      serviceTime,
-      customer: {
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        alternatePhone: formData.altPhone
-      },
-      address: {
-        street: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zip: formData.zip,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        specialInstructions: formData.instructions
-      },
-      saveAddress: true,
-      payment: {
-        method: formData.paymentMethod
-      },
-      basePrice: basePrice,
-      serviceCharge: serviceCharge,
-      totalAmount: totalAmount
-    };
-
-    try {
-      if (!pid) {
-        toast.error("Please Login to Continue");
-        return;
-      }
-      await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
-
-      toast.success("Booking submitted successfully!");
-      navigate("/myorder");
-    } catch {
-      toast.error("Failed to submit booking.");
+  const finalData = {
+    Vendorid: savedid,
+    customerid: pid,
+    serviceDate,
+    serviceTime,
+    customer: {
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      alternatePhone: formData.altPhone
+    },
+    address: {
+      street: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zip: formData.zip,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      specialInstructions: formData.instructions
+    },
+    saveAddress: true,
+    payment: {
+      method: formData.paymentMethod
     }
   };
+
+  try {
+    if (!pid) {
+      toast.error("Please Login to Continue");
+      return;
+    }
+
+    const res = await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
+
+    // ✅ Get vendor price from backend response
+    const vendorPrice = res.data.vendorprice || 0;
+    const serviceCharge = 250;
+    const totalAmount = vendorPrice + serviceCharge;
+
+    console.log("Vendor Price:", vendorPrice);
+    console.log("Final Total:", totalAmount);
+
+    navigate("/myorder");
+
+  } catch {
+    toast.error("Failed to submit booking.");
+  }
+};
+
 
   return (
     <Container style={{ padding: '20px', backgroundColor: '#fff9e6' }}>
