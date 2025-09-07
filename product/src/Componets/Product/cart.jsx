@@ -54,10 +54,9 @@ const CartPage = () => {
   };
 
   const subtotal = products.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const taxRate = 0.18;
-  const tax = subtotal * taxRate;
-  const shipping = subtotal > 50000 || subtotal === 0 ? 0 : 500;
-  const total = subtotal + tax + shipping;
+  
+  const shipping = 300
+  const total = subtotal  + shipping;
 
   const handleCheckout = () => {
     if (products.length === 0) {
