@@ -26,10 +26,15 @@ function Services() {
   const [serviceTime, setServiceTime] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [locating, setLocating] = useState(false);
-  const naviaget=useNavigate();
+  const navigate = useNavigate();
 
   const savedid = localStorage.getItem("Customerid");
   const pid = localStorage.getItem("userid");
+  const basePrice = parseFloat(localStorage.getItem("price")) || 0;
+
+  // Add your service/delivery charge here
+  const serviceCharge = 250; // Example fixed charge
+  const totalAmount = basePrice + serviceCharge;
 
   const handleLocateMe = () => {
     setLocating(true);
@@ -103,7 +108,9 @@ function Services() {
       payment: {
         method: formData.paymentMethod
       },
-      totalAmount: 112.20
+      basePrice: basePrice,
+      serviceCharge: serviceCharge,
+      totalAmount: totalAmount
     };
 
     try {
@@ -114,7 +121,7 @@ function Services() {
       await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
 
       toast.success("Booking submitted successfully!");
-      naviaget("/myorder")
+      navigate("/myorder");
     } catch {
       toast.error("Failed to submit booking.");
     }
@@ -132,12 +139,12 @@ function Services() {
             <Card.Body>
               <Card.Title style={{ color: '#ffcc00' }}>Select Date & Time</Card.Title>
               <Form.Control
-  type="date"
-  value={serviceDate}
-  onChange={(e) => setServiceDate(e.target.value)}
-  min={new Date().toISOString().split("T")[0]} // 🔒 Block past dates
-  style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
-/>
+                type="date"
+                value={serviceDate}
+                onChange={(e) => setServiceDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]} 
+                style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
+              />
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                 {['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'].map((slot) => (
@@ -165,11 +172,10 @@ function Services() {
             <Card.Body>
               <Card.Title style={{ color: '#ffcc00' }}>Payment Summary</Card.Title>
               <ul style={{ listStyle: 'none', padding: 0 }}>
-                <li>Base Price: $80.00</li>
-                <li>Selected Add-ons: $22.00</li>
-                <li>Taxes & Fees: $10.20</li>
+                <li>Base Price: ₹{basePrice.toFixed(2)}</li>
+                <li>Service Charge: ₹{serviceCharge.toFixed(2)}</li>
                 <hr />
-                <li><strong>Total Amount: $112.20</strong></li>
+                <li><strong>Total: ₹{totalAmount.toFixed(2)}</strong></li>
               </ul>
             </Card.Body>
           </Card>

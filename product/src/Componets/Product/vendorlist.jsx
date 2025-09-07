@@ -35,6 +35,7 @@ const ProfessionalListPage = () => {
 
   function booknow(vendorId) {
     localStorage.setItem("Customerid", vendorId);
+    localStorage.setItem("Price",Charge_Per_Hour_or_Day)
     navigate("/myorder/service");
   }
 
