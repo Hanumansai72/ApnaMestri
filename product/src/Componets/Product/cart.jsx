@@ -224,52 +224,43 @@ const CartPage = () => {
             </Col>
 
             <Col lg={4}>
-              <Card className="order-summary-card p-3 sticky-top" style={{ top: '2rem' }}>
-                <h5 className="fw-bold">Order Summary</h5>
-                <hr style={{ borderColor: '#e2e8f0' }} />
+  <Card className="order-summary-card p-3 sticky-top" style={{ top: '2rem' }}>
+    <h5 className="fw-bold">Order Summary</h5>
+    <hr style={{ borderColor: '#e2e8f0' }} />
 
-                <div className="d-flex justify-content-between text-muted"><span>Subtotal</span><span>₹{subtotal.toLocaleString('en-IN')}</span></div>
-                <div className="d-flex justify-content-between text-muted">
-                  <span>Tax (GST 18%) <i className="bi bi-info-circle"></i></span>
-                  <span>₹{tax.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="d-flex justify-content-between text-muted mb-2">
-                  <span>Delivery</span>
-                  <span className={shipping === 0 ? 'text-success' : 'text-muted'}>
-                    {shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}
-                  </span>
-                </div>
-                <small className="text-muted d-block mb-3">Free delivery on orders above ₹50,000</small>
+    <div className="d-flex justify-content-between text-muted mb-2">
+      <span>Delivery</span>
+      <span className={shipping === 0 ? 'text-success' : 'text-muted'}>
+        {shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}
+      </span>
+    </div>
+    <small className="text-muted d-block mb-3">Free delivery on orders above ₹50,000</small>
 
-                <hr style={{ borderColor: '#e2e8f0' }} />
-                <div className="d-flex justify-content-between fw-bold fs-5 my-2">
-                  <span>Grand Total</span>
-                  <span>₹{total.toLocaleString('en-IN')}</span>
-                </div>
-                <hr style={{ borderColor: '#e2e8f0' }} />
+    <Button className="checkout-btn my-3" onClick={handleCheckout}>
+      Proceed to Checkout <i className="bi bi-arrow-right"></i>
+    </Button>
 
-                <Button className="checkout-btn my-3" onClick={handleCheckout}>Proceed to Checkout <i className="bi bi-arrow-right"></i></Button>
+    <div className="text-center text-muted small mb-3">
+      <i className="bi bi-lock-fill"></i> Secure Checkout Protected
+    </div>
 
-                <div className="text-center text-muted small mb-3">
-                  <i className="bi bi-lock-fill"></i> Secure Checkout Protected
-                </div>
+    <div className="mb-3">
+      <span className="text-muted d-block mb-2">We Accept</span>
+      <div className="payment-icons">
+        <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" />
+        <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" />
+        <img src="https://img.icons8.com/color/48/bhim-upi.png" alt="UPI" />
+      </div>
+    </div>
 
-                <div className="mb-3">
-                  <span className="text-muted d-block mb-2">We Accept</span>
-                  <div className="payment-icons">
-                    <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" />
-                    <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" />
-                    <img src="https://img.icons8.com/color/48/bhim-upi.png" alt="UPI" />
-                  </div>
-                </div>
+    <div className="delivery-info p-3 text-center">
+      <i className="bi bi-truck fs-4 mb-2"></i>
+      <h6 className="mb-0">Estimated Delivery:</h6>
+      <p className="text-muted mb-0">1 Business Day</p>
+    </div>
+  </Card>
+</Col>
 
-                <div className="delivery-info p-3 text-center">
-                  <i className="bi bi-truck fs-4 mb-2"></i>
-                  <h6 className="mb-0">Estimated Delivery:</h6>
-                  <p className="text-muted mb-0">3-5 Business Days</p>
-                </div>
-              </Card>
-            </Col>
           </Row>
         </Container>
       </div>

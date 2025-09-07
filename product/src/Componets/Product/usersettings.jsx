@@ -275,51 +275,10 @@ const ProfileSettingsRedesigned = () => {
                         />
                     </div>
 
-                    <h5 className="section-title">Change Password</h5>
-                    <div className="form-group-custom">
-                        <label htmlFor="newPassword">New Password</label>
-                        <div className="password-input-wrapper">
-                            <input
-                                type={showNewPassword ? "text" : "password"}
-                                id="newPassword"
-                                className="form-control-custom"
-                                placeholder="Enter new password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                            />
-                            <i 
-                                className={`toggle-password fa-solid ${showNewPassword ? 'fa-eye-slash' : 'fa-eye'}`}
-                                onClick={() => setShowNewPassword(!showNewPassword)}
-                            ></i>
-                        </div>
-                    </div>
+                    
+                    
 
-                    <div className="form-group-custom">
-                        <label htmlFor="confirmNewPassword">Confirm New Password</label>
-                         <div className="password-input-wrapper">
-                            <input
-                                type={showConfirmPassword ? "text" : "password"}
-                                id="confirmNewPassword"
-                                className="form-control-custom"
-                                placeholder="Confirm new password"
-                                value={confirmNewPassword}
-                                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                            />
-                            <i 
-                                className={`toggle-password fa-solid ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            ></i>
-                        </div>
-                    </div>
-
-                    <div className="form-actions">
-                        <button type="submit" className="btn-custom btn-save">
-                           <i className="fa-solid fa-save me-2"></i> Save Changes
-                        </button>
-                        <button type="button" className="btn-custom btn-reset" onClick={handleReset}>
-                            <i className="fa-solid fa-rotate-left me-2"></i> Reset
-                        </button>
-                    </div>
+                    
                 </form>
             </Container>
             <Footer /> 
