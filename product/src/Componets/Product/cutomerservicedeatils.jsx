@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container, Row, Col, Card, Form, Button, Tabs, Tab
 } from 'react-bootstrap';
@@ -26,13 +26,40 @@ function Services() {
   const [serviceTime, setServiceTime] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [locating, setLocating] = useState(false);
+
+  // ✅ State to hold vendor price from backend
+  const [vendorPrice, setVendorPrice] = useState(0);
+
   const navigate = useNavigate();
+  const savedid = localStorage.getItem("Customerid"); // Vendor ID
+  const pid = localStorage.getItem("userid");        // Customer ID
 
-  const savedid = localStorage.getItem("Customerid");
-  const pid = localStorage.getItem("userid");
+  // ✅ Fixed service charge
+  const serviceCharge = 250;
+  const totalAmount = vendorPrice + serviceCharge;
 
-  // Add your service/delivery charge here
-  
+  // ✅ Fetch vendor price when page loads
+  useEffect(() => {
+    const fetchVendorPrice = async () => {
+      try {
+        if (!savedid) {
+          console.warn("⚠️ No Vendor ID found in localStorage");
+          return;
+        }
+
+        const res = await axios.get(`https://backend-d6mx.vercel.app/api/vendor/${savedid}`);
+        if (res.data && res.data.Charge_Per_Hour_or_Day) {
+          setVendorPrice(res.data.Charge_Per_Hour_or_Day);
+          console.log("✅ Vendor Price from DB:", res.data.Charge_Per_Hour_or_Day);
+          console.log("✅ Total Amount (with Service Charge):", res.data.Charge_Per_Hour_or_Day + serviceCharge);
+        }
+      } catch (error) {
+        console.error("❌ Failed to fetch vendor price:", error);
+      }
+    };
+
+    fetchVendorPrice();
+  }, [savedid]);
 
   const handleLocateMe = () => {
     setLocating(true);
@@ -79,60 +106,58 @@ function Services() {
     }));
   };
 
-  
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const finalData = {
-    Vendorid: savedid,
-    customerid: pid,
-    serviceDate,
-    serviceTime,
-    customer: {
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      alternatePhone: formData.altPhone
-    },
-    address: {
-      street: formData.address,
-      city: formData.city,
-      state: formData.state,
-      zip: formData.zip,
-      latitude: location.latitude,
-      longitude: location.longitude,
-      specialInstructions: formData.instructions
-    },
-    saveAddress: true,
-    payment: {
-      method: formData.paymentMethod
+    const finalData = {
+      Vendorid: savedid,
+      customerid: pid,
+      serviceDate,
+      serviceTime,
+      customer: {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        alternatePhone: formData.altPhone
+      },
+      address: {
+        street: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zip: formData.zip,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        specialInstructions: formData.instructions
+      },
+      saveAddress: true,
+      payment: {
+        method: formData.paymentMethod
+      }
+    };
+
+    try {
+      if (!pid) {
+        toast.error("Please Login to Continue");
+        return;
+      }
+
+      const res = await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
+
+      // ✅ Confirm vendor price from backend (again)
+      const confirmedPrice = res.data.vendorprice || vendorPrice;
+      setVendorPrice(confirmedPrice);
+
+      console.log("💾 Booking API returned Vendor Price:", confirmedPrice);
+      console.log("💾 Final Total (Price + Service Charge):", confirmedPrice + serviceCharge);
+
+      toast.success("Booking successful!");
+      navigate("/myorder");
+
+    } catch (error) {
+      console.error("❌ Booking failed:", error);
+      toast.error("Failed to submit booking.");
     }
   };
-
-  try {
-    if (!pid) {
-      toast.error("Please Login to Continue");
-      return;
-    }
-
-    const res = await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
-
-    // ✅ Get vendor price from backend response
-    const vendorPrice = res.data.vendorprice || 0;
-    const serviceCharge = 250;
-    const totalAmount = vendorPrice + serviceCharge;
-    console.log(res.data.vendorprice,"price backed")
-
-    console.log("Vendor Price:", vendorPrice);
-    console.log("Final Total:", totalAmount);
-
-    navigate("/myorder");
-
-  } catch {
-    toast.error("Failed to submit booking.");
-  }
-};
-
 
   return (
     <Container style={{ padding: '20px', backgroundColor: '#fff9e6' }}>
@@ -141,6 +166,7 @@ function Services() {
       <p style={{ color: '#666' }}>Complete your booking by providing the details below</p>
 
       <Row>
+        {/* Left Side - Date, Time & Payment Summary */}
         <Col md={4}>
           <Card style={{ marginBottom: '20px', borderColor: '#ffcc00' }}>
             <Card.Body>
@@ -188,10 +214,12 @@ function Services() {
           </Card>
         </Col>
 
+        {/* Right Side - Form */}
         <Col md={8}>
           <Card style={{ borderColor: '#ffcc00' }}>
             <Card.Body>
               <Form onSubmit={handleSubmit}>
+                {/* Customer Info */}
                 <h5 style={{ color: '#ffcc00' }}>Customer Information</h5>
                 <Row>
                   <Col md={6}>
@@ -238,6 +266,7 @@ function Services() {
                   </Col>
                 </Row>
 
+                {/* Address */}
                 <h5 style={{ color: '#ffcc00', marginTop: '20px' }}>Service Address</h5>
                 <Form.Control
                   name="address"
@@ -305,6 +334,7 @@ function Services() {
                   style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
                 />
 
+                {/* Payment Method */}
                 <h5 style={{ color: '#ffcc00', marginTop: '20px' }}>Payment Method</h5>
                 <Tabs
                   defaultActiveKey="card"
