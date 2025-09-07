@@ -30,7 +30,7 @@ function Services() {
 
   const savedid = localStorage.getItem("Customerid");
   const pid = localStorage.getItem("userid");
-  const basePrice = parseFloat(localStorage.getItem("price")) || 0;
+  const basePrice = parseFloat(localStorage.getItem("VendorPrice")) || 0;
 
   // Add your service/delivery charge here
   const serviceCharge = 250; // Example fixed charge

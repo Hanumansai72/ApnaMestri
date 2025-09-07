@@ -1,23 +1,20 @@
 // frontend/src/pages/ProfessionalServicePage.jsx
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import NavaPro from "./navbarproduct";
 import Footer from "./footer";
+import { useNavigate } from "react-router-dom";
 
 const ProfessionalServicePage = () => {
-  const { id } = useParams(); // vendor id from URL
+  const { id } = useParams(); // get vendor id from URL
   const [vendor, setVendor] = useState(null);
   const [projects, setProjects] = useState([]);
-  const navigate = useNavigate();
-
-  // ✅ Book Now function (stores vendorId + price)
-  function booknow(vendorId, price) {
-    localStorage.setItem("VendorId", vendorId);
-    localStorage.setItem("VendorPrice", price);
+  const navigate=useNavigate();
+function booknow(vendorId) {
+    localStorage.setItem("Customerid", vendorId);
     navigate("/myorder/service");
   }
-
   // fetch vendor details
   useEffect(() => {
     const fetchVendor = async () => {
@@ -73,19 +70,18 @@ const ProfessionalServicePage = () => {
             <Col md={7}>
               <h3>{vendor.Owner_name}</h3>
               <h6 className="text-muted">{vendor.Business_Name}</h6>
-              <p className="text-secondary">{vendor.Business_address}</p>
-              <p className="fw-bold">
-                ₹{vendor.Charge_Per_Hour_or_Day}/{vendor.Charge_Type}
+              <p className="text-secondary">
+                {vendor.Business_address}
               </p>
             </Col>
             <Col md={3} className="text-md-end text-center">
               <Button
-                style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
-                className="mb-2 w-100"
-                onClick={() => booknow(vendor._id, vendor.Charge_Per_Hour_or_Day)}
-              >
-                Hire Now
-              </Button>
+    style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
+    className="mb-2 w-100"
+    onClick={() => booknow(vendor._id)}
+  >
+    Hire Now
+  </Button>
               <Button variant="outline-dark" className="w-100">
                 Message
               </Button>
@@ -103,7 +99,7 @@ const ProfessionalServicePage = () => {
           </p>
         </Card>
 
-        {/* Recent Projects */}
+        {/* Recent Projects from DB */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Recent Projects</h5>
@@ -136,7 +132,7 @@ const ProfessionalServicePage = () => {
           </Row>
         </Card>
 
-        {/* Reviews (dummy for now) */}
+        {/* Client Reviews (still dummy for now) */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Client Reviews</h5>
