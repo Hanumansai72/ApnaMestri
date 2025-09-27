@@ -6,6 +6,7 @@ import { FaTrowelBricks } from 'react-icons/fa6';
 import { BsChevronDoubleDown, BsHouse } from 'react-icons/bs';
 import { FiArrowRight } from 'react-icons/fi';
 import { Link as ScrollLink } from 'react-scroll';
+import { useNavigate } from 'react-router-dom';
 import 'remixicon/fonts/remixicon.css';
 
 import NavaPro from './navbarproduct';
@@ -14,6 +15,7 @@ import './Homepage.css';
 
 const Homepage = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -31,6 +33,19 @@ const Homepage = () => {
     { icon: 'ri-settings-3-line', color: 'text-warning', delay: 0.8 },
   ];
 
+  const handleCategoryClick = (type, cat) => {
+  const key = type.toLowerCase();
+  const searchTerm = cat.name || cat.title; // fallback to title if name is undefined
+  if (key === "materials") {
+    navigate(`/product?search=${encodeURIComponent(searchTerm)}`);
+  } else if (key === "service" || key === "services") {
+    navigate(`/service?search=${encodeURIComponent(searchTerm)}`);
+  } else {
+    console.error("Unknown category type for navigation:", type);
+  }
+};
+
+
   const yellow = "#FFD700";
 
   const howItWorksData = [
@@ -41,19 +56,19 @@ const Homepage = () => {
   ];
 
   const civilServicesData = [
-    { icon: FaRegBuilding, title: "Civil Engineer", text: "Structural design, planning, project management", projects: "1,250+ projects done", color: yellow },
-    { icon: BsHouse, title: "Contractor", text: "Building construction, renovation, supervision", projects: "890+ projects done", color: yellow },
-    { icon: FaTrowelBricks, title: "Mason", text: "Brickwork, concrete, plastering", projects: "1,650+ projects done", color: yellow },
-    { icon: FaTruck, title: "Material Supplier", text: "Cement, steel, bricks delivery", projects: "420+ projects done", color: yellow },
-    { icon: FaHardHat, title: "Site Engineer", text: "Quality control, supervision, testing", projects: "680+ projects done", color: yellow },
-    { icon: FaCogs, title: "Equipment Rental", text: "Excavators, cranes, construction tools", projects: "320+ projects done", color: yellow },
+    { icon: FaRegBuilding, title: "Civil Engineer", text: "Structural design, planning, project management", projects: "0 projects done", color: yellow },
+    { icon: BsHouse, title: "Contractor", text: "Building construction, renovation, supervision", projects: "0 projects done", color: yellow },
+    { icon: FaTrowelBricks, title: "Mason", text: "Brickwork, concrete, plastering", projects: "0 projects done", color: yellow },
+    { icon: FaTruck, title: "Material Supplier", text: "Cement, steel, bricks delivery", projects: "0 projects done", color: yellow },
+    { icon: FaHardHat, title: "Site Engineer", text: "Quality control, supervision, testing", projects: "0 projects done", color: yellow },
+    { icon: FaCogs, title: "Equipment Rental", text: "Excavators, cranes, construction tools", projects: "0 projects done", color: yellow },
   ];
 
   const materialsData = [
-    { icon: FaCalculator, title: "Cement & Concrete", text: "Portland cement, ready mix concrete", items: "2,500+ items", color: yellow },
-    { icon: FaLayerGroup, title: "Steel & Rebar", text: "TMT bars, structural steel, mesh", items: "1,800+ items", color: yellow },
-    { icon: FaCubes, title: "Bricks & Blocks", text: "Clay bricks, concrete blocks, tiles", items: "3,200+ items", color: yellow },
-    { icon: FaPaintRoller, title: "Paints & Coatings", text: "Exterior paints, primers, sealers", items: "1,200+ items", color: yellow },
+    { icon: FaCalculator, title: "Cement", text: "Portland cement, ready mix concrete", items: "0 items", color: yellow },
+    { icon: FaLayerGroup, title: "Steel", text: "TMT bars, structural steel, mesh", items: "0 items", color: yellow },
+    { icon: FaCubes, title: "Bricks", text: "Clay bricks, concrete blocks, tiles", items: "0 items", color: yellow },
+    { icon: FaPaintRoller, title: "Paints", text: "Exterior paints, primers, sealers", items: "0 items", color: yellow },
   ];
 
   const cardVariants = {
@@ -140,8 +155,14 @@ const Homepage = () => {
             Your one-stop platform for civil services & quality materials.
           </motion.p>
           <motion.div className="d-flex justify-content-center gap-3 flex-wrap" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}>
-            <Button className="px-4 py-2 fw-semibold text-dark" style={{ backgroundColor: yellow, border: 'none' }}><FaPlayCircle className="me-2" /> Get Started</Button>
-            <Button variant="outline-dark" className="px-4 py-2 fw-semibold"><i className="ri-video-line me-2"></i> Watch Demo</Button>
+            <Button
+  className="px-4 py-2 fw-semibold text-dark"
+  style={{ backgroundColor: yellow, border: 'none' }}
+  onClick={() => navigate('/login')}
+>
+  <FaPlayCircle className="me-2" /> Get Started
+</Button>
+
           </motion.div>
           <ScrollLink to="how-it-works" smooth={true} duration={500}>
             <motion.div className="mt-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 1 }}>
@@ -185,7 +206,7 @@ const Homepage = () => {
       {/* Civil Services */}
       <section className="py-5 text-center bg-white">
         <Container>
-          <h2 className="fw-bold display-5 mb-3" style={{ color: yellow }}>Civil Services</h2>
+          <h2 className="fw-bold display-5 mb-3" style={{ color: yellow }}>Services</h2>
           <motion.div initial="offscreen" whileInView="onscreen" viewport={{ once: true, amount: 0.3 }} variants={sectionVariants}>
             <Row>
               {civilServicesData.map((service, index) => {
@@ -193,7 +214,11 @@ const Homepage = () => {
                 return (
                   <Col lg={4} md={6} key={index} className="mb-4">
                     <motion.div variants={cardVariants}>
-                      <Card className="bg-light text-dark border-light h-100 p-3 rounded-4 text-start">
+                      <Card 
+                        className="bg-light text-dark border-light h-100 p-3 rounded-4 text-start cursor-pointer"
+                        onClick={() => handleCategoryClick("service", service)}
+                        style={{ cursor: "pointer" }}
+                      >
                         <Card.Body>
                           <div className="d-flex align-items-start mb-3">
                             <div className="d-flex align-items-center justify-content-center rounded-3 me-3 flex-shrink-0" style={{ backgroundColor: service.color, width: '60px', height: '60px' }}>
@@ -219,7 +244,7 @@ const Homepage = () => {
         </Container>
       </section>
 
-      {/* Materials */}
+      {/* Materials Section */}
       <section className="py-5 text-center bg-white text-dark">
         <Container>
           <h2 className="fw-bold display-5 mb-3" style={{ color: yellow }}>Construction Materials</h2>
@@ -230,7 +255,11 @@ const Homepage = () => {
                 return (
                   <Col lg={3} md={6} key={index} className="mb-4">
                     <motion.div variants={cardVariants}>
-                      <Card className="bg-light text-dark border-light h-100 p-3 rounded-4 text-start">
+                      <Card 
+                        className="bg-light text-dark border-light h-100 p-3 rounded-4 text-start"
+                        onClick={() => handleCategoryClick("materials", material)}
+                        style={{ cursor: "pointer" }}
+                      >
                         <Card.Body>
                           <div className="d-flex align-items-start mb-3">
                             <div className="d-flex align-items-center justify-content-center rounded-3 me-3 flex-shrink-0" style={{ backgroundColor: material.color, width: '60px', height: '60px' }}>
