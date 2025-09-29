@@ -116,7 +116,7 @@ const ProductPage = () => {
             comment: reviewText
         })
         .then(() => {
-            showToast("Review submitted successfully!", "success");
+            showToast("Review submitted succepssfully!", "success");
             setReviewText('');
             setReviewRating(0);
             setShowReviewForm(false);

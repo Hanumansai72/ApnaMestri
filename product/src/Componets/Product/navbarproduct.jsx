@@ -22,7 +22,6 @@ function NavaPro() {
     }
   }, []);
 
-  // Yellow Button Style
   const yellowButtonStyle = {
     background: 'linear-gradient(90deg, #FFD700, #FFC107)',
     border: 'none',
@@ -35,7 +34,6 @@ function NavaPro() {
   const mobileNavItems = [
     { path: '/', icon: 'bi-house-heart-fill', label: 'Home' },
     { path: '/Category', icon: 'bi-grid-fill', label: 'Categories' },
-    
     { path: '/cart', icon: 'bi-cart-fill', label: 'Cart', badge: count > 0 },
     { path: userId ? '/profile' : '/login', icon: 'bi-person-circle', label: userId ? 'Account' : 'Login' }
   ];
@@ -108,6 +106,11 @@ function NavaPro() {
               display: none !important;
             }
           }
+          .sticky-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+          }
         `}
       </style>
 
@@ -116,7 +119,7 @@ function NavaPro() {
         bg="dark"
         variant="dark"
         expand="lg"
-        className="py-3 navbar-desktop"
+        className="py-3 navbar-desktop sticky-navbar"
         style={{ minHeight: '70px' }}
       >
         <Container>
@@ -143,7 +146,6 @@ function NavaPro() {
             <Nav className="mx-auto">
               <Nav.Link href="/" className="text-light">Home</Nav.Link>
               <Nav.Link href="/Category" className="text-light">Categories</Nav.Link>
-              
               <Nav.Link href="/about" className="text-light">About</Nav.Link>
             </Nav>
             <Nav className="align-items-center">
@@ -184,7 +186,7 @@ function NavaPro() {
       </Navbar>
 
       {/* Mobile Navbar */}
-      <nav className="mobile-nav d-lg-none">
+      <nav className="mobile-nav d-lg-none sticky-navbar">
         {mobileNavItems.map(item => (
           <Link
             key={item.path}
