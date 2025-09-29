@@ -39,7 +39,7 @@ function App() {
           <Route path="/myorder/service" element={<Services></Services>} />
           <Route path='/forgetpassword' element={<ForgetPassword></ForgetPassword>}/>
               <Route path='/service/details/:id' element={<ProfessionalServicePage></ProfessionalServicePage>}/>
-                            <Route path='/aboutus' element={<AboutUs></AboutUs>}/>
+                            <Route path='/about' element={<AboutUs></AboutUs>}/>
 
 
 

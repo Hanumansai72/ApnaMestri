@@ -42,6 +42,14 @@ function NavaPro() {
     <>
       <style>
         {`
+          /* Desktop Navbar sticky */
+          .navbar-desktop {
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+          }
+
+          /* Mobile Navbar sticky at bottom */
           .mobile-nav {
             position: fixed;
             bottom: 1rem;
@@ -56,9 +64,10 @@ function NavaPro() {
             align-items: center;
             padding: 0 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            z-index: 1000;
+            z-index: 1100;
             border-radius: 50px;
           }
+
           .mobile-nav-link {
             display: flex;
             flex-direction: column;
@@ -74,22 +83,27 @@ function NavaPro() {
             border-radius: 12px;
             transition: all 0.3s ease;
           }
+
           .mobile-nav-link .nav-icon {
             font-size: 1.5rem;
             margin-bottom: 4px;
           }
+
           .mobile-nav-link.active {
             color: #000;
             background: linear-gradient(145deg, #FFC107, #FFD54F);
             transform: translateY(-5px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
           }
+
           .mobile-nav-link .nav-label {
             transition: color 0.3s ease;
           }
+
           .mobile-nav-link.active .nav-label {
             font-weight: 600;
           }
+
           .cart-badge-mobile {
             position: absolute;
             top: 5px;
@@ -101,15 +115,11 @@ function NavaPro() {
             justify-content: center;
             align-items: center;
           }
+
           @media (max-width: 992px) {
             .navbar-desktop {
               display: none !important;
             }
-          }
-          .sticky-navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1100;
           }
         `}
       </style>
@@ -119,15 +129,11 @@ function NavaPro() {
         bg="dark"
         variant="dark"
         expand="lg"
-        className="py-3 navbar-desktop sticky-navbar"
+        className="py-3 navbar-desktop"
         style={{ minHeight: '70px' }}
       >
         <Container>
-          <Navbar.Brand
-            href="/"
-            className="d-flex align-items-center"
-            style={{ height: '70px' }}
-          >
+          <Navbar.Brand href="/" className="d-flex align-items-center" style={{ height: '70px' }}>
             <img
               src={`${process.env.PUBLIC_URL}/Changed_logo.png`}
               alt="Apna Mestri Logo"
@@ -135,9 +141,8 @@ function NavaPro() {
                 height: '250%',
                 maxHeight: '180px',
                 width: 'auto',
-                marginRight: '0px',
                 objectFit: 'contain',
-                paddingTop:"21px"
+                paddingTop: "21px"
               }}
             />
           </Navbar.Brand>
@@ -186,7 +191,7 @@ function NavaPro() {
       </Navbar>
 
       {/* Mobile Navbar */}
-      <nav className="mobile-nav d-lg-none sticky-navbar">
+      <nav className="mobile-nav d-lg-none">
         {mobileNavItems.map(item => (
           <Link
             key={item.path}
