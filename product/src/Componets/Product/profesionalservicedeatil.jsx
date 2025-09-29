@@ -1,27 +1,81 @@
-// frontend/src/pages/ProfessionalServicePage.jsx
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Form,
+  Toast,
+  ToastContainer,
+  Spinner,
+} from "react-bootstrap";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import NavaPro from "./navbarproduct";
 import Footer from "./footer";
-import { useNavigate } from "react-router-dom";
+
+// Helper to render stars
+const renderStars = (rating, color = "#ffc107") => {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  
+  return (
+    <span style={{ color }}>
+      {[...Array(fullStars)].map((_, i) => (
+        <i key={`full-${i}`} className="bi bi-star-fill"></i>
+      ))}
+      {halfStar && <i key="half" className="bi bi-star-half"></i>}
+      {[...Array(emptyStars)].map((_, i) => (
+        <i key={`empty-${i}`} className="bi bi-star"></i>
+      ))}
+    </span>
+  );
+};
 
 const ProfessionalServicePage = () => {
-  const { id } = useParams(); // get vendor id from URL
+  const { id } = useParams(); // vendorId
+  const navigate = useNavigate();
+
+  const userId = localStorage.getItem("userid");
+  const name = localStorage.getItem("user_name");
+
   const [vendor, setVendor] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState([]);
-  const navigate=useNavigate();
-function booknow(vendorId) {
+  const [reviews, setReviews] = useState([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(0);
+  const [vendorids,setvendorids]=useState("");
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "success",
+  });
+
+  const showToast = (message, variant = "success") =>
+    setToast({ show: true, message, variant });
+
+  const booknow = (vendorId) => {
     localStorage.setItem("Customerid", vendorId);
     navigate("/myorder/service");
-  }
-  // fetch vendor details
+  };
+
+  // Fetch vendor details
   useEffect(() => {
     const fetchVendor = async () => {
       try {
         const res = await fetch(`https://backend-d6mx.vercel.app/profesionaldetails/${id}`);
         const data = await res.json();
         setVendor(data);
+        setvendorids(data._id);
+        
+        console.log(vendorids)
+
+        
       } catch (err) {
         console.error("Error fetching vendor:", err);
       }
@@ -29,38 +83,85 @@ function booknow(vendorId) {
     fetchVendor();
   }, [id]);
 
-  // fetch vendor projects
+
+  // Fetch projects
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await fetch(`https://backend-d6mx.vercel.app/api/projects/${id}`);
-        const data = await res.json();
-        setProjects(data);
-      } catch (err) {
-        console.error("Error fetching projects:", err);
-      }
-    };
-    fetchProjects();
+    axios
+      .get(`https://backend-d6mx.vercel.app/api/projects/${id}`)
+      .then((res) => setProjects(res.data))
+      .catch((err) => console.error("Error fetching projects:", err));
   }, [id]);
 
-  if (!vendor) {
+  // Fetch reviews
+  // Fetch reviews
+const fetchReviews = () => {
+  axios
+    .get(`https://backend-d6mx.vercel.app/fetch/review/service/${id}`)
+    .then((res) => setReviews(res.data.getreview || []))
+    .catch((err) => console.error("Error fetching reviews:", err));
+};
+
+useEffect(() => {
+  if (id) fetchReviews();
+}, [id]);
+
+
+  // Submit review
+  const handleSubmitReview = () => {
+    if (!userId || userId === "undefined") {
+      showToast("Please log in to submit a review.", "danger");
+      return;
+    }
+    if (!reviewText.trim() || reviewRating === 0) {
+      showToast("Please provide a rating and comment.", "danger");
+      return;
+    }
+
+    axios
+      .post(`https://backend-d6mx.vercel.app/review/${userId}`, {
+        vendorids:vendorids,
+        customerName: name,
+        rating: reviewRating,
+        comment: reviewText,
+      })
+      .then(() => {
+        showToast("Review submitted successfully!", "success");
+        setReviewText("");
+        setReviewRating(0);
+        setShowReviewForm(false);
+        fetchReviews();
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast("Failed to submit review.", "danger");
+      });
+  };
+
+  if (loading)
     return (
       <div className="text-center mt-5">
-        <h4>Loading profile...</h4>
+        <Spinner animation="border" style={{ color: "#FFD700" }} />
+        <p className="mt-2">Loading Service Details...</p>
       </div>
     );
-  }
+
+  if (!vendor)
+    return (
+      <div className="text-center mt-5">
+        <h4>No vendor found.</h4>
+      </div>
+    );
 
   return (
     <>
       <NavaPro />
       <Container className="py-4" style={{ background: "#fff" }}>
-        {/* Header Section */}
+        {/* Header */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <Row>
             <Col md={2} className="text-center">
               <img
-                src={vendor.Profile_Image}
+                src={vendor.Profile_Image || "https://via.placeholder.com/120"}
                 alt="profile"
                 className="rounded-circle"
                 width="120"
@@ -70,18 +171,20 @@ function booknow(vendorId) {
             <Col md={7}>
               <h3>{vendor.Owner_name}</h3>
               <h6 className="text-muted">{vendor.Business_Name}</h6>
-              <p className="text-secondary">
-                {vendor.Business_address}
-              </p>
+              <p className="text-secondary">{vendor.Business_address}</p>
             </Col>
             <Col md={3} className="text-md-end text-center">
               <Button
-    style={{ backgroundColor: "#FFD700", color: "#000", border: "none" }}
-    className="mb-2 w-100"
-    onClick={() => booknow(vendor._id)}
-  >
-    Hire Now
-  </Button>
+                style={{
+                  backgroundColor: "#FFD700",
+                  color: "#000",
+                  border: "none",
+                }}
+                className="mb-2 w-100"
+                onClick={() => booknow(vendor._id)}
+              >
+                Hire Now
+              </Button>
               <Button variant="outline-dark" className="w-100">
                 Message
               </Button>
@@ -89,7 +192,7 @@ function booknow(vendorId) {
           </Row>
         </Card>
 
-        {/* About Section */}
+        {/* About */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <h5>About {vendor.Owner_name}</h5>
           <p>
@@ -99,7 +202,7 @@ function booknow(vendorId) {
           </p>
         </Card>
 
-        {/* Recent Projects from DB */}
+        {/* Projects */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Recent Projects</h5>
@@ -132,38 +235,87 @@ function booknow(vendorId) {
           </Row>
         </Card>
 
-        {/* Client Reviews (still dummy for now) */}
+        {/* Reviews */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Client Reviews</h5>
-            <span className="fw-bold">⭐ 4.8 (124 reviews)</span>
+            <span className="fw-bold">
+              ⭐{" "}
+              {reviews.length
+                ? (
+                    reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
+                  ).toFixed(1)
+                : 0}{" "}
+              ({reviews.length} reviews)
+            </span>
           </div>
           <Row>
-            {[
-              {
-                name: "Priya Sharma",
-                review:
-                  "Rajesh transformed our living room with his incredible craftsmanship. Highly recommended!",
-                date: "March 10, 2023",
-              },
-              {
-                name: "Anil Kapoor",
-                review:
-                  "We hired Rajesh for our kitchen renovation and couldn’t be happier with the results.",
-                date: "Nov 12, 2022",
-              },
-            ].map((rev, i) => (
+            {reviews.length === 0 && <p>No reviews yet. Be the first to review!</p>}
+            {reviews.map((rev, i) => (
               <Col md={6} key={i} className="mb-3">
                 <Card className="p-3 shadow-sm border-0">
-                  <h6>{rev.name}</h6>
-                  <p className="text-muted">{rev.review}</p>
-                  <small className="text-secondary">{rev.date}</small>
+                  <h6>{rev.customerName}</h6>
+                  <div className="mb-2">{renderStars(rev.rating)}</div>
+                  <p className="mb-0">{rev.comment}</p>
+                  <small className="text-secondary">
+                    {new Date(rev.createdAt).toLocaleDateString()}
+                  </small>
                 </Card>
               </Col>
             ))}
           </Row>
+          {showReviewForm ? (
+            <div className="review-form p-3 mt-3">
+              <Form.Group className="mb-2">
+                <Form.Label>Rating</Form.Label>
+                <Form.Control
+                  type="number"
+                  min={1}
+                  max={5}
+                  value={reviewRating}
+                  onChange={(e) => setReviewRating(Number(e.target.value))}
+                />
+              </Form.Group>
+              <Form.Group className="mb-2">
+                <Form.Label>Comment</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                />
+              </Form.Group>
+              <Button
+                style={{ backgroundColor: "#FFD700", border: "none", color: "#000" }}
+                onClick={handleSubmitReview}
+              >
+                Submit Review
+              </Button>
+            </div>
+          ) : (
+            <Button
+              className="mt-3"
+              style={{ backgroundColor: "#FFD700", border: "none", color: "#000" }}
+              onClick={() => setShowReviewForm(true)}
+            >
+              Write a Review
+            </Button>
+          )}
         </Card>
       </Container>
+
+      <ToastContainer className="p-3" position="top-end">
+        <Toast
+          show={toast.show}
+          onClose={() => setToast({ ...toast, show: false })}
+          bg={toast.variant}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body>{toast.message}</Toast.Body>
+        </Toast>
+      </ToastContainer>
+
       <Footer />
     </>
   );

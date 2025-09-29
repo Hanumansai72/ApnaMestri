@@ -16,6 +16,7 @@ import Services from './Componets/Product/cutomerservicedeatils';
 import ForgetPassword from './Componets/Product/forgetpassword';
 import ProfessionalServicePage from './Componets/Product/profesionalservicedeatil';
 import ViewStore from './Componets/Product/viewstore';
+import AboutUs from './Componets/Product/Aboutus'
 function App() {
   return (
     <div className="App">
@@ -38,6 +39,8 @@ function App() {
           <Route path="/myorder/service" element={<Services></Services>} />
           <Route path='/forgetpassword' element={<ForgetPassword></ForgetPassword>}/>
               <Route path='/service/details/:id' element={<ProfessionalServicePage></ProfessionalServicePage>}/>
+                            <Route path='/aboutus' element={<AboutUs></AboutUs>}/>
+
 
 
 

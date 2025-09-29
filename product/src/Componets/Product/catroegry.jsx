@@ -66,7 +66,7 @@ const cardVariants = {
 };
 
 const CategoryDashboard = () => {
-  const [activeTab, setActiveTab] = useState("Materials");
+  const [activeTab, setActiveTab] = useState("Services");
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
