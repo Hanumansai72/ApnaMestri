@@ -313,21 +313,40 @@ export default function Aboutus() {
               variants={stagger}
             >
               {[
-                { n: "Vaibhav", r: "CO-Founder" },
-              { n: "Uttej", r: "CO-Founder" },
-              { n: "Hanumansai", r: "Technical Head" }
-              ].map((m, i) => (
-                <motion.div className="col-sm-6 col-lg-3" key={i} variants={fadeUp}>
-                  <div className="card h-100 border-0 shadow-sm text-center">
-                    <img src="/aboust2.jpeg" alt="Team" className="card-img-top" />
-                    <div className="card-body">
-                      <h6 className="fw-semibold mb-0">{m.n}</h6>
-                      <div className="text-secondary small mb-2">{m.r}</div>
-                      <p className="mb-0 text-secondary">{m.d}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+  { n: "Vaibhav", r: "CO-Founder", i:"https://res.cloudinary.com/dqxsgmf33/image/upload/v1759319794/WhatsApp_Image_2025-10-01_at_12.23.28_PM_sp65z2.jpg"},
+  { n: "Uttej", r: "CO-Founder" },
+  { n: "Hanumansai", r: "Technical Head" }
+].map((m, i) => (
+  <motion.div className="col-sm-6 col-lg-3" key={i} variants={fadeUp}>
+    <div className="card h-100 border-0 shadow-sm text-center p-4">
+      
+      {/* Circle image centered */}
+      <div className="d-flex justify-content-center">
+  <img
+    src={m.i || "https://via.placeholder.com/300"}
+    alt="Team"
+    style={{
+      width: "220px",   // bigger circle
+      height: "220px",  // bigger circle
+      objectFit: "cover",
+      border: "1px solid #f8f9fa",
+      borderRadius: "50%"
+    }}
+    className="mx-auto"
+  />
+</div>
+
+      
+      {/* Card Body */}
+      <div className="card-body mt-3">
+        <h6 className="fw-semibold mb-1">{m.n}</h6>
+        <div className="text-secondary small mb-2">{m.r}</div>
+        <p className="mb-0 text-secondary">{m.d}</p>
+      </div>
+    </div>
+  </motion.div>
+))}
+
             </motion.div>
           </div>
         </section>
