@@ -1,87 +1,364 @@
 import React from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { motion } from "framer-motion";
+import NavaPro from "./navbarproduct";
 import Footer from "./footer";
 
-const AboutUs = () => {
-  return (
-    <>
-    <div style={{ backgroundColor: "#fff", minHeight: "100vh", padding: "60px 0" }}>
-      <Container>
-        {/* Header Section */}
-        <Row className="mb-5 text-center">
-          <Col>
-            <h1 style={{ fontWeight: "bold", color: "#ffc107" }}>About Us</h1>
-            <p className="lead text-dark mt-3">
-              Welcome to <span style={{ fontWeight: "bold" }}>Apna Mestri</span> —
-              your trusted partner for all things construction!
-            </p>
-          </Col>
-        </Row>
-
-        {/* Intro Section */}
-        <Row className="justify-content-center mb-5">
-          <Col md={10}>
-            <Card className="p-4 shadow-sm border-0">
-              <p className="fs-5 text-secondary">
-                We know how stressful it can be to find the right plumber, carpenter,
-                electrician, mason, or even an engineer for your project. Add to that
-                the struggle of buying the right materials from reliable shops, and the
-                whole process can feel overwhelming.
-              </p>
-              <p className="fs-5 text-secondary">
-                That’s where we step in.
-              </p>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Features Section */}
-        <Row className="mb-5">
-          <Col md={12}>
-            <h3 style={{ color: "#343a40", fontWeight: "bold" }}>At Apna Mestri, you can:</h3>
-            <ul className="fs-5 text-secondary mt-3">
-              <li>Hire skilled workers near you for repairs, renovations, or big projects</li>
-              <li>Connect with engineers & experts for professional guidance</li>
-              <li>Shop for quality materials like cement, steel, tiles, and paints from trusted vendors</li>
-            </ul>
-          </Col>
-        </Row>
-
-        {/* Goal Section */}
-        <Row className="justify-content-center mb-5">
-          <Col md={10}>
-            <Card className="p-4 shadow-sm border-0 bg-light">
-              <h3 style={{ color: "#ffc107", fontWeight: "bold" }}>Our Goal</h3>
-              <p className="fs-5 text-secondary mt-2">
-                To make construction and home improvement simple, reliable, and
-                stress-free for every household and business in India.
-              </p>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Why Choose Us Section */}
-        <Row>
-          <Col md={12}>
-            <h3 style={{ color: "#343a40", fontWeight: "bold" }}>Why People Choose Us</h3>
-            <ul className="fs-5 text-secondary mt-3">
-              <li>✅ Verified workers you can trust</li>
-              <li>✅ Fair pricing without hidden costs</li>
-              <li>✅ Vendors who deliver quality materials</li>
-              <li>✅ Simple booking process—just a few clicks</li>
-              <li>✅ Support from small fixes to big builds</li>
-            </ul>
-            <p className="fs-5 text-dark mt-3">
-              At the end of the day, <span style={{ fontWeight: "bold" }}>Apna Mistri</span> is
-              here to build not just homes, but trust and happiness.
-            </p>
-          </Col>
-        </Row>
-      </Container>
-    </div>
-    <Footer></Footer>
-    </>
-  );
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-export default AboutUs;
+const stagger = {
+  show: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+export default function Aboutus() {
+  return (
+    <>
+      <NavaPro></NavaPro>
+      <main className="bg-light">
+        {/* Hero */}
+        <section className="container py-5">
+          <motion.div
+            className="row align-items-center g-4"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={stagger}
+          >
+            <motion.div className="col-lg-7" variants={fadeUp}>
+              <h1 className="display-5 fw-bold">
+                Building Trust, <span className="text-warning">One</span> Project at a Time
+              </h1>
+              <p className="text-secondary mt-3">
+                Connecting skilled craftsmen with homeowners across India. We make construction and repair services transparent, reliable, and quality-driven.
+              </p>
+              <div className="d-flex gap-2 mt-3">
+                <button className="btn btn-warning text-dark fw-semibold">Watch Our Story</button>
+                <button className="btn btn-outline-secondary">Learn More</button>
+              </div>
+            </motion.div>
+            <motion.div className="col-lg-5 text-center" variants={fadeUp}>
+              <img
+                src="https://res.cloudinary.com/dqxsgmf33/image/upload/v1755801310/Changed_logo_dfshkt.png"
+                alt="Apna Mestri Hero"
+                className="img-fluid rounded-3 shadow-sm"
+                style={{ width: "300px", height: "300px", border: "1px soild white", borderRadius: "50%" }}
+              />
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* Challenge */}
+        <section className="py-5 bg-white">
+          <div className="container">
+            <motion.h2
+              className="h3 text-center mb-2"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+            >
+              The Challenge We Solve
+            </motion.h2>
+            <motion.p
+              className="text-center text-secondary mb-4"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              Finding reliable, skilled craftsmen and quality materials is hard. We bridge this gap with technology and trust.
+            </motion.p>
+
+            <motion.div
+              className="row g-3"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={stagger}
+            >
+              <motion.div className="col-md-4" variants={fadeUp}>
+                <div className="card border-0 shadow-sm h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">Unreliable Workers</h5>
+                    <p className="card-text text-secondary">
+                      Homeowners struggle with no-shows, delays, and inconsistent quality. We verify skills, track jobs, and ensure dependable delivery.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div className="col-md-4" variants={fadeUp}>
+                <div className="card border-0 shadow-sm h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">Price Transparency</h5>
+                    <p className="card-text text-secondary">
+                      Clear estimates and milestone-based payments keep projects on budget with no hidden costs.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div className="col-md-4" variants={fadeUp}>
+                <div className="card border-0 shadow-sm h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">Finding Quality</h5>
+                    <p className="card-text text-secondary">
+                      With proper verification and training, we deliver quality workmanship, safe practices, and professional standards.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* What Apna Mestri does */}
+            <motion.div
+              className="row g-3 mt-4"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={stagger}
+            >
+              <motion.div className="col-md-4" variants={fadeUp}>
+                <div className="card border-0 h-100 bg-light">
+                  <div className="card-body">
+                    <h6 className="fw-semibold mb-2">Hire Skilled Workers</h6>
+                    <p className="mb-0 text-secondary">
+                      Book plumbers, carpenters, electricians, masons—nearby—for repairs, renovations, and big projects.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div className="col-md-4" variants={fadeUp}>
+                <div className="card border-0 h-100 bg-light">
+                  <div className="card-body">
+                    <h6 className="fw-semibold mb-2">Connect with Engineers</h6>
+                    <p className="mb-0 text-secondary">
+                      Consult experts for planning, BoQs, structural guidance, and on-site supervision.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div className="col-md-4" variants={fadeUp}>
+                <div className="card border-0 h-100 bg-light">
+                  <div className="card-body">
+                    <h6 className="fw-semibold mb-2">Shop Quality Materials</h6>
+                    <p className="mb-0 text-secondary">
+                      Buy cement, steel, tiles, and paints from trusted, verified vendors with on-time delivery.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Mission + Stats */}
+        <section className="py-5">
+          <div className="container">
+            <motion.div
+              className="card border-0 shadow-sm"
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="card-body p-4 p-lg-5">
+                <div className="text-center mb-4">
+                  <span className="badge bg-warning text-dark fs-6">Our Mission</span>
+                  <p className="mt-3 mb-0 text-secondary">
+                    To revolutionize India’s construction and repair industry by creating a trusted ecosystem where skilled craftsmen and homeowners connect seamlessly—ensuring quality work, fair pricing, and complete transparency in every project.
+                  </p>
+                </div>
+
+                <div className="row text-center g-3">
+                  <div className="col-md-4">
+                    <h3 className="fw-bold mb-0 text-dark">10,000+</h3>
+                    <div className="text-secondary">Verified Craftsmen</div>
+                  </div>
+                  <div className="col-md-4">
+                    <h3 className="fw-bold mb-0 text-dark">50,000+</h3>
+                    <div className="text-secondary">Projects Completed</div>
+                  </div>
+                  <div className="col-md-4">
+                    <h3 className="fw-bold mb-0 text-dark">25+</h3>
+                    <div className="text-secondary">Cities Served</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Why choose */}
+            <h3 className="h4 text-center mt-5 mb-3">Why Choose Apna Mestri?</h3>
+            <motion.div
+              className="row g-3"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={stagger}
+            >
+              {[
+                { t: "Rigorous Verification", d: "Background checks, KYC, and documented skill tests before going live." },
+                { t: "Fair Payment System", d: "Milestone-based payouts and escrow-like safeguards for both sides." },
+                { t: "Technology-Driven", d: "Instant booking, live tracking, digital invoices, and project logs." },
+                { t: "24/7 Customer Support", d: "Multi-channel help for booking, changes, and issue resolution." },
+                { t: "Customer-Centric", d: "Dedicated assistance for quality, satisfaction, and quick redressal." },
+                { t: "Data-Driven Insights", d: "Benchmarks on pricing, timelines, and performance analytics." },
+                { t: "Continuous Training", d: "Upskilling programs for standards, safety, and workmanship." },
+                { t: "Quality Assurance", d: "Site audits, material verification, and post-project checks." },
+              ].map((item, idx) => (
+                <motion.div className="col-md-6 col-lg-3" key={idx} variants={fadeUp}>
+                  <div className="card h-100 border-0 shadow-sm">
+                    <div className="card-body">
+                      <h6 className="fw-semibold">{item.t}</h6>
+                      <p className="mb-0 text-secondary">{item.d}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Services */}
+        <section className="py-5 bg-white">
+          <div className="container">
+            <motion.div
+              className="row g-3"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={stagger}
+            >
+              {[
+                { t: "Home Construction", d: "New homes, structural works, room additions." },
+                { t: "Interior Design", d: "Partitions, wallpaper, false ceilings, lighting." },
+                { t: "Plumbing Services", d: "Pipes, leak repair, bathroom fitting, tank service." },
+                { t: "Electrical Work", d: "Wiring, socket repair, appliances, safety checks." },
+                { t: "Furniture & Carpentry", d: "Wardrobes, kitchens, modular cabinets, repairs." },
+                { t: "General Repairs", d: "Wall patching, doors/windows, installations, maintenance." },
+              ].map((s, i) => (
+                <motion.div className="col-md-6 col-lg-4" key={i} variants={fadeUp}>
+                  <div className="card h-100 border-0 shadow-sm">
+                    <div className="card-body">
+                      <h5 className="card-title">{s.t}</h5>
+                      <p className="card-text text-secondary mb-0">{s.d}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-5">
+          <div className="container">
+            <h3 className="h4 text-center mb-4">What Our Customers Say</h3>
+            <motion.div
+              className="row g-3"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={stagger}
+            >
+              {[
+                {
+                  n: "Priya Sharma",
+                  c: "Mumbai",
+                  q: "Excellent service! The electrician arrived on time, was very professional, and the final work made a real difference.",
+                },
+                {
+                  n: "Rajesh Kumar",
+                  c: "Delhi",
+                  q: "Great experience! Got my kitchen upgraded. Workers were skilled, punctual, and quality exceeded expectations.",
+                },
+                {
+                  n: "Anjali Patel",
+                  c: "Pune",
+                  q: "Finally, a reliable service. The plumber diagnosed and fixed the issue quickly. Great follow-up too.",
+                },
+              ].map((t, i) => (
+                <motion.div className="col-md-4" key={i} variants={fadeUp}>
+                  <div className="card h-100 border-0 shadow-sm">
+                    <div className="card-body">
+                      <div className="d-flex align-items-center gap-2 mb-2">
+                        <div className="rounded-circle bg-warning" style={{ width: 40, height: 40 }} />
+                        <div>
+                          <div className="fw-semibold">{t.n}</div>
+                          <div className="text-secondary small">{t.c}</div>
+                        </div>
+                      </div>
+                      <p className="mb-0 text-secondary">{t.q}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Team */}
+        <section className="py-5 bg-white">
+          <div className="container">
+            <h3 className="h4 text-center mb-4">Meet Our Leadership Team</h3>
+            <motion.div
+              className="row g-3"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={stagger}
+            >
+              {[
+                { n: "Vaibhav", r: "CO-Founder" },
+              { n: "Uttej", r: "CO-Founder" },
+              { n: "Hanumansai", r: "Technical Head" }
+              ].map((m, i) => (
+                <motion.div className="col-sm-6 col-lg-3" key={i} variants={fadeUp}>
+                  <div className="card h-100 border-0 shadow-sm text-center">
+                    <img src="/aboust2.jpeg" alt="Team" className="card-img-top" />
+                    <div className="card-body">
+                      <h6 className="fw-semibold mb-0">{m.n}</h6>
+                      <div className="text-secondary small mb-2">{m.r}</div>
+                      <p className="mb-0 text-secondary">{m.d}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Closing */}
+        <section className="py-5">
+          <div className="container">
+            <motion.div
+              className="row align-items-center g-4"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={stagger}
+            >
+              <motion.div className="col-lg-7" variants={fadeUp}>
+                <h2 className="h3 fw-bold">Apna Mestri Promise</h2>
+                <p className="text-secondary mb-2">
+                  Simple booking, verified workers, fair pricing, and quality materials—from small fixes to big builds.
+                </p>
+                <p className="mb-0">
+                  We’re here to build not just homes, but trust and happiness—one project at a time.
+                </p>
+              </motion.div>
+              <motion.div className="col-lg-5 text-center" variants={fadeUp}>
+                <img src="/about3.jpeg" alt="Work montage" className="img-fluid rounded-3 shadow-sm" />
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+      </main>
+      <Footer></Footer>
+    </>
+  );
+}
