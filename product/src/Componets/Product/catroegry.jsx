@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Navbar } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import NavaPro from "./navbarproduct";
+import Footer from "./footer";
 
 const allCategories = {
   Materials: [
@@ -75,6 +77,8 @@ const CategoryDashboard = () => {
   );
 
   return (
+    <>
+    <NavaPro></NavaPro>
     <div style={{ background: "#fff", color: "#000", minHeight: "100vh", paddingBottom: "50px", overflowX: "hidden" }}>
       <Container className="py-5">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
@@ -199,6 +203,8 @@ const CategoryDashboard = () => {
         </Row>
       </Container>
     </div>
+    <Footer></Footer>
+    </>
   );
 };
 
