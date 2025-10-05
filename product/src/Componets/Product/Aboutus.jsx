@@ -313,7 +313,7 @@ export default function Aboutus() {
               variants={stagger}
             >
               {[
-  { n: "Vaibhav", r: "CO-Founder",},
+  { n: "Vaibhav", r: "CO-Founder", i:"https://res.cloudinary.com/dqxsgmf33/image/upload/v1759319794/WhatsApp_Image_2025-10-01_at_12.23.28_PM_sp65z2.jpg"},
   { n: "Uttej", r: "CO-Founder" },
   { n: "Hanumansai", r: "Technical Head" }
 ].map((m, i) => (
