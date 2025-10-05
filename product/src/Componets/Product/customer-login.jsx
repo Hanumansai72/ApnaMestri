@@ -95,7 +95,7 @@ function CustomerLogin() {
       const decoded = jwtDecode(credentialResponse.credential);
       const { email, name, picture } = decoded;
 
-      const res = await axios.post("https://backend-d6mx.vercel.app/google-login", {
+      const res = await axios.post("https://backend-d6mx.vercel.app/google-login/customer", {
         email,
         name,
         picture,
