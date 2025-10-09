@@ -1,9 +1,10 @@
+// src/Componets/Product/Customerchat.jsx
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import NavaPro from './navbarproduct';
-import { socket } from './socket'; // ensure path to src/socket.js
+import { socket } from './socket'; // path assumes socket.js at src/socket.js
 
 const API_BASE =
   process.env.NODE_ENV === 'production'
@@ -62,8 +63,6 @@ export default function CustomerChat() {
   useEffect(() => {
     if (!customerId) return;
     const loadConversations = async () => {
-      // Option 1: a dedicated endpoint for user conversations would be ideal,
-      // here we reuse all messages and reduce locally
       const res = await axios.get(`${API_BASE}/api/messages/all`);
       const mine = res.data.filter(
         (m) => m.senderId === customerId || m.receiverId === customerId
@@ -78,7 +77,10 @@ export default function CustomerChat() {
         const last = list[list.length - 1];
         return {
           id: otherId,
-          name: last.senderModel === 'Vendor' || last.receiverModel === 'Vendor' ? 'Vendor User' : 'Customer User',
+          name:
+            last.senderModel === 'Vendor' || last.receiverModel === 'Vendor'
+              ? 'Vendor User'
+              : 'Customer User',
           avatar: 'https://i.pravatar.cc/80?img=8',
           lastMessage: last.text,
           lastTime: new Date(last.time || Date.now()).toLocaleTimeString(),
@@ -112,7 +114,7 @@ export default function CustomerChat() {
       setMessages((prev) => ({ ...prev, [activeId]: res.data || [] }));
     };
     fetchThread().catch(() => {});
-  }, [activeId, customerId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeId, customerId]); // messages omitted intentionally for initial hydration
 
   const activeConv = conversations.find((c) => c.id === activeId);
   const activeMessages = messages[activeId] || [];
@@ -153,13 +155,22 @@ export default function CustomerChat() {
   return (
     <>
       <NavaPro />
-      <div className="container-fluid" style={{ background: '#fff', minHeight: '100vh', padding: '1.25rem' }}>
+      <div
+        className="container-fluid"
+        style={{ background: '#fff', minHeight: '100vh', padding: '1.25rem' }}
+      >
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="d-flex gap-2">
-            <button className="btn btn-outline-secondary d-lg-none" onClick={() => setShowSidebar((s) => !s)}>
+            <button
+              className="btn btn-outline-secondary d-lg-none"
+              onClick={() => setShowSidebar((s) => !s)}
+            >
               <i className="bi bi-list"></i>
             </button>
-            <button className="btn btn-outline-secondary d-lg-none" onClick={() => setShowProfile((s) => !s)}>
+            <button
+              className="btn btn-outline-secondary d-lg-none"
+              onClick={() => setShowProfile((s) => !s)}
+            >
               <i className="bi bi-person-circle"></i>
             </button>
           </div>
@@ -175,7 +186,14 @@ export default function CustomerChat() {
                 exit={{ x: -100, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 70 }}
               >
-                <div className="card" style={{ borderRadius: 12, height: 'calc(100vh - 120px)', overflow: 'hidden' }}>
+                <div
+                  className="card"
+                  style={{
+                    borderRadius: 12,
+                    height: 'calc(100vh - 120px)',
+                    overflow: 'hidden',
+                  }}
+                >
                   <div className="card-body p-3" style={{ background: lightGray }}>
                     <div className="d-flex align-items-center mb-3">
                       <motion.img
@@ -277,7 +295,10 @@ export default function CustomerChat() {
                 </div>
               </div>
 
-              <div ref={scrollRef} style={{ padding: '1rem', overflowY: 'auto', flex: 1, background: '#F7F9FB' }}>
+              <div
+                ref={scrollRef}
+                style={{ padding: '1rem', overflowY: 'auto', flex: 1, background: '#F7F9FB' }}
+              >
                 <AnimatePresence>
                   {(activeMessages || []).map((m, i) => (
                     <motion.div
@@ -323,7 +344,11 @@ export default function CustomerChat() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   />
-                  <button className="btn" style={{ background: themeYellow, color: '#000' }} onClick={handleSend}>
+                  <button
+                    className="btn"
+                    style={{ background: themeYellow, color: '#000' }}
+                    onClick={handleSend}
+                  >
                     <i className="bi bi-send-fill"></i>
                   </button>
                 </div>
