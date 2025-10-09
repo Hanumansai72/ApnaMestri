@@ -59,13 +59,16 @@ const ProfessionalServicePage = () => {
     setToast({ show: true, message, variant });
 
   // 🚀 Navigate to chat
-  const handleMessageClick = (vendorId) => {
-    if (!userId || userId === "undefined") {
-      showToast("Please login to chat with vendor", "danger");
-      return;
-    }
-    navigate(`/customer/chat/${vendorId}`);
-  };
+  // ...imports unchanged
+// inside component
+const handleMessageClick = (vendorId) => {
+  if (!userId || userId === 'undefined') {
+    showToast('Please login to chat with vendor', 'danger');
+    return;
+  }
+  navigate(`/customer/chat/${vendorId}`);
+};
+
 
   // Hire vendor
   const booknow = (vendorId) => {
