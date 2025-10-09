@@ -41,7 +41,7 @@ function App() {
           <Route path='/forgetpassword' element={<ForgetPassword></ForgetPassword>}/>
               <Route path='/service/details/:id' element={<ProfessionalServicePage></ProfessionalServicePage>}/>
                             <Route path='/about' element={<AboutUs></AboutUs>}/>
-                                                        <Route path='/chat' element={<VendorChat></VendorChat>}/>
+                                                        <Route path='/customer/chat/:id' element={<VendorChat></VendorChat>}/>
 
 
 
