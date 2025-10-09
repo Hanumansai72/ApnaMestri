@@ -17,7 +17,7 @@ import ForgetPassword from './Componets/Product/forgetpassword';
 import ProfessionalServicePage from './Componets/Product/profesionalservicedeatil';
 import ViewStore from './Componets/Product/viewstore';
 import AboutUs from './Componets/Product/Aboutus'
-import VendorChat from './Componets/Product/Customerchat';
+import CustomerChat from './Componets/Product/Customerchat';
 function App() {
   return (
     <div className="App">
@@ -41,7 +41,7 @@ function App() {
           <Route path='/forgetpassword' element={<ForgetPassword></ForgetPassword>}/>
               <Route path='/service/details/:id' element={<ProfessionalServicePage></ProfessionalServicePage>}/>
                             <Route path='/about' element={<AboutUs></AboutUs>}/>
-                                      <Route path="/customer/chat/:vendorId?" element={<VendorChat />} />
+                                      <Route path="/customer/chat/:vendorId?" element={<CustomerChat />} />
 
 
 
