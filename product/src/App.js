@@ -17,7 +17,7 @@ import ForgetPassword from './Componets/Product/forgetpassword';
 import ProfessionalServicePage from './Componets/Product/profesionalservicedeatil';
 import ViewStore from './Componets/Product/viewstore';
 import AboutUs from './Componets/Product/Aboutus'
-import VendorChat from './Componets/Product/Vendorchat';
+import VendorChat from './Componets/Product/Customerchat';
 function App() {
   return (
     <div className="App">
