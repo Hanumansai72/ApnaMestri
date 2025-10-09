@@ -15,12 +15,11 @@ import axios from "axios";
 import NavaPro from "./navbarproduct";
 import Footer from "./footer";
 
-// Helper to render stars
+// ⭐ Helper to render stars
 const renderStars = (rating, color = "#ffc107") => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-  
   return (
     <span style={{ color }}>
       {[...Array(fullStars)].map((_, i) => (
@@ -48,7 +47,7 @@ const ProfessionalServicePage = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
-  const [vendorids,setvendorids]=useState("");
+  const [vendorId, setVendorId] = useState("");
 
   const [toast, setToast] = useState({
     show: false,
@@ -59,6 +58,16 @@ const ProfessionalServicePage = () => {
   const showToast = (message, variant = "success") =>
     setToast({ show: true, message, variant });
 
+  // 🚀 Navigate to chat
+  const handleMessageClick = (vendorId) => {
+    if (!userId || userId === "undefined") {
+      showToast("Please login to chat with vendor", "danger");
+      return;
+    }
+    navigate(`/customer/chat/${vendorId}`);
+  };
+
+  // Hire vendor
   const booknow = (vendorId) => {
     localStorage.setItem("Customerid", vendorId);
     navigate("/myorder/service");
@@ -68,21 +77,18 @@ const ProfessionalServicePage = () => {
   useEffect(() => {
     const fetchVendor = async () => {
       try {
-        const res = await fetch(`https://backend-d6mx.vercel.app/profesionaldetails/${id}`);
+        const res = await fetch(
+          `https://backend-d6mx.vercel.app/profesionaldetails/${id}`
+        );
         const data = await res.json();
         setVendor(data);
-        setvendorids(data._id);
-        
-        console.log(vendorids)
-
-        
+        setVendorId(data._id);
       } catch (err) {
         console.error("Error fetching vendor:", err);
       }
     };
     fetchVendor();
   }, [id]);
-
 
   // Fetch projects
   useEffect(() => {
@@ -93,18 +99,16 @@ const ProfessionalServicePage = () => {
   }, [id]);
 
   // Fetch reviews
-  // Fetch reviews
-const fetchReviews = () => {
-  axios
-    .get(`https://backend-d6mx.vercel.app/fetch/review/service/${id}`)
-    .then((res) => setReviews(res.data.getreview || []))
-    .catch((err) => console.error("Error fetching reviews:", err));
-};
+  const fetchReviews = () => {
+    axios
+      .get(`https://backend-d6mx.vercel.app/fetch/review/service/${id}`)
+      .then((res) => setReviews(res.data.getreview || []))
+      .catch((err) => console.error("Error fetching reviews:", err));
+  };
 
-useEffect(() => {
-  if (id) fetchReviews();
-}, [id]);
-
+  useEffect(() => {
+    if (id) fetchReviews();
+  }, [id]);
 
   // Submit review
   const handleSubmitReview = () => {
@@ -119,7 +123,7 @@ useEffect(() => {
 
     axios
       .post(`https://backend-d6mx.vercel.app/review/${userId}`, {
-        vendorids:vendorids,
+        vendorids: vendorId,
         customerName: name,
         rating: reviewRating,
         comment: reviewText,
@@ -185,7 +189,11 @@ useEffect(() => {
               >
                 Hire Now
               </Button>
-              <Button variant="outline-dark" className="w-100">
+              <Button
+                variant="outline-dark"
+                className="w-100"
+                onClick={() => handleMessageClick(vendor._id)}
+              >
                 Message
               </Button>
             </Col>
@@ -250,7 +258,9 @@ useEffect(() => {
             </span>
           </div>
           <Row>
-            {reviews.length === 0 && <p>No reviews yet. Be the first to review!</p>}
+            {reviews.length === 0 && (
+              <p>No reviews yet. Be the first to review!</p>
+            )}
             {reviews.map((rev, i) => (
               <Col md={6} key={i} className="mb-3">
                 <Card className="p-3 shadow-sm border-0">
@@ -286,7 +296,11 @@ useEffect(() => {
                 />
               </Form.Group>
               <Button
-                style={{ backgroundColor: "#FFD700", border: "none", color: "#000" }}
+                style={{
+                  backgroundColor: "#FFD700",
+                  border: "none",
+                  color: "#000",
+                }}
                 onClick={handleSubmitReview}
               >
                 Submit Review
@@ -295,7 +309,11 @@ useEffect(() => {
           ) : (
             <Button
               className="mt-3"
-              style={{ backgroundColor: "#FFD700", border: "none", color: "#000" }}
+              style={{
+                backgroundColor: "#FFD700",
+                border: "none",
+                color: "#000",
+              }}
               onClick={() => setShowReviewForm(true)}
             >
               Write a Review
