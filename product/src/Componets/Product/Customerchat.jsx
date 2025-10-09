@@ -12,32 +12,31 @@ const API_BASE =
     : "http://localhost:5000";
 
 export default function CustomerChat() {
-  const { vendorId } = useParams();
+  const { vendorId } = useParams(); // vendorId from URL if navigating directly
   const customerId = localStorage.getItem("userid") || "";
-
   const [conversations, setConversations] = useState([]);
   const [activeId, setActiveId] = useState(vendorId || null);
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState("");
   const [search, setSearch] = useState("");
-  const [vendorInfo, setVendorInfo] = useState({
-    name: "Vendor",
-    avatar: "https://i.pravatar.cc/80?img=8",
-  });
+  const [vendorDetails, setVendorDetails] = useState(null);
 
   const scrollRef = useRef(null);
 
   // ------------------- Socket.IO -------------------
   useEffect(() => {
     if (!customerId) return;
+    console.log("Joining room:", customerId);
     socket.emit("joinRoom", customerId);
 
     const handler = (msg) => {
-      const otherId = msg.senderId === customerId ? msg.receiverId : msg.senderId;
+      const otherId =
+        msg.senderId === customerId ? msg.receiverId : msg.senderId;
       setMessages((prev) => ({
         ...prev,
         [otherId]: [...(prev[otherId] || []), msg],
       }));
+      console.log("New message received:", msg);
     };
 
     socket.on("receiveMessage", handler);
@@ -46,7 +45,8 @@ export default function CustomerChat() {
 
   // ------------------- Auto Scroll -------------------
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollRef.current)
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [activeId, messages]);
 
   // ------------------- Load Conversations -------------------
@@ -55,11 +55,15 @@ export default function CustomerChat() {
 
     const loadConversations = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/api/messages/customer/${customerId}`);
-        const convMap = {};
+        const res = await axios.get(
+          `${API_BASE}/api/messages/customer/${customerId}`
+        );
+        console.log("Conversations loaded:", res.data);
 
+        const convMap = {};
         res.data.forEach((msg) => {
-          const otherId = msg.senderId === customerId ? msg.receiverId : msg.senderId;
+          const otherId =
+            msg.senderId === customerId ? msg.receiverId : msg.senderId;
           if (!convMap[otherId]) convMap[otherId] = [];
           convMap[otherId].push(msg);
         });
@@ -70,8 +74,8 @@ export default function CustomerChat() {
             id: otherId,
             name:
               last.senderId === customerId
-                ? last.receiverIdName || "Vendor"
-                : last.senderIdName || "Vendor",
+                ? last.receiverName || "Vendor"
+                : last.senderName || "Vendor",
             avatar:
               last.senderId === customerId
                 ? last.receiverAvatar || "https://i.pravatar.cc/80?img=8"
@@ -82,52 +86,54 @@ export default function CustomerChat() {
         });
 
         setConversations(convs);
+        setMessages(convMap);
+
+        if (!activeId && convs.length > 0) setActiveId(convs[0].id);
       } catch (err) {
-        console.error(err);
+        console.error("Error loading conversations:", err);
       }
     };
 
     loadConversations();
-  }, [customerId]);
+  }, [customerId, activeId]);
 
-  // ------------------- Fetch Vendor Info -------------------
+  // ------------------- Fetch Active Vendor Details -------------------
   useEffect(() => {
     if (!activeId) return;
+    console.log("Fetching vendor details for:", activeId);
 
-    const fetchVendorInfo = async () => {
+    const fetchVendor = async () => {
       try {
         const res = await axios.get(`${API_BASE}/api/vendor/${activeId}`);
-        setVendorInfo({
-          name: res.data.Owner_name || "Vendor",
-          avatar: res.data.Profile_Image || "https://i.pravatar.cc/80?img=8",
-        });
+        console.log("Vendor details:", res.data);
+        setVendorDetails(res.data);
       } catch (err) {
-        console.error("Vendor info error:", err);
+        console.error("Error fetching vendor details:", err);
+        setVendorDetails(null);
       }
     };
-
-    fetchVendorInfo();
+    fetchVendor();
   }, [activeId]);
 
   // ------------------- Fetch Active Thread -------------------
   useEffect(() => {
-    if (!activeId) return;
+    if (!activeId || messages[activeId]?.length > 0) return;
 
     const fetchThread = async () => {
-      if (messages[activeId]?.length > 0) return;
-
       try {
-        const res = await axios.get(`${API_BASE}/api/messages/conversation/${customerId}/${activeId}`);
+        const res = await axios.get(
+          `${API_BASE}/api/messages/conversation/${customerId}/${activeId}`
+        );
+        console.log("Active thread messages:", res.data);
         setMessages((prev) => ({ ...prev, [activeId]: res.data || [] }));
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching conversation:", err);
       }
     };
 
     fetchThread();
   }, [activeId, customerId, messages]);
 
-  // ------------------- Send Message -------------------
   const handleSend = async () => {
     if (!input.trim() || !activeId) return;
 
@@ -137,19 +143,19 @@ export default function CustomerChat() {
       receiverId: activeId,
       receiverModel: "Vendor",
       text: input.trim(),
-      time: new Date().toISOString(),
     };
 
+    // Optimistic UI update
     setMessages((prev) => ({
       ...prev,
-      [activeId]: [...(prev[activeId] || []), msgData],
+      [activeId]: [...(prev[activeId] || []), { ...msgData, time: new Date().toISOString() }],
     }));
     setInput("");
-
     socket.emit("sendMessage", msgData);
 
     try {
       await axios.post(`${API_BASE}/api/messages/customer/send`, msgData);
+      console.log("Message sent successfully:", msgData);
     } catch (err) {
       console.error("Message failed to send", err);
     }
@@ -160,7 +166,7 @@ export default function CustomerChat() {
   );
 
   const activeMessages = messages[activeId] || [];
-  const activeConv = conversations.find((c) => c.id === activeId) || vendorInfo;
+  const activeConv = conversations.find((c) => c.id === activeId);
 
   return (
     <>
@@ -199,6 +205,9 @@ export default function CustomerChat() {
                       </div>
                     </div>
                   ))}
+                  {filteredConversations.length === 0 && (
+                    <p className="text-center text-muted mt-3">No conversations yet</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -210,20 +219,27 @@ export default function CustomerChat() {
               className="card"
               style={{ borderRadius: 12, height: "90vh", display: "flex", flexDirection: "column" }}
             >
+              {/* Header */}
               <div className="card-header" style={{ background: "#fff", borderBottom: "1px solid #eee" }}>
                 <div className="d-flex align-items-center">
                   <img
-                    src={activeConv.avatar}
+                    src={vendorDetails?.Profile_Image || activeConv?.avatar || "https://i.pravatar.cc/80?img=8"}
                     alt=""
                     className="rounded-circle me-2"
                     style={{ width: 48, height: 48 }}
                   />
                   <div>
-                    <div style={{ fontWeight: 700 }}>{activeConv.name || "Select Vendor"}</div>
+                    <div style={{ fontWeight: 700 }}>
+                      {vendorDetails?.Owner_name || activeConv?.name || "Select Vendor"}
+                    </div>
+                    <div className="text-muted" style={{ fontSize: 12 }}>
+                      {vendorDetails?.Business_Name || ""}
+                    </div>
                   </div>
                 </div>
               </div>
 
+              {/* Messages */}
               <div
                 ref={scrollRef}
                 style={{ flex: 1, overflowY: "auto", padding: "1rem", background: "#F7F9FB" }}
@@ -232,9 +248,7 @@ export default function CustomerChat() {
                   {activeMessages.map((m, i) => (
                     <motion.div
                       key={m._id || i}
-                      className={`d-flex mb-3 ${
-                        m.senderId === customerId ? "justify-content-end" : "justify-content-start"
-                      }`}
+                      className={`d-flex mb-3 ${m.senderId === customerId ? "justify-content-end" : "justify-content-start"}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
@@ -257,9 +271,13 @@ export default function CustomerChat() {
                       </div>
                     </motion.div>
                   ))}
+                  {activeMessages.length === 0 && (
+                    <p className="text-center text-muted mt-3">No messages yet</p>
+                  )}
                 </AnimatePresence>
               </div>
 
+              {/* Footer */}
               <div className="card-footer" style={{ borderTop: "1px solid #eee", background: "#fff" }}>
                 <div className="d-flex gap-2">
                   <input
