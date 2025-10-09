@@ -18,19 +18,27 @@ const ProfessionalListPage = () => {
   const [loading, setLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Filters
+  const [subcategoryFilter, setSubcategoryFilter] = useState('All');
+  const [priceFilter, setPriceFilter] = useState('All');
+  const [sortByDistance, setSortByDistance] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const search = queryParams.get('search') || 'Plumber';
 
+  // Distance calculation
   function calculateDistance(lat1, lon1, lat2, lon2) {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity;
     function toRad(x) { return x * Math.PI / 180; }
     const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    const a = Math.sin(dLat / 2) ** 2 +
       Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -44,6 +52,7 @@ const ProfessionalListPage = () => {
     navigate(`/service/details/${vendorId}`);
   }
 
+  // Fetch vendors on load or search change
   useEffect(() => {
     setLoading(true);
     navigator.geolocation.getCurrentPosition(
@@ -77,27 +86,54 @@ const ProfessionalListPage = () => {
         setFilteredVendors([]);
         setDescription('');
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   };
 
-  // search filter effect
+  // Unique subcategories for dropdown
+  const subcategories = ['All', ...new Set(vendorlist.flatMap(v => v.Sub_Category || []))];
+
+  // Apply search + filters
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredVendors(vendorlist);
-    } else {
+    let results = [...vendorlist];
+
+    // Search filter
+    if (searchTerm.trim()) {
       const lower = searchTerm.toLowerCase();
-      setFilteredVendors(
-        vendorlist.filter(v =>
-          v.Business_Name?.toLowerCase().includes(lower) ||
-          v.Sub_Category?.some(sub => sub.toLowerCase().includes(lower)) ||
-          v.Description?.toLowerCase().includes(lower)
-        )
+      results = results.filter(v =>
+        v.Business_Name?.toLowerCase().includes(lower) ||
+        v.Sub_Category?.some(sub => sub.toLowerCase().includes(lower)) ||
+        v.Description?.toLowerCase().includes(lower)
       );
     }
+
+    // Subcategory filter
+    if (subcategoryFilter !== 'All') {
+      results = results.filter(v => v.Sub_Category?.includes(subcategoryFilter));
+    }
+
+    // Price filter
+    if (priceFilter !== 'All') {
+      results = results.filter(v => {
+        const price = parseFloat(v.Charge_Per_Hour_or_Day);
+        if (priceFilter === 'Low') return price < 500;
+        if (priceFilter === 'Medium') return price >= 500 && price <= 1500;
+        if (priceFilter === 'High') return price > 1500;
+        return true;
+      });
+    }
+
+    // Sort by distance (if enabled)
+    if (sortByDistance && userLocation) {
+      results.sort((a, b) => {
+        const distA = calculateDistance(userLocation.latitude, userLocation.longitude, a.Latitude, a.Longitude);
+        const distB = calculateDistance(userLocation.latitude, userLocation.longitude, b.Latitude, b.Longitude);
+        return distA - distB;
+      });
+    }
+
+    setFilteredVendors(results);
     setCurrentPage(1);
-  }, [searchTerm, vendorlist]);
+  }, [searchTerm, subcategoryFilter, priceFilter, sortByDistance, vendorlist, userLocation]);
 
   const totalPages = Math.ceil(filteredVendors.length / ITEMS_PER_PAGE);
   const paginatedVendors = filteredVendors.slice(
@@ -110,6 +146,7 @@ const ProfessionalListPage = () => {
       <NavaPro />
       <div style={{ backgroundColor: '#fff', color: '#000', minHeight: '100vh', padding: '2rem 0' }}>
         <Container>
+          {/* Header */}
           <header className="text-center mb-5">
             <h1 className="fw-bold" style={{ color: '#FFD700', fontFamily: "'Poppins', sans-serif" }}>Find Trusted Professionals</h1>
             <p style={{ color: '#555' }}>{description}</p>
@@ -120,38 +157,57 @@ const ProfessionalListPage = () => {
             </div>
           </header>
 
-          {/* Search Bar */}
-          <Row className="mb-4">
-            <Col>
-              <div className="search-filter-bar" style={{
-                backgroundColor: '#fff8dc',
-                border: '1px solid #FFD700',
-                borderRadius: '8px',
-                padding: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <InputGroup>
-                  <InputGroup.Text style={{ background: 'transparent', border: 'none', color: '#FFD700' }}>
-                    <i className="bi bi-search"></i>
-                  </InputGroup.Text>
-                  <Form.Control
-                    placeholder="Search professionals by name, skill or description..."
-                    style={{ border: 'none', background: 'transparent' }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </InputGroup>
-              </div>
+          {/* Search & Filter Bar */}
+          <Row className="mb-4 g-2">
+            <Col md={4}>
+              <InputGroup>
+                <InputGroup.Text style={{ background: 'transparent', border: 'none', color: '#FFD700' }}>
+                  <i className="bi bi-search"></i>
+                </InputGroup.Text>
+                <Form.Control
+                  placeholder="Search by name, skill or description..."
+                  style={{ border: '1px solid #FFD700', background: 'transparent' }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </InputGroup>
+            </Col>
+
+            <Col md={3}>
+              <Form.Select value={subcategoryFilter} onChange={(e) => setSubcategoryFilter(e.target.value)}>
+                {subcategories.map((sub, i) => (
+                  <option key={i} value={sub}>{sub}</option>
+                ))}
+              </Form.Select>
+            </Col>
+
+            <Col md={3}>
+              <Form.Select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)}>
+                <option value="All">All Prices</option>
+                <option value="Low">Below ₹500</option>
+                <option value="Medium">₹500 - ₹1500</option>
+                <option value="High">Above ₹1500</option>
+              </Form.Select>
+            </Col>
+
+            <Col md={2} className="d-flex align-items-center">
+              <Form.Check
+                type="switch"
+                id="distance-sort"
+                label="Sort by Distance"
+                checked={sortByDistance}
+                onChange={(e) => setSortByDistance(e.target.checked)}
+              />
             </Col>
           </Row>
 
+          {/* Results Info */}
           <div className="d-flex justify-content-between align-items-center mb-3">
             <p style={{ color: '#555' }}>Showing {paginatedVendors.length} of {filteredVendors.length} professionals</p>
             <p style={{ color: '#555' }}>Page {currentPage} of {totalPages}</p>
           </div>
 
+          {/* Vendor Cards */}
           {loading ? (
             <div className="text-center my-5">
               <Spinner animation="border" role="status" style={{ color: '#FFD700' }} />
@@ -159,132 +215,75 @@ const ProfessionalListPage = () => {
             </div>
           ) : (
             <Row className="g-4 justify-content-center">
-  {paginatedVendors.length === 0 ? (
-    <Col>
-      <p className="text-center">No vendors found for "{searchTerm || search}".</p>
-    </Col>
-  ) : (
-    paginatedVendors.map((vendor, index) => (
-      <Col
-        key={vendor._id || index}
-        xs={12} md={6} lg={4}  // ✅ Responsive: full width on mobile, 2 per row on tablets, 3 per row on desktops
-      >
-        <Card
-          style={{
-            border: '1px solid #fff',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            padding: '15px',
-            width: "100%",
-            margin: "0 auto",
-            backgroundColor: "#fff",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)", // Shadow for visibility
-            transition: "transform 0.2s ease, box-shadow 0.2s ease"
-          }}
-          className="d-flex flex-row align-items-center h-100"
-        >
-          {/* Left Side - Image */}
-          <div style={{ flexShrink: 0, marginRight: '15px' }}>
-            <img
-              src={vendor.Profile_Image}
-              alt="profile"
-              style={{
-                width: '100px',
-                height: '100px',
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: '3px solid #FFD700'
-              }}
-            />
-          </div>
-
-          {/* Right Side - Content */}
-          <Card.Body style={{ textAlign: 'left' }}>
-            <Card.Title
-              style={{
-                fontFamily: "'Poppins', sans-serif",
-                fontWeight: '600',
-                marginBottom: '8px'
-              }}
-            >
-              {vendor.Business_Name?.trim()}
-            </Card.Title>
-
-            {/* Description */}
-            {vendor.Description && (
-              <Card.Text style={{ fontSize: '0.9rem', color: '#555', marginBottom: '8px' }}>
-                {vendor.Description}
-              </Card.Text>
-            )}
-
-            {/* Sub Categories */}
-            <div style={{ marginBottom: '8px' }}>
-              {Array.isArray(vendor.Sub_Category) && vendor.Sub_Category.length > 0 ? (
-                vendor.Sub_Category.map((sub, i) => (
-                  <Badge
-                    key={i}
-                    style={{
-                      backgroundColor: '#FFD700',
-                      color: '#000',
-                      margin: '2px',
-                      padding: '5px 10px'
-                    }}
-                  >
-                    {sub}
-                  </Badge>
-                ))
+              {paginatedVendors.length === 0 ? (
+                <Col>
+                  <p className="text-center">No vendors found for "{searchTerm || search}".</p>
+                </Col>
               ) : (
-                <Badge style={{ backgroundColor: '#FFD700', color: '#000' }}>General</Badge>
+                paginatedVendors.map((vendor, index) => (
+                  <Col key={vendor._id || index} xs={12} md={6} lg={4}>
+                    <Card
+                      style={{
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        padding: '15px',
+                        backgroundColor: "#fff",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                        transition: "transform 0.2s ease, box-shadow 0.2s ease"
+                      }}
+                      className="d-flex flex-row align-items-center h-100"
+                    >
+                      <div style={{ flexShrink: 0, marginRight: '15px' }}>
+                        <img
+                          src={vendor.Profile_Image}
+                          alt="profile"
+                          style={{
+                            width: '100px',
+                            height: '100px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            border: '3px solid #FFD700'
+                          }}
+                        />
+                      </div>
+
+                      <Card.Body style={{ textAlign: 'left' }}>
+                        <Card.Title style={{ fontFamily: "'Poppins', sans-serif", fontWeight: '600' }}>
+                          {vendor.Business_Name?.trim()}
+                        </Card.Title>
+                        <Card.Text style={{ fontSize: '0.9rem', color: '#555' }}>{vendor.Description}</Card.Text>
+                        <div>
+                          {Array.isArray(vendor.Sub_Category) && vendor.Sub_Category.length > 0 ? (
+                            vendor.Sub_Category.map((sub, i) => (
+                              <Badge key={i} style={{ backgroundColor: '#FFD700', color: '#000', margin: '2px', padding: '5px 10px' }}>
+                                {sub}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge style={{ backgroundColor: '#FFD700', color: '#000' }}>General</Badge>
+                          )}
+                        </div>
+                        <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#333' }}>
+                          ₹{vendor.Charge_Per_Hour_or_Day}/{vendor.Charge_Type}
+                        </div>
+                        <div className="d-flex gap-2">
+                          <Button style={{ backgroundColor: '#FFD700', border: 'none', color: '#000', fontWeight: 'bold' }} onClick={() => booknow(vendor._id)}>Book Now</Button>
+                          <Button variant="outline-dark" style={{ borderColor: '#FFD700', color: '#000', fontWeight: 'bold' }} onClick={() => viewDetails(vendor._id)}>View Details</Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))
               )}
-            </div>
-
-            {/* Price */}
-            <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#333' }}>
-              ₹{vendor.Charge_Per_Hour_or_Day}/{vendor.Charge_Type}
-            </div>
-
-            {/* Buttons */}
-            <div className="d-flex gap-2">
-              <Button
-                style={{
-                  backgroundColor: '#FFD700',
-                  border: 'none',
-                  color: '#000',
-                  fontWeight: 'bold'
-                }}
-                onClick={() => booknow(vendor._id)}
-              >
-                Book Now
-              </Button>
-              <Button
-                variant="outline-dark"
-                style={{
-                  borderColor: '#FFD700',
-                  color: '#000',
-                  fontWeight: 'bold'
-                }}
-                onClick={() => viewDetails(vendor._id)}
-              >
-                View Details
-              </Button>
-            </div>
-          </Card.Body>
-        </Card>
-      </Col>
-    ))
-  )}
-</Row>
-
+            </Row>
           )}
 
+          {/* Pagination */}
           {!loading && totalPages > 1 && (
             <Row>
               <Col className="d-flex justify-content-center mt-4">
                 <Pagination>
-                  <Pagination.Prev
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                  />
+                  <Pagination.Prev disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} />
                   {[...Array(totalPages)].map((_, idx) => (
                     <Pagination.Item
                       key={idx}
@@ -295,10 +294,7 @@ const ProfessionalListPage = () => {
                       {idx + 1}
                     </Pagination.Item>
                   ))}
-                  <Pagination.Next
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                  />
+                  <Pagination.Next disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} />
                 </Pagination>
               </Col>
             </Row>

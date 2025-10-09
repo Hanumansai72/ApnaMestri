@@ -229,12 +229,25 @@ const CartPage = () => {
     <hr style={{ borderColor: '#e2e8f0' }} />
 
     <div className="d-flex justify-content-between text-muted mb-2">
+      <span>Subtotal</span>
+      <span>₹{subtotal.toLocaleString('en-IN')}</span>
+    </div>
+
+    <div className="d-flex justify-content-between text-muted mb-2">
       <span>Delivery</span>
       <span className={shipping === 0 ? 'text-success' : 'text-muted'}>
         {shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}
       </span>
     </div>
-    <small className="text-muted d-block mb-3">Free delivery on orders above ₹50,000</small>
+
+    <div className="grand-total d-flex justify-content-between fw-bold py-2 my-2">
+      <span>Total</span>
+      <span>₹{total.toLocaleString('en-IN')}</span>
+    </div>
+
+    <small className="text-muted d-block mb-3">
+      Free delivery on orders above ₹50,000
+    </small>
 
     <Button className="checkout-btn my-3" onClick={handleCheckout}>
       Proceed to Checkout <i className="bi bi-arrow-right"></i>
@@ -260,6 +273,7 @@ const CartPage = () => {
     </div>
   </Card>
 </Col>
+
 
           </Row>
         </Container>
