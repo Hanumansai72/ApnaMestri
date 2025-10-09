@@ -1,4 +1,3 @@
-// src/Components/Product/CustomerChat.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
@@ -12,7 +11,7 @@ const API_BASE =
     : "http://localhost:5000";
 
 export default function CustomerChat() {
-  const { vendorId } = useParams(); // vendorId from URL if navigating directly
+  const { vendorId } = useParams();
   const customerId = localStorage.getItem("userid") || "";
   const [conversations, setConversations] = useState([]);
   const [activeId, setActiveId] = useState(vendorId || null);
@@ -26,17 +25,14 @@ export default function CustomerChat() {
   // ------------------- Socket.IO -------------------
   useEffect(() => {
     if (!customerId) return;
-    console.log("Joining room:", customerId);
     socket.emit("joinRoom", customerId);
 
     const handler = (msg) => {
-      const otherId =
-        msg.senderId === customerId ? msg.receiverId : msg.senderId;
+      const otherId = msg.senderId === customerId ? msg.receiverId : msg.senderId;
       setMessages((prev) => ({
         ...prev,
         [otherId]: [...(prev[otherId] || []), msg],
       }));
-      console.log("New message received:", msg);
     };
 
     socket.on("receiveMessage", handler);
@@ -45,8 +41,7 @@ export default function CustomerChat() {
 
   // ------------------- Auto Scroll -------------------
   useEffect(() => {
-    if (scrollRef.current)
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [activeId, messages]);
 
   // ------------------- Load Conversations -------------------
@@ -55,31 +50,32 @@ export default function CustomerChat() {
 
     const loadConversations = async () => {
       try {
-        const res = await axios.get(
-          `${API_BASE}/api/messages/customer/${customerId}`
-        );
-        console.log("Conversations loaded:", res.data);
-
+        const res = await axios.get(`${API_BASE}/api/messages/customer/${customerId}`);
         const convMap = {};
+
         res.data.forEach((msg) => {
-          const otherId =
-            msg.senderId === customerId ? msg.receiverId : msg.senderId;
+          const otherId = msg.senderId === customerId ? msg.receiverId._id || msg.receiverId : msg.senderId._id || msg.senderId;
           if (!convMap[otherId]) convMap[otherId] = [];
           convMap[otherId].push(msg);
         });
 
         const convs = Object.entries(convMap).map(([otherId, msgs]) => {
           const last = msgs[msgs.length - 1];
+          let name = "";
+          let avatar = "";
+          if (last.senderId === customerId) {
+            // Last message sent by customer
+            name = last.receiverId?.Business_Name || "Vendor";
+            avatar = last.receiverId?.Profile_Image || "https://i.pravatar.cc/80?img=8";
+          } else {
+            // Last message sent by vendor
+            name = last.senderId?.Business_Name || "Vendor";
+            avatar = last.senderId?.Profile_Image || "https://i.pravatar.cc/80?img=8";
+          }
           return {
             id: otherId,
-            name:
-              last.senderId === customerId
-                ? last.receiverName || "Vendor"
-                : last.senderName || "Vendor",
-            avatar:
-              last.senderId === customerId
-                ? last.receiverAvatar || "https://i.pravatar.cc/80?img=8"
-                : last.senderAvatar || "https://i.pravatar.cc/80?img=8",
+            name,
+            avatar,
             lastMessage: last.text,
             lastTime: new Date(last.time || Date.now()).toLocaleTimeString(),
           };
@@ -100,12 +96,10 @@ export default function CustomerChat() {
   // ------------------- Fetch Active Vendor Details -------------------
   useEffect(() => {
     if (!activeId) return;
-    console.log("Fetching vendor details for:", activeId);
 
     const fetchVendor = async () => {
       try {
         const res = await axios.get(`${API_BASE}/api/vendor/${activeId}`);
-        console.log("Vendor details:", res.data);
         setVendorDetails(res.data);
       } catch (err) {
         console.error("Error fetching vendor details:", err);
@@ -121,10 +115,7 @@ export default function CustomerChat() {
 
     const fetchThread = async () => {
       try {
-        const res = await axios.get(
-          `${API_BASE}/api/messages/conversation/${customerId}/${activeId}`
-        );
-        console.log("Active thread messages:", res.data);
+        const res = await axios.get(`${API_BASE}/api/messages/conversation/${customerId}/${activeId}`);
         setMessages((prev) => ({ ...prev, [activeId]: res.data || [] }));
       } catch (err) {
         console.error("Error fetching conversation:", err);
@@ -134,6 +125,7 @@ export default function CustomerChat() {
     fetchThread();
   }, [activeId, customerId, messages]);
 
+  // ------------------- Send Message -------------------
   const handleSend = async () => {
     if (!input.trim() || !activeId) return;
 
@@ -145,7 +137,6 @@ export default function CustomerChat() {
       text: input.trim(),
     };
 
-    // Optimistic UI update
     setMessages((prev) => ({
       ...prev,
       [activeId]: [...(prev[activeId] || []), { ...msgData, time: new Date().toISOString() }],
@@ -155,7 +146,6 @@ export default function CustomerChat() {
 
     try {
       await axios.post(`${API_BASE}/api/messages/customer/send`, msgData);
-      console.log("Message sent successfully:", msgData);
     } catch (err) {
       console.error("Message failed to send", err);
     }
@@ -240,10 +230,7 @@ export default function CustomerChat() {
               </div>
 
               {/* Messages */}
-              <div
-                ref={scrollRef}
-                style={{ flex: 1, overflowY: "auto", padding: "1rem", background: "#F7F9FB" }}
-              >
+              <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "1rem", background: "#F7F9FB" }}>
                 <AnimatePresence>
                   {activeMessages.map((m, i) => (
                     <motion.div
