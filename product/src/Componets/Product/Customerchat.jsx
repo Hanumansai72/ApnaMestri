@@ -66,7 +66,7 @@ export default function CustomerChat() {
           if (last.senderId === customerId) {
             // Last message sent by customer
             name = last.receiverId?.Business_Name || "Vendor";
-            avatar = last.receiverId?.Profile_Image || "https://i.pravatar.cc/80?img=8";
+            avatar = last.receiverId?.Profile_Image || "https://i.pravatar.cc/80?img=3";
           } else {
             // Last message sent by vendor
             name = last.senderId?.Business_Name || "Vendor";
