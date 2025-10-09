@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import NavaPro from './navbarproduct';
-import { socket } from '../../socket'; // ensure path to src/socket.js
+import { socket } from './socket'; // ensure path to src/socket.js
 
 const API_BASE =
   process.env.NODE_ENV === 'production'
