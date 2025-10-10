@@ -7,7 +7,7 @@ import { socket } from "./socket";
 
 const API_BASE =
   process.env.NODE_ENV === "production"
-    ? "https://backend-d6mx.vercel.app"
+    ? "https://chatsystem-6r32.onrender.com"
     : "http://localhost:5000";
 
 export default function CustomerChat() {
