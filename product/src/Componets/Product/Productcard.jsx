@@ -1,106 +1,94 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import {
-  Container, Row, Col, Card, Button, Badge, Spinner, Pagination, Form, InputGroup, Alert
-} from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Container, Row, Col, Card, Button, Badge, Spinner, Alert, Form, InputGroup
+} from 'react-bootstrap';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from './footer';
 import NavaPro from './navbarproduct';
 
-const ITEMS_PER_PAGE = 6;
+// Helper function to render star ratings
+const renderStars = (rating) => {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  return (
+    <>
+      {[...Array(fullStars)].map((_, i) => <i key={`full-${i}`} className="bi bi-star-fill" style={{ color: '#FFD700' }}></i>)}
+      {halfStar && <i key="half" className="bi bi-star-half" style={{ color: '#FFD700' }}></i>}
+      {[...Array(emptyStars)].map((_, i) => <i key={`empty-${i}`} className="bi bi-star" style={{ color: '#FFD700' }}></i>)}
+    </>
+  );
+};
 
-const ProductPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [vendorlist, setVendorList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [description, setDescription] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    category: '',
-    subcategory: '',
-    maxPrice: 10000,
-    location: ''
-  });
+function ProductPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const search = queryParams.get('search') || 'Plumber';
+  // State for search and filters
+  const [sortBy, setSortBy] = useState('price_low_to_high');
+  const [searchInput, setSearchInput] = useState('');
+  const [filters, setFilters] = useState({
+    location: '',
+    maxPrice: '100000',
+    category: ''
+  });
 
-  // Fetch vendors
+  const queryParams = new URLSearchParams(location.search);
+  const initialSearch = queryParams.get('search') || 'Cement';
+
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`https://backend-d6mx.vercel.app/fetch/services?category=${encodeURIComponent(search)}`)
+      .get(`https://backend-d6mx.vercel.app/fetch?category=${initialSearch}`)
       .then((res) => {
-        const list = res.data.services || [];
-        setVendorList(list);
-        setDescription(res.data.description || 'Connect with skilled professionals for your needs.');
+        setProducts(res.data);
+        setLoading(false);
       })
-      .catch(() => {
-        setVendorList([]);
-        setDescription('');
-      })
-      .finally(() => setLoading(false));
-  }, [search]);
+      .catch((err) => {
+        setError('Failed to fetch products.');
+        console.error('Fetch error:', err);
+        setLoading(false);
+      });
+  }, [initialSearch]);
 
-  // Handle filters
-  const handleFilterChange = (filterName, value) => {
-    setFilters((prev) => ({ ...prev, [filterName]: value }));
-    setCurrentPage(1);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      navigate(`/product?search=${encodeURIComponent(searchInput.trim())}`);
+    }
   };
 
-  // Filtering logic
-  const filteredVendors = useMemo(() => {
-    return vendorlist.filter((v) => {
-      const matchesSearch = searchTerm
-        ? v.Business_Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          v.Description?.toLowerCase().includes(searchTerm.toLowerCase())
-        : true;
-      const matchesCategory = filters.category
-        ? v.Category?.toLowerCase() === filters.category.toLowerCase()
-        : true;
-      const matchesSub = filters.subcategory
-        ? v.Sub_Category?.some((sub) =>
-            sub.toLowerCase().includes(filters.subcategory.toLowerCase())
-          )
-        : true;
-      const matchesLocation = filters.location
-        ? v.Address?.toLowerCase().includes(filters.location.toLowerCase())
-        : true;
-      const matchesPrice =
-        filters.maxPrice > 0
-          ? Number(v.Charge_Per_Hour_or_Day) <= Number(filters.maxPrice)
-          : true;
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesSub &&
-        matchesLocation &&
-        matchesPrice
-      );
+  const handleFilterChange = (filterName, value) => {
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [filterName]: value
+    }));
+  };
+
+  const filteredAndSortedProducts = useMemo(() => {
+    let filtered = products.filter((product) => {
+      const inLocation = filters.location ? product.ProductLocation?.toLowerCase().includes(filters.location.toLowerCase()) : true;
+      const inMaxPrice = filters.maxPrice ? Number(product.ProductPrice) <= Number(filters.maxPrice) : true;
+      const inCategory = filters.category ? product.ProductCategory?.toLowerCase() === filters.category.toLowerCase() : true;
+      return inLocation && inMaxPrice && inCategory;
     });
-  }, [vendorlist, filters, searchTerm]);
 
-  const totalPages = Math.ceil(filteredVendors.length / ITEMS_PER_PAGE);
-  const paginatedVendors = filteredVendors.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+    if (sortBy === 'price_low_to_high') {
+      filtered.sort((a, b) => Number(a.ProductPrice) - Number(b.ProductPrice));
+    } else if (sortBy === 'price_high_to_low') {
+      filtered.sort((a, b) => Number(b.ProductPrice) - Number(a.ProductPrice));
+    }
+    return filtered;
+  }, [products, sortBy, filters]);
 
-  function booknow(vendorId) {
-    localStorage.setItem('Customerid', vendorId);
-    navigate('/myorder/service');
-  }
-
-  function viewDetails(vendorId) {
-    navigate(`/service/details/${vendorId}`);
-  }
-
-  // Animation variants for filters
+  // Animation variants
   const filterVariants = {
     hidden: { opacity: 0, y: -20, height: 0 },
     visible: { opacity: 1, y: 0, height: 'auto', transition: { duration: 0.3 } },
@@ -109,190 +97,121 @@ const ProductPage = () => {
 
   return (
     <>
-      <NavaPro />
-      <div style={{ backgroundColor: '#fff', minHeight: '100vh', padding: '2rem 0' }}>
-        <Container>
-          {/* Header */}
-          <header className="text-center mb-4">
-            <h1 className="fw-bold" style={{ color: '#FFD700' }}>
-              Find Trusted Professionals
-            </h1>
-            <p style={{ color: '#555' }}>{description}</p>
-          </header>
-
-          {/* Search and Filter Bar */}
-          <Row className="align-items-center mb-3">
-            <Col md={8}>
-              <InputGroup className="border rounded-pill">
-                <InputGroup.Text style={{ background: 'transparent', border: 'none' }}>
-                  <i className="bi bi-search" style={{ color: '#FFD700' }}></i>
-                </InputGroup.Text>
-                <Form.Control
-                  placeholder="Search professionals..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ border: 'none', background: 'transparent' }}
-                />
-              </InputGroup>
-            </Col>
-            <Col md="auto">
+      <div className="product-page-container">
+        {/* NAVBAR */}
+        <div className='sticky-top' style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '1rem 0', zIndex: 1020 }}>
+          <Container>
+            <div className="d-flex justify-content-between align-items-center">
+              <h4 className="mb-0" style={{ color: '#FFD700', fontWeight: 'bold' }}>Civil Mestri</h4>
+              <Form onSubmit={handleSearchSubmit} className="flex-grow-1 mx-4">
+                <InputGroup className="search-input-group">
+                  <InputGroup.Text>
+                    <i className="bi bi-search"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="Search construction materials..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                  />
+                </InputGroup>
+              </Form>
               <Button
                 onClick={() => setShowFilters(!showFilters)}
-                style={{
-                  backgroundColor: '#FFD700',
-                  color: '#000',
-                  border: 'none',
-                  fontWeight: 'bold'
-                }}
+                style={{ backgroundColor: '#FFD700', border: 'none', color: '#000' }}
               >
-                <i className="bi bi-funnel-fill me-2"></i>Filters
+                <i className="bi bi-funnel-fill me-2"></i>
+                Filters
               </Button>
+            </div>
+
+            {/* FILTERS */}
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div
+                  variants={filterVariants}
+                  initial="hidden" animate="visible" exit="exit"
+                  style={{ overflow: 'hidden' }}
+                >
+                  <Row className="mt-4 align-items-center">
+                    <Col md={3} className="mb-2">
+                      <Form.Label>Category</Form.Label>
+                      <Form.Select value={filters.category} onChange={(e) => handleFilterChange('category', e.target.value)}>
+                        <option value="">All Categories</option>
+                        <option value="Cement">Cement</option>
+                        <option value="Steel">Steel</option>
+                        <option value="Bricks">Bricks</option>
+                      </Form.Select>
+                    </Col>
+                    <Col md={3} className="mb-2">
+                      <Form.Label>Location</Form.Label>
+                      <Form.Select value={filters.location} onChange={(e) => handleFilterChange('location', e.target.value)}>
+                        <option value="">All Locations</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Delhi">Delhi</option>
+                      </Form.Select>
+                    </Col>
+                    <Col md={3} className="mb-2">
+                      <Form.Label>Price (Max ₹{Number(filters.maxPrice).toLocaleString('en-IN')})</Form.Label>
+                      <Form.Range min={0} max={100000} step={1000} value={filters.maxPrice} onChange={(e) => handleFilterChange('maxPrice', e.target.value)} />
+                    </Col>
+                  </Row>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Container>
+        </div>
+
+        {/* PRODUCT GRID */}
+        <Container className="py-4">
+          <Row className="mb-4 align-items-center">
+            <Col>
+              <h2 className="mb-0 text-capitalize">{initialSearch}</h2>
+              <p className="mb-0" style={{ color: '#666' }}>
+                {loading ? '...' : `${filteredAndSortedProducts.length} products found`}
+              </p>
+            </Col>
+            <Col xs="auto">
+              <div className="d-flex align-items-center">
+                <span className="me-2" style={{ color: '#666' }}>Sort by:</span>
+                <Form.Select size="sm" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                  <option value="price_low_to_high">Price: Low to High</option>
+                  <option value="price_high_to_low">Price: High to Low</option>
+                </Form.Select>
+              </div>
             </Col>
           </Row>
 
-          {/* Filters Section */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                variants={filterVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                style={{
-                  backgroundColor: '#fff8dc',
-                  border: '1px solid #FFD700',
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  marginBottom: '1.5rem'
-                }}
-              >
-                <Row className="g-3">
-                  <Col md={3}>
-                    <Form.Label>Category</Form.Label>
-                    <Form.Select
-                      value={filters.category}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
-                    >
-                      <option value="">All Categories</option>
-                      <option value="Technical">Technical</option>
-                      <option value="Non-Technical">Non-Technical</option>
-                    </Form.Select>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Label>Subcategory</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="e.g. Electrician, Painter"
-                      value={filters.subcategory}
-                      onChange={(e) => handleFilterChange('subcategory', e.target.value)}
-                    />
-                  </Col>
-                  <Col md={3}>
-                    <Form.Label>
-                      Max Price: ₹{Number(filters.maxPrice).toLocaleString('en-IN')}
-                    </Form.Label>
-                    <Form.Range
-                      min={100}
-                      max={10000}
-                      step={100}
-                      value={filters.maxPrice}
-                      onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    />
-                  </Col>
-                  <Col md={3}>
-                    <Form.Label>Location</Form.Label>
-                    <Form.Select
-                      value={filters.location}
-                      onChange={(e) => handleFilterChange('location', e.target.value)}
-                    >
-                      <option value="">All Locations</option>
-                      <option value="Hyderabad">Hyderabad</option>
-                      <option value="Bangalore">Bangalore</option>
-                      <option value="Mumbai">Mumbai</option>
-                      <option value="Delhi">Delhi</option>
-                    </Form.Select>
-                  </Col>
-                </Row>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Vendor List */}
           {loading ? (
-            <div className="text-center my-5">
+            <div className="text-center py-5">
               <Spinner animation="border" variant="warning" />
-              <p>Loading Professionals...</p>
             </div>
-          ) : paginatedVendors.length === 0 ? (
-            <Alert variant="light" className="text-center">
-              No professionals found matching your filters.
-            </Alert>
+          ) : error ? (
+            <Alert variant="danger">{error}</Alert>
           ) : (
-            <Row className="g-4">
-              {paginatedVendors.map((vendor) => (
-                <Col key={vendor._id} xs={12} md={6} lg={4}>
-                  <Card
-                    style={{
-                      border: '1px solid #eee',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-                    }}
-                    className="h-100"
-                  >
-                    <Card.Body className="d-flex align-items-center">
-                      <img
-                        src={vendor.Profile_Image}
-                        alt="profile"
-                        style={{
-                          width: '90px',
-                          height: '90px',
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          border: '3px solid #FFD700',
-                          marginRight: '15px'
-                        }}
-                      />
-                      <div>
-                        <Card.Title style={{ fontWeight: '600' }}>
-                          {vendor.Business_Name}
-                        </Card.Title>
-                        <Card.Text style={{ fontSize: '0.9rem', color: '#555' }}>
-                          {vendor.Description}
-                        </Card.Text>
-                        <div>
-                          {Array.isArray(vendor.Sub_Category)
-                            ? vendor.Sub_Category.map((sub, i) => (
-                                <Badge
-                                  key={i}
-                                  style={{
-                                    backgroundColor: '#FFD700',
-                                    color: '#000',
-                                    margin: '2px'
-                                  }}
-                                >
-                                  {sub}
-                                </Badge>
-                              ))
-                            : <Badge style={{ backgroundColor: '#FFD700', color: '#000' }}>General</Badge>}
-                        </div>
-                        <div className="mt-2 fw-bold text-dark">
-                          ₹{vendor.Charge_Per_Hour_or_Day}/{vendor.Charge_Type}
-                        </div>
-                        <div className="mt-2 d-flex gap-2">
-                          <Button
-                            style={{ backgroundColor: '#FFD700', border: 'none', color: '#000' }}
-                            onClick={() => booknow(vendor._id)}
-                          >
-                            Book Now
-                          </Button>
-                          <Button
-                            variant="outline-dark"
-                            onClick={() => viewDetails(vendor._id)}
-                          >
-                            View Details
-                          </Button>
-                        </div>
+            <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+              {filteredAndSortedProducts.map((product) => (
+                <Col key={product._id}>
+                  <Card className="custom-card h-100">
+                    <Card.Img
+                      variant="top"
+                      src={Array.isArray(product.ProductUrl) && product.ProductUrl.length > 0 ? product.ProductUrl[0] : '/placeholder.png'}
+                      style={{ height: '200px', objectFit: 'cover' }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.png'; }}
+                    />
+                    <Card.Body className="d-flex flex-column">
+                      <div className="product-category">{product.ProductCategory || initialSearch}</div>
+                      <div className="product-name">{product.ProductName}</div>
+                      <div className="d-flex align-items-center mb-2">
+                        <span className="product-rating">{renderStars(product.ProductReview || 4.5)}</span>
+                      </div>
+                      <div className="product-location mb-2">{product.ProductLocation || 'Unknown'}</div>
+                      <div className="mt-auto">
+                        <Button className="view-details-btn" onClick={() => navigate(`/product/${product._id}`)}>
+                          View Details
+                        </Button>
                       </div>
                     </Card.Body>
                   </Card>
@@ -300,36 +219,11 @@ const ProductPage = () => {
               ))}
             </Row>
           )}
-
-          {/* Pagination */}
-          {!loading && totalPages > 1 && (
-            <div className="d-flex justify-content-center mt-4">
-              <Pagination>
-                <Pagination.Prev
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((p) => p - 1)}
-                />
-                {[...Array(totalPages)].map((_, i) => (
-                  <Pagination.Item
-                    key={i}
-                    active={i + 1 === currentPage}
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                />
-              </Pagination>
-            </div>
-          )}
         </Container>
       </div>
       <Footer />
     </>
   );
-};
+}
 
 export default ProductPage;
