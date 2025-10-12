@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Container, Row, Col, Card, Button, Badge, Form, Tabs, Tab
+  Container, Row, Col, Card, Button, Badge, Form, Tabs, Tab, Modal
 } from 'react-bootstrap';
 import axios from 'axios';
 import NavaPro from './navbarproduct';
@@ -12,8 +12,11 @@ function MyOrders() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Orders');
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
   const id = localStorage.getItem("userid");
 
+  // ✅ Fetch orders
   useEffect(() => {
     if (!id) return;
 
@@ -26,6 +29,30 @@ function MyOrders() {
       .catch(err => console.error('Failed to fetch service orders:', err));
   }, [id]);
 
+  // ✅ Handle cancel modal open
+  const handleShowCancel = (orderId) => {
+    setSelectedOrderId(orderId);
+    setShowCancelModal(true);
+  };
+
+  // ✅ Cancel order (confirmed)
+  const confirmCancel = async () => {
+    try {
+      await axios.put(`https://backend-d6mx.vercel.app/api/cancel/${selectedOrderId}`);
+      alert("Order cancelled successfully.");
+      setShowCancelModal(false);
+
+      // Refresh the order list
+      const res = await axios.get(`https://backend-d6mx.vercel.app/orderdetails/${id}`);
+      setProductList(res.data);
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      alert("Failed to cancel the order.");
+      setShowCancelModal(false);
+    }
+  };
+
+  // ✅ Group orders
   const groupedOrders = productList.reduce((acc, curr) => {
     const key = curr.orderedAt + '-' + curr.shippingAddress.fullAddress;
     if (!acc[key]) {
@@ -44,6 +71,7 @@ function MyOrders() {
 
   const orderGroups = Object.values(groupedOrders);
 
+  // ✅ Filter orders
   const filteredOrders = orderGroups.filter(order => {
     const orderDate = new Date(order.orderedAt);
     const isInDateRange =
@@ -56,6 +84,7 @@ function MyOrders() {
     return isInDateRange && matchesStatus;
   });
 
+  // ✅ Styles
   const yellowBtn = {
     backgroundColor: '#FFD700',
     color: '#000',
@@ -157,6 +186,17 @@ function MyOrders() {
                     <Button style={yellowBtn} size="sm">Track Order</Button>
                     <Button style={yellowBtn} size="sm">Leave Review</Button>
                     <Button style={yellowBtn} size="sm">Reorder</Button>
+
+                    {/* ✅ Cancel button (hidden if delivered or cancelled) */}
+                    {order.orderStatus !== 'Delivered' && order.orderStatus !== 'Cancelled' && (
+                      <Button
+                        style={yellowBtn}
+                        size="sm"
+                        onClick={() => handleShowCancel(order.orderId)}
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
                   </div>
                 </Card>
               ))
@@ -174,10 +214,11 @@ function MyOrders() {
                     <p className="mb-1"><strong>Time:</strong> {order.serviceTime}</p>
                     <p className="mb-1"><strong>Status:</strong> <span className="text-success">{order.status}</span></p>
                     <p className="mb-1">
-  <strong>Amount Paid:</strong> ₹{order.totalAmount?.toFixed(2) || '0.00'}
-</p>
-
-                    <p className="mb-0 text-muted"><strong>Address:</strong> {order.address.street}, {order.address.city}</p>
+                      <strong>Amount Paid:</strong> ₹{order.totalAmount?.toFixed(2) || '0.00'}
+                    </p>
+                    <p className="mb-0 text-muted">
+                      <strong>Address:</strong> {order.address.street}, {order.address.city}
+                    </p>
                   </Card.Body>
                 </Card>
               ))
@@ -185,6 +226,25 @@ function MyOrders() {
           </Tab>
         </Tabs>
       </Container>
+
+      {/* ✅ Cancel Confirmation Modal */}
+      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Cancel Order</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to cancel this order? This action cannot be undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCancelModal(false)}>
+            Close
+          </Button>
+          <Button style={yellowBtn} onClick={confirmCancel}>
+            Yes, Cancel Order
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Footer />
     </div>
   );
