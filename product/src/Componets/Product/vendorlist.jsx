@@ -69,12 +69,8 @@ const ProfessionalListPage = () => {
     );
   }, [search]);
 
-  const fetchVendors = (category, coords) => {
+  const fetchVendors = (category) => {
   let url = `https://backend-d6mx.vercel.app/fetch/services?category=${encodeURIComponent(category)}`;
-
-  if (coords) {
-    url += `&lat=${coords.latitude}&lng=${coords.longitude}`;
-  }
 
   axios
     .get(url)
@@ -82,7 +78,7 @@ const ProfessionalListPage = () => {
       const list = res.data.services || [];
       setVendorList(list);
       setFilteredVendors(list);
-      setDescription(res.data.description || "Find skilled professionals near you.");
+      setDescription(res.data.description || "Find skilled professionals across India.");
       setCurrentPage(1);
     })
     .catch(() => {
