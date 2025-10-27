@@ -29,7 +29,7 @@ const ProfessionalListPage = () => {
   const queryParams = new URLSearchParams(location.search);
   const search = queryParams.get('search') || 'Plumber';
 
-  // Distance calculation
+  // Distance calculator
   function calculateDistance(lat1, lon1, lat2, lon2) {
     if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity;
     function toRad(x) { return x * Math.PI / 180; }
@@ -52,7 +52,7 @@ const ProfessionalListPage = () => {
     navigate(`/service/details/${vendorId}`);
   }
 
-  // Fetch vendors on load or search change
+  // Fetch vendors on load
   useEffect(() => {
     setLoading(true);
     navigator.geolocation.getCurrentPosition(
@@ -62,41 +62,41 @@ const ProfessionalListPage = () => {
         fetchVendors(search, { latitude, longitude });
       },
       () => {
+        // If user denies location, fallback to Hyderabad
         setUserLocation(null);
-        fetchVendors(search);
+        fetchVendors(search, null);
       }
     );
   }, [search]);
 
   const fetchVendors = (category, coords) => {
-    let url = `https://backend-d6mx.vercel.app/fetch/services?category=${encodeURIComponent(category)}`;
-    if (coords) {
-      url += `&lat=${coords.latitude}&lng=${coords.longitude}`;
-    }
-    axios.get(url)
-      .then((res) => {
-        const list = res.data.services || [];
-        setVendorList(list);
-        setFilteredVendors(list);
-        setDescription(res.data.description || 'Connect with skilled professionals for your needs.');
-        setCurrentPage(1);
-      })
-      .catch(() => {
-        setVendorList([]);
-        setFilteredVendors([]);
-        setDescription('');
-      })
-      .finally(() => setLoading(false));
-  };
+  let url = `https://backend-d6mx.vercel.app/fetch/services?category=${encodeURIComponent(category)}`;
 
-  // Unique subcategories for dropdown
-  const subcategories = ['All', ...new Set(vendorlist.flatMap(v => v.Sub_Category || []))];
+  if (coords) {
+    url += `&lat=${coords.latitude}&lng=${coords.longitude}`;
+  }
 
-  // Apply search + filters
+  axios
+    .get(url)
+    .then((res) => {
+      const list = res.data.services || [];
+      setVendorList(list);
+      setFilteredVendors(list);
+      setDescription(res.data.description || "Find skilled professionals near you.");
+      setCurrentPage(1);
+    })
+    .catch(() => {
+      setVendorList([]);
+      setFilteredVendors([]);
+      setDescription("");
+    })
+    .finally(() => setLoading(false));
+};
+
+  // Apply filters
   useEffect(() => {
     let results = [...vendorlist];
 
-    // Search filter
     if (searchTerm.trim()) {
       const lower = searchTerm.toLowerCase();
       results = results.filter(v =>
@@ -106,12 +106,10 @@ const ProfessionalListPage = () => {
       );
     }
 
-    // Subcategory filter
     if (subcategoryFilter !== 'All') {
       results = results.filter(v => v.Sub_Category?.includes(subcategoryFilter));
     }
 
-    // Price filter
     if (priceFilter !== 'All') {
       results = results.filter(v => {
         const price = parseFloat(v.Charge_Per_Hour_or_Day);
@@ -122,7 +120,6 @@ const ProfessionalListPage = () => {
       });
     }
 
-    // Sort by distance (if enabled)
     if (sortByDistance && userLocation) {
       results.sort((a, b) => {
         const distA = calculateDistance(userLocation.latitude, userLocation.longitude, a.Latitude, a.Longitude);
@@ -146,7 +143,6 @@ const ProfessionalListPage = () => {
       <NavaPro />
       <div style={{ backgroundColor: '#fff', color: '#000', minHeight: '100vh', padding: '2rem 0' }}>
         <Container>
-          {/* Header */}
           <header className="text-center mb-5">
             <h1 className="fw-bold" style={{ color: '#FFD700', fontFamily: "'Poppins', sans-serif" }}>Find Trusted Professionals</h1>
             <p style={{ color: '#555' }}>{description}</p>
@@ -157,7 +153,7 @@ const ProfessionalListPage = () => {
             </div>
           </header>
 
-          {/* Search & Filter Bar */}
+          {/* Filters */}
           <Row className="mb-4 g-2">
             <Col md={4}>
               <InputGroup>
@@ -201,13 +197,13 @@ const ProfessionalListPage = () => {
             </Col>
           </Row>
 
-          {/* Results Info */}
+          {/* Info */}
           <div className="d-flex justify-content-between align-items-center mb-3">
             <p style={{ color: '#555' }}>Showing {paginatedVendors.length} of {filteredVendors.length} professionals</p>
             <p style={{ color: '#555' }}>Page {currentPage} of {totalPages}</p>
           </div>
 
-          {/* Vendor Cards */}
+          {/* Vendor cards */}
           {loading ? (
             <div className="text-center my-5">
               <Spinner animation="border" role="status" style={{ color: '#FFD700' }} />
@@ -278,7 +274,6 @@ const ProfessionalListPage = () => {
             </Row>
           )}
 
-          {/* Pagination */}
           {!loading && totalPages > 1 && (
             <Row>
               <Col className="d-flex justify-content-center mt-4">

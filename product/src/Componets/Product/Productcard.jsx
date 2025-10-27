@@ -98,11 +98,11 @@ function ProductPage() {
   return (
     <>
       <div className="product-page-container">
-        {/* NAVBAR */}
+        
         <div className='sticky-top' style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '1rem 0', zIndex: 1020 }}>
           <Container>
             <div className="d-flex justify-content-between align-items-center">
-              <h4 className="mb-0" style={{ color: '#FFD700', fontWeight: 'bold' }}>Civil Mestri</h4>
+              <h4 className="mb-0" style={{ color: '#FFD700', fontWeight: 'bold' }}>Apnai  Mestri</h4>
               <Form onSubmit={handleSearchSubmit} className="flex-grow-1 mx-4">
                 <InputGroup className="search-input-group">
                   <InputGroup.Text>
