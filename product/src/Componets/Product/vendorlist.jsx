@@ -16,32 +16,16 @@ const ProfessionalListPage = () => {
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
-  const [userLocation, setUserLocation] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filters
   const [subcategoryFilter, setSubcategoryFilter] = useState('All');
   const [priceFilter, setPriceFilter] = useState('All');
-  const [sortByDistance, setSortByDistance] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const search = queryParams.get('search') || 'Plumber';
-
-  // Distance calculator
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity;
-    function toRad(x) { return x * Math.PI / 180; }
-    const R = 6371;
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
 
   function booknow(vendorId) {
     localStorage.setItem("Customerid", vendorId);
@@ -52,42 +36,31 @@ const ProfessionalListPage = () => {
     navigate(`/service/details/${vendorId}`);
   }
 
-  // Fetch vendors on load
+  // Fetch vendors (no location detection)
   useEffect(() => {
     setLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserLocation({ latitude, longitude });
-        fetchVendors(search, { latitude, longitude });
-      },
-      () => {
-        // If user denies location, fallback to Hyderabad
-        setUserLocation(null);
-        fetchVendors(search, null);
-      }
-    );
+    fetchVendors(search);
   }, [search]);
 
   const fetchVendors = (category) => {
-  let url = `https://backend-d6mx.vercel.app/fetch/services?category=${encodeURIComponent(category)}`;
+    let url = `https://backend-d6mx.vercel.app/fetch/services?category=${encodeURIComponent(category)}`;
 
-  axios
-    .get(url)
-    .then((res) => {
-      const list = res.data.services || [];
-      setVendorList(list);
-      setFilteredVendors(list);
-      setDescription(res.data.description || "Find skilled professionals across India.");
-      setCurrentPage(1);
-    })
-    .catch(() => {
-      setVendorList([]);
-      setFilteredVendors([]);
-      setDescription("");
-    })
-    .finally(() => setLoading(false));
-};
+    axios
+      .get(url)
+      .then((res) => {
+        const list = res.data.services || [];
+        setVendorList(list);
+        setFilteredVendors(list);
+        setDescription(res.data.description || "Find skilled professionals across India.");
+        setCurrentPage(1);
+      })
+      .catch(() => {
+        setVendorList([]);
+        setFilteredVendors([]);
+        setDescription("");
+      })
+      .finally(() => setLoading(false));
+  };
 
   // Apply filters
   useEffect(() => {
@@ -116,17 +89,9 @@ const ProfessionalListPage = () => {
       });
     }
 
-    if (sortByDistance && userLocation) {
-      results.sort((a, b) => {
-        const distA = calculateDistance(userLocation.latitude, userLocation.longitude, a.Latitude, a.Longitude);
-        const distB = calculateDistance(userLocation.latitude, userLocation.longitude, b.Latitude, b.Longitude);
-        return distA - distB;
-      });
-    }
-
     setFilteredVendors(results);
     setCurrentPage(1);
-  }, [searchTerm, subcategoryFilter, priceFilter, sortByDistance, vendorlist, userLocation]);
+  }, [searchTerm, subcategoryFilter, priceFilter, vendorlist]);
 
   const totalPages = Math.ceil(filteredVendors.length / ITEMS_PER_PAGE);
   const paginatedVendors = filteredVendors.slice(
@@ -134,13 +99,17 @@ const ProfessionalListPage = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
+  const subcategories = ["All", "Plumber", "Electrician", "Painter", "Carpenter", "Mechanic", "Welder", "Technician"];
+
   return (
     <>
       <NavaPro />
       <div style={{ backgroundColor: '#fff', color: '#000', minHeight: '100vh', padding: '2rem 0' }}>
         <Container>
           <header className="text-center mb-5">
-            <h1 className="fw-bold" style={{ color: '#FFD700', fontFamily: "'Poppins', sans-serif" }}>Find Trusted Professionals</h1>
+            <h1 className="fw-bold" style={{ color: '#FFD700', fontFamily: "'Poppins', sans-serif" }}>
+              Find Trusted Professionals
+            </h1>
             <p style={{ color: '#555' }}>{description}</p>
             <div className="d-flex justify-content-center gap-4 mt-3" style={{ color: '#555' }}>
               <span><i className="bi bi-patch-check-fill me-2" style={{ color: '#FFD700' }}></i>Verified Professionals</span>
@@ -165,7 +134,7 @@ const ProfessionalListPage = () => {
               </InputGroup>
             </Col>
 
-            <Col md={3}>
+            <Col md={4}>
               <Form.Select value={subcategoryFilter} onChange={(e) => setSubcategoryFilter(e.target.value)}>
                 {subcategories.map((sub, i) => (
                   <option key={i} value={sub}>{sub}</option>
@@ -173,23 +142,13 @@ const ProfessionalListPage = () => {
               </Form.Select>
             </Col>
 
-            <Col md={3}>
+            <Col md={4}>
               <Form.Select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)}>
                 <option value="All">All Prices</option>
                 <option value="Low">Below ₹500</option>
                 <option value="Medium">₹500 - ₹1500</option>
                 <option value="High">Above ₹1500</option>
               </Form.Select>
-            </Col>
-
-            <Col md={2} className="d-flex align-items-center">
-              <Form.Check
-                type="switch"
-                id="distance-sort"
-                label="Sort by Distance"
-                checked={sortByDistance}
-                onChange={(e) => setSortByDistance(e.target.checked)}
-              />
             </Col>
           </Row>
 
@@ -199,7 +158,7 @@ const ProfessionalListPage = () => {
             <p style={{ color: '#555' }}>Page {currentPage} of {totalPages}</p>
           </div>
 
-          {/* Vendor cards */}
+          {/* Vendor Cards */}
           {loading ? (
             <div className="text-center my-5">
               <Spinner animation="border" role="status" style={{ color: '#FFD700' }} />
@@ -226,17 +185,37 @@ const ProfessionalListPage = () => {
                       className="d-flex flex-row align-items-center h-100"
                     >
                       <div style={{ flexShrink: 0, marginRight: '15px' }}>
-                        <img
-                          src={vendor.Profile_Image}
-                          alt="profile"
-                          style={{
-                            width: '100px',
-                            height: '100px',
-                            borderRadius: '50%',
-                            objectFit: 'cover',
-                            border: '3px solid #FFD700'
-                          }}
-                        />
+                        {vendor.Profile_Image ? (
+                          <img
+                            src={vendor.Profile_Image}
+                            alt="profile"
+                            style={{
+                              width: '100px',
+                              height: '100px',
+                              borderRadius: '50%',
+                              objectFit: 'cover',
+                              border: '3px solid #FFD700'
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: '100px',
+                              height: '100px',
+                              borderRadius: '50%',
+                              backgroundColor: '#FFD700',
+                              color: '#000',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 'bold',
+                              fontSize: '2rem',
+                              border: '3px solid #FFD700'
+                            }}
+                          >
+                            {vendor.Business_Name?.charAt(0)?.toUpperCase() || "?"}
+                          </div>
+                        )}
                       </div>
 
                       <Card.Body style={{ textAlign: 'left' }}>
@@ -259,8 +238,19 @@ const ProfessionalListPage = () => {
                           ₹{vendor.Charge_Per_Hour_or_Day}/{vendor.Charge_Type}
                         </div>
                         <div className="d-flex gap-2">
-                          <Button style={{ backgroundColor: '#FFD700', border: 'none', color: '#000', fontWeight: 'bold' }} onClick={() => booknow(vendor._id)}>Book Now</Button>
-                          <Button variant="outline-dark" style={{ borderColor: '#FFD700', color: '#000', fontWeight: 'bold' }} onClick={() => viewDetails(vendor._id)}>View Details</Button>
+                          <Button
+                            style={{ backgroundColor: '#FFD700', border: 'none', color: '#000', fontWeight: 'bold' }}
+                            onClick={() => booknow(vendor._id)}
+                          >
+                            Book Now
+                          </Button>
+                          <Button
+                            variant="outline-dark"
+                            style={{ borderColor: '#FFD700', color: '#000', fontWeight: 'bold' }}
+                            onClick={() => viewDetails(vendor._id)}
+                          >
+                            View Details
+                          </Button>
                         </div>
                       </Card.Body>
                     </Card>

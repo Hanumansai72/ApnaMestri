@@ -167,13 +167,38 @@ const handleMessageClick = (vendorId) => {
         <Card className="p-4 mb-4 shadow-sm border-0">
           <Row>
             <Col md={2} className="text-center">
-              <img
-                src={vendor.Profile_Image || "https://via.placeholder.com/120"}
-                alt="profile"
-                className="rounded-circle"
-                width="120"
-                height="120"
-              />
+              {vendor.Profile_Image ? (
+  <img
+    src={vendor.Profile_Image}
+    alt="profile"
+    style={{
+      width: '100px',
+      height: '100px',
+      borderRadius: '50%',
+      objectFit: 'cover',
+      border: '3px solid #FFD700'
+    }}
+  />
+) : (
+  <div
+    style={{
+      width: '100px',
+      height: '100px',
+      borderRadius: '50%',
+      backgroundColor: '#FFD700',
+      color: '#000',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: 'bold',
+      fontSize: '2rem',
+      border: '3px solid #FFD700'
+    }}
+  >
+    {vendor.Business_Name?.charAt(0)?.toUpperCase() || "?"}
+  </div>
+)}
+
             </Col>
             <Col md={7}>
               <h3>{vendor.Owner_name}</h3>
