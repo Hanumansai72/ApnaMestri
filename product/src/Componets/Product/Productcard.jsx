@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Container, Row, Col, Card, Button, Badge, Spinner, Alert, Form, InputGroup
+  Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup
 } from 'react-bootstrap';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';

@@ -16,8 +16,7 @@ const ProfileSettingsRedesigned = () => {
     const [initialProfile, setInitialProfile] = useState(null);
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+   
     
     const id = localStorage.getItem("userid");
 
@@ -49,14 +48,7 @@ const ProfileSettingsRedesigned = () => {
         }));
     };
 
-    const handleReset = (e) => {
-        e.preventDefault();
-        if (initialProfile) {
-            setProfile(initialProfile);
-        }
-        setNewPassword('');
-        setConfirmNewPassword('');
-    };
+    
 
     const handleSaveChanges = (e) => {
         e.preventDefault();
