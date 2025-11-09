@@ -33,10 +33,10 @@ const Footer = () => {
               Your trusted platform for civil engineering services and construction materials. Building dreams with quality and precision across India.
             </p>
             <div className="d-flex gap-3 mt-3">
-              <a href="#" className="text-light"><FaFacebookF /></a>
-              <a href="#" className="text-light"><FaTwitter /></a>
-              <a href="#" className="text-light"><FaInstagram /></a>
-              <a href="#" className="text-light"><FaLinkedinIn /></a>
+              <a href="/" className="text-light"><FaFacebookF /></a>
+              <a href="/" className="text-light"><FaTwitter /></a>
+              <a href="/" className="text-light"><FaInstagram /></a>
+              <a href="/" className="text-light"><FaLinkedinIn /></a>
             </div>
           </Col>
 
@@ -82,9 +82,9 @@ const Footer = () => {
         <div className="d-flex justify-content-between border-top border-secondary pt-3 text-white-50 small flex-column flex-md-row">
           <p className="mb-2 mb-md-0">© 2025 Civil Mestri. All rights reserved.</p>
           <div className="d-flex gap-3">
-            <a href="#" className="text-white-50">Privacy Policy</a>
-            <a href="#" className="text-white-50">Terms of Service</a>
-            <a href="#" className="text-white-50">Support</a>
+            <a href="/" className="text-white-50">Privacy Policy</a>
+            <a href="/" className="text-white-50">Terms of Service</a>
+            <a href="/" className="text-white-50">Support</a>
           </div>
         </div>
       </Container>

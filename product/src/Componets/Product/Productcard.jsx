@@ -6,7 +6,6 @@ import {
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from './footer';
-import NavaPro from './navbarproduct';
 
 // Helper function to render star ratings
 const renderStars = (rating) => {
