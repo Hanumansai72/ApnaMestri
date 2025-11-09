@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Row,
@@ -41,14 +41,13 @@ const ProfessionalServicePage = () => {
   const name = localStorage.getItem("user_name");
 
   const [vendor, setVendor] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // ✅ Now used properly
   const [projects, setProjects] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [vendorId, setVendorId] = useState("");
-
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -59,27 +58,25 @@ const ProfessionalServicePage = () => {
     setToast({ show: true, message, variant });
 
   // 🚀 Navigate to chat
-  // ...imports unchanged
-// inside component
-const handleMessageClick = (vendorId) => {
-  if (!userId || userId === 'undefined') {
-    showToast('Please login to chat with vendor', 'danger');
-    return;
-  }
-  navigate(`/customer/chat/${vendorId}`);
-};
+  const handleMessageClick = (vendorId) => {
+    if (!userId || userId === "undefined") {
+      showToast("Please login to chat with vendor", "danger");
+      return;
+    }
+    navigate(`/customer/chat/${vendorId}`);
+  };
 
-
-  // Hire vendor
+  // ✅ Hire vendor
   const booknow = (vendorId) => {
     localStorage.setItem("Customerid", vendorId);
     navigate("/myorder/service");
   };
 
-  // Fetch vendor details
+  // ✅ Fetch vendor details
   useEffect(() => {
     const fetchVendor = async () => {
       try {
+        setLoading(true);
         const res = await fetch(
           `https://backend-d6mx.vercel.app/profesionaldetails/${id}`
         );
@@ -88,12 +85,14 @@ const handleMessageClick = (vendorId) => {
         setVendorId(data._id);
       } catch (err) {
         console.error("Error fetching vendor:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchVendor();
   }, [id]);
 
-  // Fetch projects
+  // ✅ Fetch projects
   useEffect(() => {
     axios
       .get(`https://backend-d6mx.vercel.app/api/projects/${id}`)
@@ -101,19 +100,19 @@ const handleMessageClick = (vendorId) => {
       .catch((err) => console.error("Error fetching projects:", err));
   }, [id]);
 
-  // Fetch reviews
-  const fetchReviews = () => {
+  // ✅ Wrap fetchReviews in useCallback (fixes missing dependency warning)
+  const fetchReviews = useCallback(() => {
     axios
       .get(`https://backend-d6mx.vercel.app/fetch/review/service/${id}`)
       .then((res) => setReviews(res.data.getreview || []))
       .catch((err) => console.error("Error fetching reviews:", err));
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) fetchReviews();
-  }, [id]);
+  }, [id, fetchReviews]); // ✅ Dependency fixed
 
-  // Submit review
+  // ✅ Submit review
   const handleSubmitReview = () => {
     if (!userId || userId === "undefined") {
       showToast("Please log in to submit a review.", "danger");
@@ -144,6 +143,7 @@ const handleMessageClick = (vendorId) => {
       });
   };
 
+  // ✅ Loading and fallback states
   if (loading)
     return (
       <div className="text-center mt-5">
@@ -168,37 +168,36 @@ const handleMessageClick = (vendorId) => {
           <Row>
             <Col md={2} className="text-center">
               {vendor.Profile_Image ? (
-  <img
-    src={vendor.Profile_Image}
-    alt="profile"
-    style={{
-      width: '100px',
-      height: '100px',
-      borderRadius: '50%',
-      objectFit: 'cover',
-      border: '3px solid #FFD700'
-    }}
-  />
-) : (
-  <div
-    style={{
-      width: '100px',
-      height: '100px',
-      borderRadius: '50%',
-      backgroundColor: '#FFD700',
-      color: '#000',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontWeight: 'bold',
-      fontSize: '2rem',
-      border: '3px solid #FFD700'
-    }}
-  >
-    {vendor.Business_Name?.charAt(0)?.toUpperCase() || "?"}
-  </div>
-)}
-
+                <img
+                  src={vendor.Profile_Image}
+                  alt="profile"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "3px solid #FFD700",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
+                    backgroundColor: "#FFD700",
+                    color: "#000",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: "bold",
+                    fontSize: "2rem",
+                    border: "3px solid #FFD700",
+                  }}
+                >
+                  {vendor.Business_Name?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
             </Col>
             <Col md={7}>
               <h3>{vendor.Owner_name}</h3>
@@ -302,6 +301,7 @@ const handleMessageClick = (vendorId) => {
               </Col>
             ))}
           </Row>
+
           {showReviewForm ? (
             <div className="review-form p-3 mt-3">
               <Form.Group className="mb-2">
