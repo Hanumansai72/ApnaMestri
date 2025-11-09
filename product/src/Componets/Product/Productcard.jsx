@@ -56,6 +56,7 @@ function ProductPage() {
         setLoading(false);
       });
   }, [initialSearch]);
+  
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

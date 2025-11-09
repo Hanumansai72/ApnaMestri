@@ -37,6 +37,8 @@ const ProductPage = () => {
   const [backendReviews, setBackendReviews] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
+  const viewedKey = `viewed_${product._id}`;
+    const hasViewed = localStorage.getItem(viewedKey);
 
   const showToast = (message, variant = 'success') => {
     setToast({ show: true, message, variant });
@@ -45,6 +47,24 @@ const ProductPage = () => {
   const handleViewStore = () => {
     navigate("/viewstore", { state: { vendorId: product.Vendor?._id } });
   };
+  useEffect(() => {
+  if (product?._id) {
+    const viewedKey = `viewed_${product._id}`;
+    const hasViewed = localStorage.getItem(viewedKey);
+
+    if (!hasViewed) {
+      axios
+        .post(`https://backend-d6mx.vercel.app/updateview/${product._id}`)
+        .then(() => {
+          localStorage.setItem(viewedKey, "true"); // ✅ Mark as viewed
+          console.log("Unique view recorded for product:", product._id);
+        })
+        .catch((err) => console.error("Error increasing view count:", err));
+    }
+  }
+}, [product?._id]);
+
+
 
   // ✅ Wrapped in useCallback to safely use inside useEffect
   const fetchReviews = useCallback(() => {
