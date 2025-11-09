@@ -37,8 +37,7 @@ const ProductPage = () => {
   const [backendReviews, setBackendReviews] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
-  const viewedKey = `viewed_${product._id}`;
-    const hasViewed = localStorage.getItem(viewedKey);
+  
 
   const showToast = (message, variant = 'success') => {
     setToast({ show: true, message, variant });
