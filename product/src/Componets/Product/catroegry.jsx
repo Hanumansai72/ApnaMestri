@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button, Navbar } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import NavaPro from "./navbarproduct";
 import Footer from "./footer";
-import { GiWeldingMask } from "react-icons/gi";       // Welding or fabrication
 
 const allCategories = {
   Materials: [

@@ -7,8 +7,6 @@ import { motion } from 'framer-motion';
 function NavaPro() {
   const [count, setCount] = useState(0);
   const [userId, setUserId] = useState(null);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const location = useLocation();
@@ -39,14 +37,7 @@ function NavaPro() {
     { path: '/cart', icon: 'bi-cart-fill', label: 'Cart', badge: count > 0 },
   ];
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`product?search=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery('');
-      setShowSearch(false);
-    }
-  };
+  
 
   const handleLogout = () => {
     localStorage.removeItem("userid");
