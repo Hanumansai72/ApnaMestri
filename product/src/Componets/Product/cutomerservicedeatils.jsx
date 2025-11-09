@@ -25,7 +25,7 @@ function Services() {
   const [selectedTime, setSelectedTime] = useState('');
   const [locating, setLocating] = useState(false);
   const [vendorPrice, setVendorPrice] = useState(0);
-  const serviceCharge = 250;
+  const serviceCharge =(7/100 )*vendorPrice;
 
   const navigate = useNavigate();
   const savedid = localStorage.getItem("Customerid"); // vendor id

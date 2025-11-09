@@ -59,7 +59,7 @@ const allCategories = {
     { name: "Carpenter", desc: "Wood work", icon: "bi-hammer", tags: ["custom"], count: "690+" },
     { name: "Flooring Labour", desc: "Tile/marble", icon: "bi-border-width", tags: ["laying"], count: "350+" },
     { name: "False Ceiling Worker", desc: "Grid/POP", icon: "bi-columns", tags: ["gypsum"], count: "260+" },
-        { name: "Fabrication", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
+        { name: "Fabrication/Welder", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
 
 
   ],
