@@ -103,6 +103,8 @@ const ProductPage = () => {
   }, [product, fetchReviews]);
 
   const handleQuantity = (delta) => setQuantity(q => Math.max(1, q + delta));
+ const pricechange = Number(product.ProductPrice) + 70;
+
 
   const handleAddToCart = () => {
     if (!userId || userId === "undefined") {
@@ -116,7 +118,7 @@ const ProductPage = () => {
       producturl: Array.isArray(product.ProductUrl) ? product.ProductUrl[0] : product.ProductUrl,
       productname: product.ProductName,
       productQuantity: quantity,
-      productprice: product.ProductPrice,
+      productprice: pricechange,
       productvendor: product.Vendor?.Business_Name || "Unknown Vendor"
     };
     axios.post("https://backend-d6mx.vercel.app/api/cart", cartData)
@@ -238,8 +240,8 @@ const ProductPage = () => {
                 </Button>
               </div>
               <div className="d-flex align-items-baseline mb-4">
-                <span className="price">₹{product.ProductPrice}</span>
-                <span className="old-price">₹{(product.ProductPrice * 1.08).toFixed(0)}</span>
+                <span className="price">₹{pricechange}</span>
+                <span className="old-price">₹{(pricechange * 1.08).toFixed(0)}</span>
                 <span className="discount-badge">8% OFF</span>
               </div>
                             <div className="seller-card d-flex justify-content-between align-items-center mb-4">

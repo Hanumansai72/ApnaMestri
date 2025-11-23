@@ -70,7 +70,7 @@ const Footer = () => {
           <Col md={3}>
             <h6 className="fw-bold text-light">Contact</h6>
             <ul className="list-unstyled text-white-50 small">
-              <li><FaPhoneAlt className="me-2 text-warning" />+91 8555965140</li>
+              <li><FaPhoneAlt className="me-2 text-warning" />+91 7093832122</li>
               <li><FaEnvelope className="me-2 text-danger" />help@apnamestri.com</li>
               <li><FaMapMarkerAlt className="me-2 text-warning" />Hyderabadm India</li>
               <li><FaRegClock className="me-2 text-info" />24/7 Available</li>
