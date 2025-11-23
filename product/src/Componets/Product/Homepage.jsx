@@ -8,6 +8,8 @@ import { FiArrowRight } from 'react-icons/fi';
 import { Link as ScrollLink } from 'react-scroll';
 import { useNavigate } from 'react-router-dom';
 import 'remixicon/fonts/remixicon.css';
+import axios from 'axios';
+
 
 import NavaPro from './navbarproduct';
 import Footer from './footer';
@@ -94,10 +96,12 @@ useEffect(() => {
 
   if (ids.length === 0) return;
 
-  axios.post("https://backend-d6mx.vercel.app/recent-products", { ids })
+  axios
+    .post("https://backend-d6mx.vercel.app/recent-products", { ids })
     .then(res => setRecentProducts(res.data))
     .catch(err => console.log(err));
-}, [product?._id]);
+}, []);  // ✅ Runs only on page load
+
 
 
   return (
