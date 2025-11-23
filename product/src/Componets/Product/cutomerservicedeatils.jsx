@@ -25,11 +25,14 @@ function Services() {
   const [selectedTime, setSelectedTime] = useState('');
   const [locating, setLocating] = useState(false);
   const [vendorPrice, setVendorPrice] = useState(0);
-  const serviceCharge =(7/100 )*vendorPrice;
 
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [blockedDates, setBlockedDates] = useState([]);
+
+  const serviceCharge = (7 / 100) * vendorPrice;
   const navigate = useNavigate();
-  const savedid = localStorage.getItem("Customerid"); // vendor id
-  const pid = localStorage.getItem("userid"); // customer id
+  const savedid = localStorage.getItem("Customerid"); // Vendor ID
+  const pid = localStorage.getItem("userid"); // Customer ID
 
   const numericVendorPrice = Number(vendorPrice) || 0;
   const totalAmount = numericVendorPrice + serviceCharge;
@@ -37,7 +40,8 @@ function Services() {
   // Fetch vendor price
   useEffect(() => {
     if (savedid) {
-      axios.get(`https://backend-d6mx.vercel.app/api/vendor/${savedid}/price`)
+      axios
+        .get(`https://backend-d6mx.vercel.app/api/vendor/${savedid}/price`)
         .then(res => setVendorPrice(Number(res.data.vendorPrice) || 0))
         .catch(() => setVendorPrice(0));
     }
@@ -46,7 +50,8 @@ function Services() {
   // Fetch saved booking details
   useEffect(() => {
     if (pid) {
-      axios.get(`https://backend-d6mx.vercel.app/fetch/location/booking/${pid}`)
+      axios
+        .get(`https://backend-d6mx.vercel.app/fetch/location/booking/${pid}`)
         .then(res => {
           const { address, customer } = res.data;
           if (address && customer) {
@@ -63,57 +68,71 @@ function Services() {
               instructions: address.specialInstructions || ''
             }));
             setLocation({ latitude: address.latitude || '', longitude: address.longitude || '' });
-            toast.info("Saved details auto-filled. You can edit them if needed.");
+
+            toast.info("Saved details auto-filled.");
           }
         })
         .catch(() => console.log("No saved booking details found."));
     }
   }, [pid]);
 
+  // ⭐ FETCH BLOCKED DATES + TIME SLOTS
+  useEffect(() => {
+    if (!savedid) return;
+
+    axios
+      .get(`https://backend-d6mx.vercel.app/datedeatils/${savedid}`)
+      .then((res) => {
+        setBookedSlots(res.data);
+
+        const dates = res.data.map(item => item.serviceDate);
+        setBlockedDates([...new Set(dates)]);
+      })
+      .catch(err => console.log("Error fetching booked slots:", err));
+  }, [savedid]);
+
   // Locate Me function
   const handleLocateMe = () => {
-  setLocating(true);
-  if (!navigator.geolocation) {
-    toast.error("Geolocation is not supported by your browser");
-    setLocating(false);
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(async (position) => {
-    const { latitude, longitude } = position.coords;
-    setLocation({ latitude, longitude });
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-      );
-      const data = await response.json();
-      const address = data.address || {};
-
-      // Construct full street
-      const fullStreet = `${address.house_number || ''} ${address.road || ''} ${address.neighbourhood || ''}`.trim();
-
-      // Update formData with location
-      setFormData(prev => ({
-        ...prev,
-        address: fullStreet || prev.address,
-        city: address.city || address.town || address.village || prev.city,
-        state: address.state || prev.state,
-        zip: address.postcode || prev.zip
-      }));
-
-      toast.success(`Location fetched! Lat: ${latitude}, Lon: ${longitude}`);
-    } catch (err) {
-      toast.error("Failed to fetch address from location");
+    setLocating(true);
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      setLocating(false);
+      return;
     }
-    setLocating(false);
-  }, (error) => {
-    toast.error("Unable to fetch location: " + error.message);
-    setLocating(false);
-  });
-};
 
-  // Handle form submission
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
+      setLocation({ latitude, longitude });
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        );
+        const data = await response.json();
+        const address = data.address || {};
+
+        const fullStreet = `${address.house_number || ''} ${address.road || ''} ${address.neighbourhood || ''}`.trim();
+
+        setFormData(prev => ({
+          ...prev,
+          address: fullStreet || prev.address,
+          city: address.city || address.town || address.village || prev.city,
+          state: address.state || prev.state,
+          zip: address.postcode || prev.zip
+        }));
+
+        toast.success("Location fetched!");
+      } catch {
+        toast.error("Failed to fetch address");
+      }
+      setLocating(false);
+    }, (error) => {
+      toast.error("Unable to fetch location: " + error.message);
+      setLocating(false);
+    });
+  };
+
+  // Submit booking
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!pid) {
@@ -151,7 +170,7 @@ function Services() {
       toast.success("Booking Successful!");
       navigate("/myorder");
     } catch {
-      toast.error("Failed to submit booking");
+      toast.error("Booking failed");
     }
   };
 
@@ -159,39 +178,70 @@ function Services() {
     <Container style={{ padding: '20px', backgroundColor: '#fff9e6' }}>
       <ToastContainer />
       <h2 style={{ color: '#ffcc00' }}>Book Your Service</h2>
-      <p style={{ color: '#666' }}>Complete your booking by providing date, time, and payment.</p>
+      <p style={{ color: '#666' }}>Select date, time and complete booking.</p>
 
       <Row>
         <Col md={4}>
+          {/* DATE & TIME CARD */}
           <Card style={{ marginBottom: '20px', borderColor: '#ffcc00' }}>
             <Card.Body>
               <Card.Title style={{ color: '#ffcc00' }}>Select Date & Time</Card.Title>
+
+              {/* ⭐ BLOCKED DATE LOGIC */}
               <Form.Control
                 type="date"
                 value={serviceDate}
-                onChange={(e) => setServiceDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
+                onChange={(e) => {
+                  setServiceDate(e.target.value);
+                  setServiceTime('');
+                  setSelectedTime('');
+                }}
+                onKeyDown={(e) => e.preventDefault()}
                 style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
               />
+
+              {/* SHOW MESSAGE IF DATE BLOCKED */}
+              {blockedDates.includes(serviceDate) && (
+                <p style={{ color: "red", fontWeight: "bold" }}>
+                  ❌ All slots booked for this date
+                </p>
+              )}
+
+              {/* ⭐ TIME SLOT BLOCKING */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                {['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'].map(slot => (
-                  <Button
-                    key={slot}
-                    style={{
-                      backgroundColor: selectedTime === slot ? '#ffcc00' : 'white',
-                      color: selectedTime === slot ? 'black' : '#ffcc00',
-                      borderColor: '#ffcc00'
-                    }}
-                    size="sm"
-                    onClick={() => { setSelectedTime(slot); setServiceTime(slot); }}
-                  >
-                    {slot}
-                  </Button>
-                ))}
+                {['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'].map(slot => {
+                  const isSlotBooked = bookedSlots.some(
+                    b => b.serviceDate === serviceDate && b.serviceTime === slot
+                  );
+
+                  return (
+                    <Button
+                      key={slot}
+                      disabled={isSlotBooked}
+                      style={{
+                        backgroundColor: selectedTime === slot ? '#ffcc00' : 'white',
+                        color: isSlotBooked ? 'gray' : selectedTime === slot ? 'black' : '#ffcc00',
+                        borderColor: isSlotBooked ? 'gray' : '#ffcc00',
+                        opacity: isSlotBooked ? 0.5 : 1
+                      }}
+                      size="sm"
+                      onClick={() => {
+                        if (!isSlotBooked) {
+                          setSelectedTime(slot);
+                          setServiceTime(slot);
+                        }
+                      }}
+                    >
+                      {slot} {isSlotBooked ? "(Booked)" : ""}
+                    </Button>
+                  );
+                })}
               </div>
             </Card.Body>
           </Card>
 
+          {/* PAYMENT SUMMARY */}
           <Card style={{ borderColor: '#ffcc00' }}>
             <Card.Body>
               <Card.Title style={{ color: '#ffcc00' }}>Payment Summary</Card.Title>
@@ -214,52 +264,32 @@ function Services() {
         </Col>
 
         <Col md={8}>
+          {/* CUSTOMER DETAILS */}
           <Card style={{ borderColor: '#ffcc00' }}>
             <Card.Body>
               <Form onSubmit={handleSubmit}>
                 <h5 style={{ color: '#ffcc00' }}>Customer Information</h5>
+
                 <Row>
                   <Col md={6}>
-                    <Form.Control
-                      name="fullName"
-                      value={formData.fullName}
-                      disabled
-                      style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
-                    />
+                    <Form.Control value={formData.fullName} disabled style={{ marginBottom: '10px', borderColor: '#ffcc00' }} />
                   </Col>
                   <Col md={6}>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      disabled
-                      style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
-                    />
+                    <Form.Control type="email" value={formData.email} disabled style={{ marginBottom: '10px', borderColor: '#ffcc00' }} />
                   </Col>
                 </Row>
 
                 <Row>
                   <Col md={6}>
-                    <Form.Control
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      disabled
-                      style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
-                    />
+                    <Form.Control type="tel" value={formData.phone} disabled style={{ marginBottom: '10px', borderColor: '#ffcc00' }} />
                   </Col>
                   <Col md={6}>
-                    <Form.Control
-                      type="tel"
-                      name="altPhone"
-                      value={formData.altPhone}
-                      disabled
-                      style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
-                    />
+                    <Form.Control type="tel" value={formData.altPhone} disabled style={{ marginBottom: '10px', borderColor: '#ffcc00' }} />
                   </Col>
                 </Row>
 
                 <h5 style={{ color: '#ffcc00', marginTop: '20px' }}>Service Address</h5>
+
                 <Form.Control
                   name="address"
                   value={formData.address}
@@ -281,7 +311,7 @@ function Services() {
                       name="state"
                       value={formData.state}
                       onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
-                                            style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
+                      style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
                     />
                   </Col>
                   <Col md={4}>
@@ -303,10 +333,10 @@ function Services() {
                   style={{ marginBottom: '10px', borderColor: '#ffcc00' }}
                 />
 
+                {/* PAYMENT METHODS */}
                 <h5 style={{ color: '#ffcc00', marginTop: '20px' }}>Payment Method</h5>
                 <Tabs
                   defaultActiveKey="card"
-                  style={{ marginBottom: '10px' }}
                   onSelect={(key) => setFormData(prev => ({ ...prev, paymentMethod: key }))}
                 >
                   <Tab eventKey="card" title="Card">
@@ -315,9 +345,11 @@ function Services() {
                     <Form.Control placeholder="CVV" style={{ marginBottom: '5px', borderColor: '#ffcc00' }} />
                     <Form.Control placeholder="Name on Card" style={{ marginBottom: '5px', borderColor: '#ffcc00' }} />
                   </Tab>
+
                   <Tab eventKey="upi" title="UPI">
                     <Form.Control placeholder="Enter UPI ID" style={{ borderColor: '#ffcc00' }} />
                   </Tab>
+
                   <Tab eventKey="netbanking" title="Net Banking">
                     <Form.Select style={{ borderColor: '#ffcc00' }}>
                       <option>Select Bank</option>
@@ -326,6 +358,7 @@ function Services() {
                       <option>HDFC</option>
                     </Form.Select>
                   </Tab>
+
                   <Tab eventKey="cash" title="Cash">
                     <p style={{ marginTop: '10px' }}>Pay at the time of service.</p>
                   </Tab>
@@ -352,4 +385,3 @@ function Services() {
 }
 
 export default Services;
-
