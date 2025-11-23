@@ -106,7 +106,8 @@ const ProductPage = () => {
   }, [product, fetchReviews]);
 
   const handleQuantity = (delta) => setQuantity(q => Math.max(1, q + delta));
- const pricechange = Number(product.ProductPrice) + 70;
+  const pricechange = Number(product?.ProductPrice || 0) + 70;
+
  // ⭐ Add to Recently Viewed
 useEffect(() => {
   if (product?._id) {
