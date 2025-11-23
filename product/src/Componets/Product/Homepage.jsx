@@ -16,6 +16,8 @@ import './Homepage.css';
 const Homepage = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
+  const [recentProducts, setRecentProducts] = useState([]);
+
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -86,6 +88,17 @@ const Homepage = () => {
       transition: { staggerChildren: 0.2 }
     }
   };
+  // ⭐ Fetch Recently Viewed Products
+useEffect(() => {
+  const ids = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+
+  if (ids.length === 0) return;
+
+  axios.post("https://backend-d6mx.vercel.app/recent-products", { ids })
+    .then(res => setRecentProducts(res.data))
+    .catch(err => console.log(err));
+}, [product?._id]);
+
 
   return (
     <>
@@ -173,6 +186,37 @@ const Homepage = () => {
           </ScrollLink>
         </Container>
       </header>
+      {/* ⭐ Recently Viewed Section */}
+{recentProducts.length > 0 && (
+  <div className="mt-5">
+    <h4 className="mb-3">Recently Viewed</h4>
+    <Row>
+      {recentProducts.slice(0, 4).map((prod) => (
+        <Col md={3} key={prod._id} className="mb-3">
+          <Card className="related-product-card h-100">
+            <Card.Img
+              variant="top"
+              src={prod.ProductUrl?.[0] || '/placeholder.png'}
+              style={{ height: '200px', objectFit: 'cover' }}
+            />
+            <Card.Body>
+              <Card.Title>{prod.ProductName}</Card.Title>
+              <Card.Text className="fw-bold">₹{prod.ProductPrice}</Card.Text>
+              <Button
+                className="w-100 btn-add-to-cart"
+                size="sm"
+                onClick={() => navigate(`/product/${prod._id}`)}
+              >
+                View
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      ))}
+    </Row>
+  </div>
+)}
+
 
       {/* How It Works */}
       <section className="py-5 text-center bg-white border-top border-light" id="how-it-works">

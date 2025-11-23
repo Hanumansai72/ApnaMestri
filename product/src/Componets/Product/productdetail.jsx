@@ -37,6 +37,7 @@ const ProductPage = () => {
   const [backendReviews, setBackendReviews] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
+
   
 
   const showToast = (message, variant = 'success') => {
@@ -63,6 +64,8 @@ const ProductPage = () => {
   }
 }, [product?._id]);
 
+
+// ⭐ Fetch Recently Viewed Products
 
 
   // ✅ Wrapped in useCallback to safely use inside useEffect
@@ -104,6 +107,15 @@ const ProductPage = () => {
 
   const handleQuantity = (delta) => setQuantity(q => Math.max(1, q + delta));
  const pricechange = Number(product.ProductPrice) + 70;
+ // ⭐ Add to Recently Viewed
+useEffect(() => {
+  if (product?._id) {
+    const viewed = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+    const updated = [product._id, ...viewed.filter(id => id !== product._id)];
+    localStorage.setItem("recentlyViewed", JSON.stringify(updated.slice(0, 10)));
+  }
+}, [product?._id]);
+
 
 
   const handleAddToCart = () => {
