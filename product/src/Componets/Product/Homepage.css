@@ -15,6 +15,58 @@
   background-attachment: fixed;
   z-index: 0;
 }
+/* Horizontal scroll container */
+.recent-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  white-space: nowrap;
+}
+
+.recent-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.recent-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+/* Card design */
+.recent-card {
+  width: 200px;
+  min-width: 200px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+  border: 1px solid rgba(230, 230, 230, 0.7);
+}
+
+.recent-card:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+}
+
+/* Image section */
+.recent-img-wrapper {
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+}
+
+.recent-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: 0.4s ease;
+}
+
+.recent-card:hover .recent-img {
+  transform: scale(1.1);
+}
+
 
 .gradient-btn {
   background: linear-gradient(90deg, #FF8C00, #FF6B00);
