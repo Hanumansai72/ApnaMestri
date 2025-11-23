@@ -191,35 +191,53 @@ useEffect(() => {
         </Container>
       </header>
       {/* ⭐ Recently Viewed Section */}
+{/* ⭐ Recently Viewed Section */}
 {recentProducts.length > 0 && (
-  <div className="mt-5">
-    <h4 className="mb-3">Recently Viewed</h4>
-    <Row>
-      {recentProducts.slice(0, 4).map((prod) => (
-        <Col md={3} key={prod._id} className="mb-3">
-          <Card className="related-product-card h-100">
-            <Card.Img
-              variant="top"
-              src={prod.ProductUrl?.[0] || '/placeholder.png'}
-              style={{ height: '200px', objectFit: 'cover' }}
-            />
-            <Card.Body>
-              <Card.Title>{prod.ProductName}</Card.Title>
-              <Card.Text className="fw-bold">₹{prod.ProductPrice}</Card.Text>
-              <Button
-                className="w-100 btn-add-to-cart"
-                size="sm"
-                onClick={() => navigate(`/product/${prod._id}`)}
-              >
-                View
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      ))}
-    </Row>
-  </div>
+  <section className="py-5 bg-white">
+    <Container>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3 className="fw-bold">Recently Viewed</h3>
+
+        <Button
+          variant="link"
+          className="text-danger fw-semibold p-0"
+          onClick={() => {
+            localStorage.removeItem("recentlyViewed");
+            setRecentProducts([]);
+          }}
+        >
+          Clear All
+        </Button>
+      </div>
+
+      <div className="recent-scroll d-flex gap-3 pb-3">
+        {recentProducts.map((prod) => (
+          <motion.div
+            key={prod._id}
+            className="recent-card shadow-sm"
+            whileHover={{ scale: 1.06, y: -5 }}
+            transition={{ type: "spring", stiffness: 200, damping: 12 }}
+            onClick={() => navigate(`/product/${prod._id}`)}
+          >
+            <div className="recent-img-wrapper">
+              <img
+                src={prod.ProductUrl?.[0] || "/placeholder.png"}
+                alt={prod.ProductName}
+                className="recent-img"
+              />
+            </div>
+
+            <div className="p-2">
+              <h6 className="fw-bold text-truncate">{prod.ProductName}</h6>
+              <span className="text-dark fw-semibold">₹{prod.ProductPrice}</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </Container>
+  </section>
 )}
+
 
 
       {/* How It Works */}
