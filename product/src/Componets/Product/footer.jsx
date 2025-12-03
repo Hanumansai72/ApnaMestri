@@ -26,7 +26,9 @@ const Footer = () => {
       paddingRight:"-5px"
     }}
   />
-  <h5 className="mb-0 fw-bold text-warning" style={{paddingLeft:"8px", width:"100%"}}>Apna Mestri</h5>
+<sub style={{ fontSize: "10px", opacity: 0.8,float:"left" ,position:"relative",right:"28px",top:"9px"}}>
+    Powered By Smart Mestri Solutions
+  </sub>  
 </div>
 
             <p className="text-white-50 small">
@@ -80,7 +82,7 @@ const Footer = () => {
 
         {/* Bottom links */}
         <div className="d-flex justify-content-between border-top border-secondary pt-3 text-white-50 small flex-column flex-md-row">
-          <p className="mb-2 mb-md-0">© 2025 Civil Mestri. All rights reserved.</p>
+          <p className="mb-2 mb-md-0">© 2025 Smart Mestri Solutions. All rights reserved.</p>
           <div className="d-flex gap-3">
             <a href="/" className="text-white-50">Privacy Policy</a>
             <a href="/" className="text-white-50">Terms of Service</a>
