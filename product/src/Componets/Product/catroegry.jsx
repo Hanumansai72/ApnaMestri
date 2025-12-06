@@ -59,6 +59,10 @@ const allCategories = {
     { name: "Flooring Labour", desc: "Tile/marble", icon: "bi-border-width", tags: ["laying"], count: "350+" },
     { name: "False Ceiling Worker", desc: "Grid/POP", icon: "bi-columns", tags: ["gypsum"], count: "260+" },
         { name: "Fabrication/Welder", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
+                { name: "Lift Technician", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
+        { name: "Dismantaling Expert", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
+
+      
 
 
   ],
