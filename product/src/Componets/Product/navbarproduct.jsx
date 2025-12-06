@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Navbar, Nav, Button, Badge, Dropdown } from 'react-bootstrap';
@@ -8,6 +8,8 @@ function NavaPro() {
   const [count, setCount] = useState(0);
   const [userId, setUserId] = useState(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const inputRef = useRef(null);               // ✅ ref for search input
+  const [searchTerm, setSearchTerm] = useState(''); // ✅ state for search
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -37,11 +39,20 @@ function NavaPro() {
     { path: '/cart', icon: 'bi-cart-fill', label: 'Cart', badge: count > 0 },
   ];
 
-  
-
   const handleLogout = () => {
     localStorage.removeItem("userid");
     navigate("/login");
+  };
+
+  
+  // ✅ handle Enter key on search input
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter' && searchTerm.trim()) {
+      const q = encodeURIComponent(searchTerm.trim());
+      // SPA navigation – final URL will be like:
+      // https://www.apnamestri.com/product?search=ITEM
+      navigate(`/product?search=${q}`);
+    }
   };
 
   return (
@@ -98,6 +109,20 @@ function NavaPro() {
           }
           .mobile-profile-menu span.text-danger { color: #ff5252; }
           @media (max-width: 992px) { .navbar-desktop { display: none !important; } }
+
+          /* ✅ small styling touch for navbar search */
+          .navbar-search-input {
+            padding: 6px 10px;
+            border-radius: 20px;
+            border: 1px solid #666;
+            background-color: #222;
+            color: #fff;
+            margin-right: 10px;
+            width: 220px;
+          }
+          .navbar-search-input::placeholder {
+            color: #aaa;
+          }
         `}
       </style>
 
@@ -111,7 +136,6 @@ function NavaPro() {
               style={{ height: '65px', width: 'auto', objectFit: 'contain' }}
             />
           </Navbar.Brand>
-          
 
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -120,6 +144,17 @@ function NavaPro() {
               <Nav.Link href="/Category" className="text-light">Categories</Nav.Link>
               <Nav.Link href="/about" className="text-light">About</Nav.Link>
             </Nav>
+
+            {/* ✅ SEARCH INPUT */}
+            <input
+              type="text"
+              ref={inputRef}
+              placeholder="Search..."
+              className="navbar-search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+            />
 
             <Nav className="align-items-center">
               <Nav.Link as={Link} to="/cart" className="text-light position-relative me-2">
@@ -206,4 +241,3 @@ function NavaPro() {
 }
 
 export default NavaPro;
-//
