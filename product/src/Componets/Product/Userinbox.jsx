@@ -40,7 +40,7 @@ export default function UserInbox() {
           className="d-flex align-items-center p-2 mb-2 rounded bg-light"
           style={{ cursor: "pointer" }}
           onClick={() =>
-            navigate(`/customer/chat/:vendorId?${c.vendorId._id}`)
+            navigate(`/customer/chat/${c.vendorId._id}`)
           }
         >
           <img
