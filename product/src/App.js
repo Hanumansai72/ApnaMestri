@@ -18,6 +18,7 @@ import ProfessionalServicePage from './Componets/Product/profesionalservicedeati
 import ViewStore from './Componets/Product/viewstore';
 import AboutUs from './Componets/Product/Aboutus'
 import CustomerChat from './Componets/Product/Customerchat';
+import UserInbox from './Componets/Product/Userinbox';
 function App() {
   return (
     <div className="App">
@@ -25,6 +26,8 @@ function App() {
         <Routes>
 
           <Route path="/" element={<Homepage></Homepage>} />
+                    <Route path="/chat" element={<UserInbox></UserInbox>} />
+
           <Route path="/product" element={<ProductCard></ProductCard>} />
           <Route path="/login" element={<Customerlogin></Customerlogin>} />
           <Route path="/signup" element={<Registratin></Registratin>} />
