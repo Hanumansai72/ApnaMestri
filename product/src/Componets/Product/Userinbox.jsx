@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import NavaPro from "./navbarproduct";
+import Footer from "./footer";
 
 const API_BASE =
   process.env.NODE_ENV === "production"
@@ -23,6 +25,8 @@ export default function UserInbox() {
   }, [customerId]);
 
   return (
+    <>
+    <NavaPro></NavaPro>
     <div className="container py-3">
       <h5 className="mb-3">Chats</h5>
 
@@ -55,5 +59,7 @@ export default function UserInbox() {
         </div>
       ))}
     </div>
+    <Footer></Footer>
+    </>
   );
 }

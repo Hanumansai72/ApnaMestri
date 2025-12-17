@@ -143,6 +143,7 @@ function NavaPro() {
               <Nav.Link href="/" className="text-light">Home</Nav.Link>
               <Nav.Link href="/Category" className="text-light">Categories</Nav.Link>
               <Nav.Link href="/about" className="text-light">About</Nav.Link>
+
             </Nav>
 
             {/* ✅ SEARCH INPUT */}
@@ -176,6 +177,8 @@ function NavaPro() {
                     <Dropdown.Item href="/myorder">My Orders</Dropdown.Item>
                     <Dropdown.Item href="/wishlist">Wishlist</Dropdown.Item>
                     <Dropdown.Item href="/support">Support</Dropdown.Item>
+                                        <Dropdown.Item href="/chat">Chat</Dropdown.Item>
+
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={handleLogout} className="text-danger">Logout</Dropdown.Item>
                   </Dropdown.Menu>
@@ -210,11 +213,13 @@ function NavaPro() {
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.2 }}
         >
-          <Link to="/profile" onClick={() => setShowMobileMenu(false)}>👤 My Profile</Link>
-          <Link to="/myorder" onClick={() => setShowMobileMenu(false)}>📦 My Orders</Link>
-          <Link to="/wishlist" onClick={() => setShowMobileMenu(false)}>❤️ Wishlist</Link>
-          <Link to="/support" onClick={() => setShowMobileMenu(false)}>🛠️ Support</Link>
-          <span className="text-danger" onClick={handleLogout}>🚪 Sign Out</span>
+          <Link to="/profile" onClick={() => setShowMobileMenu(false)}>My Profile</Link>
+          <Link to="/myorder" onClick={() => setShowMobileMenu(false)}> My Orders</Link>
+          <Link to="/wishlist" onClick={() => setShowMobileMenu(false)}>Wishlist</Link>
+          <Link to="/support" onClick={() => setShowMobileMenu(false)}>Support</Link>
+                    <Link to="/chat" onClick={() => setShowMobileMenu(false)}>chat</Link>
+
+          <span className="text-danger" onClick={handleLogout}>Sign Out</span>
         </motion.div>
       )}
 
