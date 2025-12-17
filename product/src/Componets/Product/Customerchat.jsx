@@ -21,9 +21,7 @@ export default function CustomerChat() {
 
   const scrollRef = useRef(null);
 
-  /* ----------------------------------------
-     CREATE / GET CONVERSATION
-  ---------------------------------------- */
+  /* ---------------- CREATE / GET CONVERSATION ---------------- */
   useEffect(() => {
     if (!customerId || !vendorId) return;
 
@@ -38,26 +36,27 @@ export default function CustomerChat() {
     initConversation();
   }, [customerId, vendorId]);
 
-  /* ----------------------------------------
-     JOIN SOCKET ROOM
-  ---------------------------------------- */
+  /* ---------------- JOIN SOCKET ROOM ---------------- */
   useEffect(() => {
     if (!conversation?._id) return;
 
     socket.emit("joinConversation", conversation._id);
 
-    socket.on("receiveMessage", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
+    const handler = (msg) => {
+      if (msg.conversationId === conversation._id) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    };
 
-    return () => socket.off("receiveMessage");
+    socket.on("receiveMessage", handler);
+    return () => socket.off("receiveMessage", handler);
   }, [conversation]);
 
-  /* ----------------------------------------
-     FETCH MESSAGE HISTORY
-  ---------------------------------------- */
+  /* ---------------- FETCH MESSAGE HISTORY ---------------- */
   useEffect(() => {
     if (!conversation?._id) return;
+
+    setMessages([]); // reset on conversation change
 
     const fetchMessages = async () => {
       const res = await axios.get(
@@ -69,9 +68,7 @@ export default function CustomerChat() {
     fetchMessages();
   }, [conversation]);
 
-  /* ----------------------------------------
-     FETCH VENDOR DETAILS
-  ---------------------------------------- */
+  /* ---------------- FETCH VENDOR DETAILS ---------------- */
   useEffect(() => {
     if (!vendorId) return;
 
@@ -81,18 +78,14 @@ export default function CustomerChat() {
       .catch(() => setVendorDetails(null));
   }, [vendorId]);
 
-  /* ----------------------------------------
-     AUTO SCROLL
-  ---------------------------------------- */
+  /* ---------------- AUTO SCROLL ---------------- */
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  /* ----------------------------------------
-     SEND MESSAGE
-  ---------------------------------------- */
+  /* ---------------- SEND MESSAGE ---------------- */
   const handleSend = async () => {
     if (!input.trim() || !conversation) return;
 
@@ -112,13 +105,10 @@ export default function CustomerChat() {
     ]);
 
     socket.emit("sendMessage", payload);
-
     await axios.post(`${API_BASE}/api/chat/message`, payload);
   };
 
-  /* ----------------------------------------
-     UI (UNCHANGED)
-  ---------------------------------------- */
+  /* ---------------- UI (UNCHANGED) ---------------- */
   return (
     <>
       <NavaPro />
@@ -174,7 +164,7 @@ export default function CustomerChat() {
                 <AnimatePresence>
                   {messages.map((m, i) => (
                     <motion.div
-                      key={i}
+                      key={m._id || i}
                       className={`d-flex mb-3 ${
                         m.senderId === customerId
                           ? "justify-content-end"
@@ -187,7 +177,7 @@ export default function CustomerChat() {
                         <div
                           style={{
                             background:
-                              m.senderId === customerId ? "#FFD700" : "#fff",
+                              m.senderType === "user" ? "#FFD700" : "#fff",
                             padding: "10px 14px",
                             borderRadius: 16,
                           }}
