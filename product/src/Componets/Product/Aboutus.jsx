@@ -314,8 +314,7 @@ export default function Aboutus() {
             >
               {[
   { n: "Vaibhav", r: "CO-Founder",},
-  { n: "Uttej", r: "CO-Founder" },
-  { n: "Hanumansai", r: "Technical Head" }
+  { n: "Uttej", r: "CO-Founder" }
 ].map((m, i) => (
   <motion.div className="col-sm-6 col-lg-3" key={i} variants={fadeUp}>
     <div className="card h-100 border-0 shadow-sm text-center p-4">
