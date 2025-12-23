@@ -5,6 +5,9 @@ import { Toast, ToastContainer, Form, Button, InputGroup } from 'react-bootstrap
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { signupSchema} from './signupschema';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup'
 
 function Registration() {
   const [formdata, setformdata] = useState({
@@ -14,6 +17,15 @@ function Registration() {
     Password: '',
     Location: '',
   });
+  const {
+  register,
+  handleSubmit: rhfSubmit,
+  formState: { errors },
+} = useForm({
+  resolver: yupResolver(signupSchema),
+  mode: 'onBlur',
+});
+
   const [confirmPassword, setConfirmPassword] = useState('');
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
   const [otpSent, setOtpSent] = useState(false);
@@ -83,14 +95,13 @@ function Registration() {
     }
   };
 
-  // ✅ Google Signup Handler
   const handleGoogleSignup = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
       const userData = {
         Full_Name: decoded.name,
         Emailaddress: decoded.email,
-        Password: decoded.sub, // unique Google user ID as pseudo-password
+        Password: decoded.sub, 
         Phone_Number: '',
         Location: 'Google',
       };
@@ -193,17 +204,38 @@ function Registration() {
             <p className="brand-subtitle">Join the future of civil engineering</p>
           </div>
 
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={rhfSubmit(handleSubmit)}>
+
             {/* Name */}
             <InputGroup className="mb-3">
               <span className="input-group-text-dark"><i className="bi bi-person"></i></span>
-              <Form.Control type="text" placeholder="Full Name" name="Full_Name" value={formdata.Full_Name} onChange={handleoninput} className="form-control-dark" required />
+              <Form.Control
+  type="text"
+  placeholder="Full Name"
+  name="Full_Name"
+  {...register('Full_Name')}
+  value={formdata.Full_Name}
+  onChange={handleoninput}
+  className="form-control-dark"
+/>
+<p className="text-danger">{errors.Full_Name?.message}</p>
+
             </InputGroup>
 
             {/* Email + OTP */}
             <InputGroup className="mb-3">
               <span className="input-group-text-dark"><i className="bi bi-envelope"></i></span>
-              <Form.Control type="email" placeholder="Email Address" name="Emailaddress" value={formdata.Emailaddress} onChange={handleoninput} className="form-control-dark" required disabled={otpVerified} />
+              <Form.Control
+  type="text"
+  placeholder="Emailaddress"
+  name="Emailaddress"
+  {...register('Emailaddress')}
+  value={formdata.Full_Name}
+  onChange={handleoninput}
+  className="form-control-dark"
+/>
+<p className="text-danger">{errors.Emailaddress?.message}</p>
+
               {!otpSent && <Button variant="outline-secondary" onClick={sendOtp}>Send OTP</Button>}
             </InputGroup>
 
@@ -222,7 +254,17 @@ function Registration() {
             {/* Phone */}
             <InputGroup className="mb-3">
               <span className="input-group-text-dark"><i className="bi bi-phone"></i></span>
-              <Form.Control type="tel" placeholder="Phone Number" name="Phone_Number" value={formdata.Phone_Number} onChange={handleoninput} className="form-control-dark" required />
+            <Form.Control
+  type="number"
+  placeholder="Phone_Number"
+  name="Phone_Number"
+  {...register('Phone_Number')}
+  value={formdata.Full_Name}
+  onChange={handleoninput}
+  className="form-control-dark"
+/>
+<p className="text-danger">{errors.Phone_Number?.message}</p>
+
             </InputGroup>
 
             {/* Location */}
