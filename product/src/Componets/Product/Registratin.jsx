@@ -49,7 +49,7 @@ function Registration() {
 
     try {
       await axios.post(
-        'https://backend-d6mx.vercel.app/profiledata',
+        'http://localhost:3000/customer/signup',
         data,
         { withCredentials: true }
       );
