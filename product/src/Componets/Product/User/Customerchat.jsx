@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { socket } from "./socket";
+import { socket } from "../socket";
 import { useAuth } from "../Auth/AuthContext";
 import API_BASE_URL from "../../../config";
 import NavaPro from '../Layout/navbarproduct';
