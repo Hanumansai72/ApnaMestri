@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./socket";
 import { useAuth } from "../Auth/AuthContext";
 import API_BASE_URL from "../../../config";
 import NavaPro from '../Layout/navbarproduct';
 import Footer from '../Layout/footer';
 
-
-
 export default function CustomerChat() {
   const { vendorId } = useParams();
+  const navigate = useNavigate();
   const { user: authUser } = useAuth();
   const customerId = authUser?.id;
 
@@ -19,6 +18,7 @@ export default function CustomerChat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [vendorDetails, setVendorDetails] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
 
   const scrollRef = useRef(null);
 
@@ -27,11 +27,15 @@ export default function CustomerChat() {
     if (!customerId || !vendorId) return;
 
     const initConversation = async () => {
-      const res = await axios.post(`${API_BASE_URL}/api/chat/conversation`, {
-        userId: customerId,
-        vendorId,
-      });
-      setConversation(res.data);
+      try {
+        const res = await axios.post(`${API_BASE_URL}/api/chat/conversation`, {
+          userId: customerId,
+          vendorId,
+        });
+        setConversation(res.data);
+      } catch (err) {
+        console.error("Init conversation failed:", err);
+      }
     };
 
     initConversation();
@@ -45,7 +49,11 @@ export default function CustomerChat() {
 
     const handler = (msg) => {
       if (msg.conversationId === conversation._id) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => {
+          // Prevent duplicates if already added optimistically
+          if (prev.find(m => m._id === msg._id)) return prev;
+          return [...prev, msg];
+        });
       }
     };
 
@@ -57,13 +65,15 @@ export default function CustomerChat() {
   useEffect(() => {
     if (!conversation?._id) return;
 
-    setMessages([]); // reset on conversation change
-
     const fetchMessages = async () => {
-      const res = await axios.get(
-        `${API_BASE_URL}/api/chat/messages/${conversation._id}`
-      );
-      setMessages(res.data);
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/api/chat/messages/${conversation._id}`
+        );
+        setMessages(res.data);
+      } catch (err) {
+        console.error("Fetch messages failed:", err);
+      }
     };
 
     fetchMessages();
@@ -82,7 +92,10 @@ export default function CustomerChat() {
   /* ---------------- AUTO SCROLL ---------------- */
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth"
+      });
     }
   }, [messages]);
 
@@ -99,124 +112,203 @@ export default function CustomerChat() {
 
     setInput("");
 
-    // optimistic UI
+    // Optimistic UI
+    const tempId = Date.now().toString();
     setMessages((prev) => [
       ...prev,
-      { ...payload, createdAt: new Date() },
+      { ...payload, _id: tempId, createdAt: new Date() },
     ]);
 
-    socket.emit("sendMessage", payload);
-    await axios.post(`${API_BASE_URL}/api/chat/message`, payload);
+    try {
+      socket.emit("sendMessage", payload);
+      await axios.post(`${API_BASE_URL}/api/chat/message`, payload);
+    } catch (err) {
+      console.error("Send message failed:", err);
+    }
   };
 
-  /* ---------------- UI (UNCHANGED) ---------------- */
   return (
-    <>
+    <div className="min-vh-100 d-flex flex-column bg-soft">
       <NavaPro />
 
-      <div className="container-fluid" style={{ padding: "1.25rem" }}>
-        <div className="row g-3">
-          <div className="col-lg-12">
-            <div
-              className="card"
-              style={{
-                borderRadius: 12,
-                height: "90vh",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {/* HEADER */}
-              <div
-                className="card-header"
-                style={{ background: "#fff", borderBottom: "1px solid #eee" }}
+      <style>{`
+        .bg-soft { background-color: #f0f2f5; }
+        .chat-container {
+          height: calc(100vh - 180px);
+          max-width: 1000px;
+          margin: 20px auto;
+          background: #fff;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+          display: flex;
+          flex-direction: column;
+        }
+        .chat-header {
+          padding: 15px 25px;
+          background: #fff;
+          border-bottom: 1px solid #f0f0f0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .message-area {
+          flex: 1;
+          overflow-y: auto;
+          padding: 25px;
+          background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+          background-blend-mode: overlay;
+          background-color: #f7f9fb;
+        }
+        .message-bubble {
+          max-width: 75%;
+          margin-bottom: 15px;
+          padding: 12px 18px;
+          position: relative;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .user-message {
+          background: #ffd700;
+          color: #000;
+          border-radius: 20px 20px 4px 20px;
+          align-self: flex-end;
+          margin-left: auto;
+        }
+        .vendor-message {
+          background: #fff;
+          color: #333;
+          border-radius: 20px 20px 20px 4px;
+          align-self: flex-start;
+          border: 1px solid #eee;
+        }
+        .input-area {
+          padding: 20px 25px;
+          background: #fff;
+          border-top: 1px solid #f0f0f0;
+        }
+        .custom-input {
+          border: none;
+          background: #f0f2f5;
+          border-radius: 25px;
+          padding: 12px 20px;
+          transition: all 0.3s;
+        }
+        .custom-input:focus {
+          box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.5);
+          background: #fff;
+        }
+        .send-btn {
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.2s;
+        }
+        .send-btn:active {
+          transform: scale(0.9);
+        }
+        @media (max-width: 768px) {
+          .chat-container {
+            margin: 0;
+            height: calc(100vh - 70px);
+            border-radius: 0;
+          }
+        }
+      `}</style>
+
+      <div className="container-fluid flex-grow-1 p-0 p-md-3">
+        <div className="chat-container">
+          {/* HEADER */}
+          <div className="chat-header">
+            <div className="d-flex align-items-center">
+              <button
+                onClick={() => navigate('/chat')}
+                className="btn btn-link link-dark p-0 me-3 d-md-none"
               >
-                <div className="d-flex align-items-center">
-                  <img
-                    src={
-                      vendorDetails?.Profile_Image ||
-                      "https://i.pravatar.cc/80?img=8"
-                    }
-                    alt=""
-                    className="rounded-circle me-2"
-                    style={{ width: 48, height: 48 }}
-                  />
-                  <div>
-                    <div style={{ fontWeight: 700 }}>
-                      {vendorDetails?.Owner_name || "Vendor"}
-                    </div>
-                    <div className="text-muted" style={{ fontSize: 12 }}>
-                      {vendorDetails?.Business_Name || ""}
-                    </div>
+                <i className="bi bi-arrow-left fs-4"></i>
+              </button>
+              <img
+                src={vendorDetails?.Profile_Image || "https://i.pravatar.cc/80?img=8"}
+                alt=""
+                className="rounded-circle me-3"
+                style={{ width: 45, height: 45, objectFit: 'cover' }}
+              />
+              <div>
+                <h6 className="mb-0 fw-bold">{vendorDetails?.Owner_name || "Professional"}</h6>
+                <small className="text-success" style={{ fontSize: '0.75rem' }}>
+                  <i className="bi bi-circle-fill me-1" style={{ fontSize: '0.5rem' }}></i> Online
+                </small>
+              </div>
+            </div>
+            <div className="d-flex gap-3">
+              <button className="btn btn-light rounded-circle shadow-sm">
+                <i className="bi bi-telephone"></i>
+              </button>
+              <button className="btn btn-light rounded-circle shadow-sm">
+                <i className="bi bi-three-dots-vertical"></i>
+              </button>
+            </div>
+          </div>
+
+          {/* MESSAGES */}
+          <div ref={scrollRef} className="message-area d-flex flex-column">
+            <div className="text-center my-4">
+              <span className="badge bg-white text-muted shadow-sm px-3 py-2 rounded-pill fw-normal">
+                Secure end-to-end encrypted
+              </span>
+            </div>
+
+            <AnimatePresence>
+              {messages.map((m, i) => (
+                <motion.div
+                  key={m._id || i}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className={`message-bubble ${m.senderType === "user" ? "user-message" : "vendor-message"}`}
+                >
+                  <div style={{ wordBreak: 'break-word' }}>{m.message}</div>
+                  <div className="text-end" style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.7 }}>
+                    {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {m.senderType === "user" && (
+                      <i className="bi bi-check2-all ms-1 text-primary"></i>
+                    )}
                   </div>
-                </div>
-              </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
 
-              {/* MESSAGES */}
-              <div
-                ref={scrollRef}
-                style={{
-                  flex: 1,
-                  overflowY: "auto",
-                  padding: "1rem",
-                  background: "#F7F9FB",
-                }}
-              >
-                <AnimatePresence>
-                  {messages.map((m, i) => (
-                    <motion.div
-                      key={m._id || i}
-                      className={`d - flex mb - 3 ${m.senderId === customerId
-                        ? "justify-content-end"
-                        : "justify-content-start"
-                        } `}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                    >
-                      <div style={{ maxWidth: "70%" }}>
-                        <div
-                          style={{
-                            background:
-                              m.senderType === "user" ? "#FFD700" : "#fff",
-                            padding: "10px 14px",
-                            borderRadius: 16,
-                          }}
-                        >
-                          {m.message}
-                          <div className="text-end mt-1">
-                            <small className="text-muted">
-                              {new Date(m.createdAt).toLocaleTimeString()}
-                            </small>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+          {/* INPUT */}
+          <div className="input-area">
+            <div className="d-flex align-items-center gap-3">
+              <button className="btn btn-light rounded-circle">
+                <i className="bi bi-plus-lg"></i>
+              </button>
+              <div className="flex-grow-1">
+                <input
+                  className="form-control custom-input shadow-none"
+                  placeholder="Type your message..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                />
               </div>
-
-              {/* FOOTER */}
-              <div
-                className="card-footer"
-                style={{ borderTop: "1px solid #eee", background: "#fff" }}
+              <button
+                className={`btn btn-warning send-btn shadow-sm ${!input.trim() ? 'opacity-50' : ''}`}
+                onClick={handleSend}
+                disabled={!input.trim()}
               >
-                <div className="d-flex gap-2">
-                  <input
-                    className="form-control"
-                    placeholder="Type a message..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  />
-                  <button className="btn btn-warning" onClick={handleSend}>
-                    Send
-                  </button>
-                </div>
-              </div>
+                <i className="bi bi-send-fill"></i>
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </>
+      <div className="mt-auto d-none d-md-block">
+        <Footer />
+      </div>
+    </div>
   );
 }

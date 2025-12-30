@@ -101,7 +101,7 @@ function CustomerLogin() {
       const decoded = jwtDecode(credentialResponse.credential);
       const { email, name, picture } = decoded;
 
-      const res = await axios.post(`${API_BASE_URL}/google-login/customer`, {
+      const res = await axios.post(`${API_BASE_URL}/google-login`, {
         email,
         name,
         picture,

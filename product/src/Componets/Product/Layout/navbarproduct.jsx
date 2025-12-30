@@ -128,6 +128,8 @@ function NavaPro() {
           .navbar-search-input::placeholder {
             color: #aaa;
           }
+            .nav-icon{
+            font-size:30px;}
         `}
       </style>
 
