@@ -10,7 +10,16 @@ import Footer from '../Layout/footer';
 import NavaPro from '../Layout/navbarproduct';
 import { useAuth } from '../Auth/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaSearch, FaFilter, FaStar, FaArrowRight } from 'react-icons/fa';
+import {
+  FaSearch,
+  FaFilter,
+  FaStar,
+  FaArrowRight,
+  FaCheckCircle,
+  FaMapMarkerAlt,
+  FaClock,
+  FaUserTie
+} from 'react-icons/fa';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -31,6 +40,10 @@ const ProfessionalListPage = () => {
   const queryParams = new URLSearchParams(location.search);
   const search = queryParams.get('search') || 'Plumber';
 
+  const primaryColor = '#FFD700'; // Gold
+  const secondaryColor = '#1A202C'; // Dark slate
+  const softBg = '#F8FAFC';
+
   function booknow(vendorId) {
     localStorage.setItem("Customerid", vendorId);
     navigate("/myorder/service");
@@ -40,7 +53,7 @@ const ProfessionalListPage = () => {
     navigate(`/service/details/${vendorId}`);
   }
 
-  // Fetch vendors (no location detection)
+  // Fetch vendors
   useEffect(() => {
     setLoading(true);
     fetchVendors(search);
@@ -58,7 +71,8 @@ const ProfessionalListPage = () => {
         setDescription(res.data.description || "Find skilled professionals across India.");
         setCurrentPage(1);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Error fetching vendors:", err);
         setVendorList([]);
         setFilteredVendors([]);
         setDescription("");
@@ -109,143 +123,283 @@ const ProfessionalListPage = () => {
     <>
       <NavaPro />
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
         .vendor-page {
-          background-color: #F7FAFC;
+          background-color: ${softBg};
           min-height: 100vh;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          padding-bottom: 5rem;
         }
+
         .hero-section {
-          background: linear-gradient(135deg, #1A202C 0%, #2D3748 100%);
+          background: radial-gradient(circle at 0% 0%, ${secondaryColor} 0%, #2D3748 100%);
           color: white;
-          padding: 3rem 0;
-          margin-bottom: 2rem;
-          border-radius: 0 0 30px 30px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .filter-bar {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-          margin-top: -3rem;
-          margin-bottom: 2rem;
-        }
-        .vendor-card {
-           border: none;
-           border-radius: 16px;
-           overflow: hidden;
-           background: white;
-           transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-           box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-           height: 100%;
-        }
-        .vendor-card:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-        }
-        .profile-img-container {
+          padding: 6rem 0 8rem 0;
+          margin-bottom: 0;
           position: relative;
-          width: 80px;
-          height: 80px;
+          overflow: hidden;
         }
-        .profile-img {
+
+        .hero-section::after {
+          content: '';
+          position: absolute;
+          top: -10%;
+          right: -5%;
+          width: 300px;
+          height: 300px;
+          background: ${primaryColor};
+          filter: blur(150px);
+          opacity: 0.15;
+          border-radius: 50%;
+        }
+
+        .filter-bar {
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(20px);
+          padding: 2rem;
+          border-radius: 30px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+          margin-top: -4rem;
+          margin-bottom: 3rem;
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          position: relative;
+          z-index: 10;
+        }
+
+        .filter-label {
+          font-size: 0.75rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #94A3B8;
+          margin-bottom: 0.5rem;
+          display: block;
+        }
+
+        .custom-select, .custom-input {
+          background: #F1F5F9 !important;
+          border: none !important;
+          border-radius: 12px !important;
+          padding: 12px 16px !important;
+          font-weight: 600 !important;
+          font-size: 0.9rem !important;
+          color: ${secondaryColor} !important;
+        }
+
+        .custom-input:focus {
+          box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2) !important;
+          background: white !important;
+        }
+
+        .vendor-card {
+           border: 1px solid rgba(226, 232, 240, 0.8);
+           border-radius: 28px;
+           overflow: hidden;
+           background: rgba(255, 255, 255, 0.9);
+           backdrop-filter: blur(10px);
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+           height: 100%;
+           display: flex;
+           flex-direction: column;
+        }
+
+        .vendor-card:hover {
+          transform: translateY(-12px);
+          box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.1);
+          border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .card-profile-header {
+          position: relative;
+          height: 100px;
+          background: linear-gradient(to right, ${secondaryColor}, #2D3748);
+          margin-bottom: 50px;
+        }
+
+        .profile-img-glow {
+          position: absolute;
+          bottom: -40px;
+          left: 24px;
+          width: 90px;
+          height: 90px;
+          border-radius: 24px;
+          background: white;
+          padding: 4px;
+          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+          z-index: 2;
+        }
+
+        .profile-img-main {
           width: 100%;
           height: 100%;
-          border-radius: 50%;
-          border: 3px solid #FFD700;
+          border-radius: 20px;
           object-fit: cover;
+          background: ${softBg};
         }
-        .pagination .page-item.active .page-link {
-          background-color: #FFD700;
-          border-color: #FFD700;
+
+        .badge-verified-mini {
+          position: absolute;
+          top: 15px;
+          right: 20px;
+          background: ${primaryColor};
           color: black;
+          font-weight: 800;
+          font-size: 0.65rem;
+          padding: 6px 12px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
         }
-        .pagination .page-link {
-          color: #2D3748;
-          border: none;
-          margin: 0 2px;
+
+        .vendor-category-badge {
+          background: ${softBg};
+          color: #64748B;
           border-radius: 8px;
+          font-weight: 700;
+          font-size: 0.7rem;
+          padding: 6px 12px;
+          border: 1px solid #E2E8F0;
         }
-        .btn-primary-custom {
-          background-color: #FFD700;
-          border: none;
-          color: black;
-          font-weight: 600;
-          border-radius: 8px;
+
+        .price-badge {
+          background: rgba(34, 197, 94, 0.1);
+          color: #16A34A;
           padding: 8px 16px;
-          transition: all 0.2s;
+          border-radius: 14px;
+          font-weight: 800;
+          font-size: 1rem;
         }
-        .btn-primary-custom:hover {
-          background-color: #FFC300;
-          transform: scale(1.05);
+
+        .btn-hire-now {
+          background: linear-gradient(135deg, ${primaryColor}, #FFC300);
+          border: none;
           color: black;
+          font-weight: 800;
+          padding: 12px 24px;
+          border-radius: 16px;
+          transition: all 0.3s;
+          letter-spacing: 0.02em;
         }
-        .btn-outline-custom {
-          border: 2px solid #E2E8F0;
-          background: transparent;
-          color: #4A5568;
-          font-weight: 600;
-          border-radius: 8px;
-          padding: 8px 16px;
-          transition: all 0.2s;
+
+        .btn-hire-now:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
         }
-        .btn-outline-custom:hover {
-           border-color: #FFD700;
-           color: black;
-           background: #FFF9E6;
+
+        .btn-details-round {
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: white;
+          border: 2px solid #F1F5F9;
+          border-radius: 16px;
+          color: ${secondaryColor};
+          transition: all 0.3s;
+        }
+
+        .btn-details-round:hover {
+          background: ${secondaryColor};
+          color: white;
+          border-color: ${secondaryColor};
+          transform: rotate(-15deg);
+        }
+
+        .pagination-container {
+          margin-top: 4rem;
+        }
+
+        .page-link-custom {
+          width: 45px;
+          height: 45px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px !important;
+          margin: 0 4px;
+          font-weight: 700;
+          border: none;
+          background: white;
+          color: ${secondaryColor} !important;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          transition: all 0.3s;
+          cursor: pointer;
+        }
+
+        .page-item.active .page-link-custom {
+          background: ${primaryColor} !important;
+          color: black !important;
+          box-shadow: 0 8px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .page-item.disabled .page-link-custom {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .empty-state {
+          padding: 5rem 0;
+          text-align: center;
         }
       `}</style>
 
       <div className="vendor-page">
-        {/* HERO HEADER */}
+        {/* HERO SECTION */}
         <div className="hero-section">
-          <Container className="text-center">
-            <motion.h1
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="fw-bold mb-3"
-            >
-              Find Trusted <span style={{ color: '#FFD700' }}>Professionals</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="lead opacity-75 mb-5"
-            >
-              {description}
-            </motion.p>
+          <Container>
+            <Row className="justify-content-center text-center">
+              <Col lg={8}>
+                <motion.div
+                  initial={{ y: -30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                >
+                  <Badge bg="warning" text="dark" className="px-3 py-2 rounded-pill fw-bold mb-3">EXPERTS ON CALL</Badge>
+                  <h1 className="display-4 fw-800 mb-3 tracking-tight">
+                    Hire the <span style={{ color: primaryColor }}>Best Skills</span> for Your Home
+                  </h1>
+                  <p className="lead opacity-75 mb-0" style={{ fontWeight: 500 }}>
+                    {description || "Connecting you with verified professionals instantly."}
+                  </p>
+                </motion.div>
+              </Col>
+            </Row>
           </Container>
         </div>
 
         <Container>
-          {/* SEARCH & FILTER BAR */}
+          {/* FANCY FILTER BAR */}
           <motion.div
             className="filter-bar"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2 }}
           >
-            <Row className="g-3 align-items-center">
-              <Col md={5}>
-                <InputGroup>
-                  <InputGroup.Text className="bg-white border-end-0">
-                    <FaSearch className="text-warning" />
+            <Row className="g-4 align-items-end">
+              <Col lg={5}>
+                <span className="filter-label">Quick Search</span>
+                <InputGroup className="bg-light rounded-4 overflow-hidden shadow-none" style={{ background: '#F1F5F9' }}>
+                  <InputGroup.Text className="bg-transparent border-0 pe-0">
+                    <FaSearch className="text-muted" />
                   </InputGroup.Text>
                   <Form.Control
-                    placeholder="Search by name, skill..."
-                    className="border-start-0 ps-0"
+                    placeholder="Search by name, skill, or service..."
+                    className="custom-input bg-transparent border-0"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </InputGroup>
               </Col>
 
-              <Col md={3}>
+              <Col md={3} lg={3}>
+                <span className="filter-label">Category Filter</span>
                 <Form.Select
                   value={subcategoryFilter}
                   onChange={(e) => setSubcategoryFilter(e.target.value)}
-                  className="border-0 bg-light"
+                  className="custom-select"
                 >
                   {subcategories.map((sub, i) => (
                     <option key={i} value={sub}>{sub}</option>
@@ -253,52 +407,62 @@ const ProfessionalListPage = () => {
                 </Form.Select>
               </Col>
 
-              <Col md={3}>
+              <Col md={3} lg={3}>
+                <span className="filter-label">Price Range</span>
                 <Form.Select
                   value={priceFilter}
                   onChange={(e) => setPriceFilter(e.target.value)}
-                  className="border-0 bg-light"
+                  className="custom-select"
                 >
-                  <option value="All">All Prices</option>
-                  <option value="Low">Below ₹500</option>
-                  <option value="Medium">₹500 - ₹1500</option>
-                  <option value="High">Above ₹1500</option>
+                  <option value="All">All Ranges</option>
+                  <option value="Low">Economic (Below ₹500)</option>
+                  <option value="Medium">Standard (₹500 - ₹1500)</option>
+                  <option value="High">Premium (Above ₹1500)</option>
                 </Form.Select>
               </Col>
 
-              <Col md={1} className="text-center">
-                <div className="text-muted small">
-                  <FaFilter className="me-1" />
-                </div>
+              <Col md={1} lg={1} className="d-flex justify-content-center">
+                <Button variant="light" className="rounded-4 p-3 border-0 bg-light" onClick={() => { setSearchTerm(''); setSubcategoryFilter('All'); setPriceFilter('All'); }}>
+                  <FaFilter className="text-warning" />
+                </Button>
               </Col>
             </Row>
           </motion.div>
 
-          {/* RESULTS GRID */}
-          <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-            <span className="text-muted fw-semibold">
-              Showing {paginatedVendors.length} of {filteredVendors.length} professionals
+          <div className="d-flex justify-content-between align-items-center mb-4 ps-2">
+            <div>
+              <h4 className="fw-800 text-dark mb-0">Professional Directory</h4>
+              <p className="text-muted small mb-0">Discover top-rated experts in your area</p>
+            </div>
+            <span className="badge bg-white text-secondary border px-3 py-2 rounded-pill fw-bold">
+              {filteredVendors.length} PROS FOUND
             </span>
           </div>
 
           {loading ? (
             <div className="text-center py-5">
-              <Spinner animation="border" variant="warning" style={{ width: '3rem', height: '3rem' }} />
-              <p className="mt-3 text-muted">Finding best experts for you...</p>
+              <div className="d-inline-block p-4 bg-white rounded-5 shadow-sm">
+                <Spinner animation="grow" style={{ color: primaryColor }} />
+              </div>
+              <p className="mt-4 fw-bold text-muted">Refreshing expert list...</p>
             </div>
           ) : (
             <Row className="g-4">
               <AnimatePresence>
                 {paginatedVendors.length === 0 ? (
-                  <Col>
+                  <Col xs={12}>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-center py-5"
+                      className="empty-state bg-white rounded-5 border-dashed p-5"
                     >
-                      <h4 className="text-muted">No vendors found matching your criteria.</h4>
-                      <Button variant="link" onClick={() => { setSearchTerm(''); setSubcategoryFilter('All'); }}>
-                        Clear Filters
+                      <div className="bg-light d-inline-block p-4 rounded-circle mb-4">
+                        <FaUserTie className="text-muted display-4" />
+                      </div>
+                      <h3 className="fw-bold text-dark">No matches found</h3>
+                      <p className="text-muted">Try adjusting your filters or search keywords.</p>
+                      <Button className="btn-hire-now px-5" onClick={() => { setSearchTerm(''); setSubcategoryFilter('All'); setPriceFilter('All'); }}>
+                        RESET ALL FILTERS
                       </Button>
                     </motion.div>
                   </Col>
@@ -306,82 +470,86 @@ const ProfessionalListPage = () => {
                   paginatedVendors.map((vendor, index) => (
                     <Col key={vendor._id || index} xs={12} md={6} lg={4}>
                       <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.4, delay: (index % 3) * 0.1 }}
                         className="h-100"
                       >
-                        <Card className="vendor-card p-3">
-                          <div className="d-flex align-items-start">
-                            {/* PROFILE IMAGE */}
-                            <div className="profile-img-container me-3">
+                        <Card className="vendor-card">
+                          <div className="card-profile-header">
+                            <div className="badge-verified-mini">
+                              <FaCheckCircle /> VERIFIED
+                            </div>
+                            <div className="profile-img-glow">
                               {vendor.Profile_Image ? (
-                                <img
-                                  src={vendor.Profile_Image}
-                                  alt="profile"
-                                  className="profile-img"
-                                />
+                                <img src={vendor.Profile_Image} alt="profile" className="profile-img-main" />
                               ) : (
-                                <div className="profile-img d-flex align-items-center justify-content-center bg-dark text-warning fs-3 fw-bold">
+                                <div className="profile-img-main d-flex align-items-center justify-content-center bg-dark text-warning fs-4 fw-800">
                                   {vendor.Business_Name?.charAt(0)?.toUpperCase() || "V"}
                                 </div>
                               )}
-                              <div className="position-absolute bottom-0 end-0 bg-success rounded-circle border border-white p-1" style={{ width: '15px', height: '15px' }}></div>
-                            </div>
-
-                            {/* CONTENT */}
-                            <div className="flex-grow-1">
-                              <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                  <h5 className="fw-bold mb-1 text-dark text-truncate" style={{ maxWidth: '180px' }}>
-                                    {vendor.Business_Name}
-                                  </h5>
-                                  <div className="d-flex align-items-center gap-1 text-warning small mb-2">
-                                    <FaStar /> <FaStar /> <FaStar /> <FaStar /> <FaStar className="text-muted" />
-                                    <span className="text-muted ms-1">(4.0)</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="mb-2">
-                                {Array.isArray(vendor.Sub_Category) && vendor.Sub_Category.length > 0 ? (
-                                  vendor.Sub_Category.slice(0, 3).map((sub, i) => (
-                                    <Badge key={i} bg="light" text="dark" className="me-1 border">
-                                      {sub}
-                                    </Badge>
-                                  ))
-                                ) : (
-                                  <Badge bg="light" text="dark" className="border">General</Badge>
-                                )}
-                              </div>
                             </div>
                           </div>
 
-                          <div className="mt-3">
-                            <p className="text-muted small text-truncate-2-lines mb-3" style={{ minHeight: '40px' }}>
-                              {vendor.Description || "No description provided."}
-                            </p>
-
-                            <div className="d-flex align-items-center justify-content-between mb-3 p-2 bg-light rounded-3">
-                              <span className="text-secondary small fw-bold">Charge</span>
-                              <span className="fw-bold text-dark">₹{vendor.Charge_Per_Hour_or_Day}<span className="text-muted small fw-normal">/{vendor.Charge_Type || 'day'}</span></span>
+                          <Card.Body className="p-4 pt-4">
+                            <div className="d-flex justify-content-between align-items-start mb-2">
+                              <h5 className="fw-800 text-dark text-truncate mb-0" style={{ maxWidth: '70%' }}>
+                                {vendor.Business_Name}
+                              </h5>
+                              <div className="d-flex align-items-center gap-1 text-warning smaller fw-bold">
+                                <FaStar /> <span>4.8</span>
+                              </div>
                             </div>
 
-                            <div className="d-grid gap-2 d-md-flex">
+                            <p className="text-muted smaller d-flex align-items-center gap-2 mb-3">
+                              <FaMapMarkerAlt className="text-danger" /> {vendor.Business_address || 'Serviceable India-wide'}
+                            </p>
+
+                            <div className="d-flex flex-wrap gap-2 mb-4" style={{ minHeight: '30px' }}>
+                              {Array.isArray(vendor.Sub_Category) && vendor.Sub_Category.length > 0 ? (
+                                vendor.Sub_Category.slice(0, 2).map((sub, i) => (
+                                  <span key={i} className="vendor-category-badge">{sub}</span>
+                                ))
+                              ) : (
+                                <span className="vendor-category-badge">Professional</span>
+                              )}
+                              {vendor.Sub_Category?.length > 2 && <span className="vendor-category-badge">+{vendor.Sub_Category.length - 2}</span>}
+                            </div>
+
+                            <div className="mb-4">
+                              <p className="text-muted smaller mb-0" style={{ height: '42px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                {vendor.Description || "Reliable expert dedicated to delivering top-notch service quality with years of industrial experience."}
+                              </p>
+                            </div>
+
+                            <div className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-light border border-white mb-4">
+                              <div className="d-flex align-items-center gap-2">
+                                <FaClock className="text-muted" />
+                                <span className="smaller fw-bold text-secondary">Hourly Base</span>
+                              </div>
+                              <div className="price-badge">
+                                ₹{vendor.Charge_Per_Hour_or_Day || '499'}
+                              </div>
+                            </div>
+
+                            <div className="d-flex gap-3">
                               <button
-                                className="btn-primary-custom flex-grow-1"
+                                className="btn-hire-now flex-grow-1"
                                 onClick={() => booknow(vendor._id)}
                               >
-                                Book Now
+                                BOOK EXPERT
                               </button>
                               <button
-                                className="btn-outline-custom"
+                                className="btn-details-round"
                                 onClick={() => viewDetails(vendor._id)}
+                                title="View Profile"
                               >
                                 <FaArrowRight />
                               </button>
                             </div>
-                          </div>
+                          </Card.Body>
                         </Card>
                       </motion.div>
                     </Col>
@@ -391,25 +559,35 @@ const ProfessionalListPage = () => {
             </Row>
           )}
 
-          {/* PAGINATION */}
+          {/* FANCY PAGINATION */}
           {!loading && totalPages > 1 && (
-            <Row>
-              <Col className="d-flex justify-content-center mt-5">
-                <Pagination size="lg">
-                  <Pagination.Prev disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} />
-                  {[...Array(totalPages)].map((_, idx) => (
-                    <Pagination.Item
-                      key={idx}
-                      active={idx + 1 === currentPage}
-                      onClick={() => setCurrentPage(idx + 1)}
-                    >
-                      {idx + 1}
-                    </Pagination.Item>
-                  ))}
-                  <Pagination.Next disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} />
-                </Pagination>
-              </Col>
-            </Row>
+            <div className="pagination-container d-flex justify-content-center">
+              <Pagination>
+                <Pagination.Prev
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                  className="page-item"
+                  linkClassName="page-link-custom"
+                />
+                {[...Array(totalPages)].map((_, idx) => (
+                  <Pagination.Item
+                    key={idx}
+                    active={idx + 1 === currentPage}
+                    onClick={() => setCurrentPage(idx + 1)}
+                    className="page-item"
+                    linkClassName="page-link-custom"
+                  >
+                    {idx + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  className="page-item"
+                  linkClassName="page-link-custom"
+                />
+              </Pagination>
+            </div>
           )}
         </Container>
       </div>
