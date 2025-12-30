@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_BASE_URL from "../../config";
 import NavaPro from "./navbarproduct";
 import Footer from "./footer";
 
@@ -78,7 +79,7 @@ const ProfessionalServicePage = () => {
       try {
         setLoading(true);
         const res = await fetch(
-          `https://backend-d6mx.vercel.app/profesionaldetails/${id}`
+          `${API_BASE_URL}/profesionaldetails/${id}`
         );
         const data = await res.json();
         setVendor(data);
@@ -95,7 +96,7 @@ const ProfessionalServicePage = () => {
   // ✅ Fetch projects
   useEffect(() => {
     axios
-      .get(`https://backend-d6mx.vercel.app/api/projects/${id}`)
+      .get(`${API_BASE_URL}/api/projects/${id}`)
       .then((res) => setProjects(res.data))
       .catch((err) => console.error("Error fetching projects:", err));
   }, [id]);
@@ -103,7 +104,7 @@ const ProfessionalServicePage = () => {
   // ✅ Wrap fetchReviews in useCallback (fixes missing dependency warning)
   const fetchReviews = useCallback(() => {
     axios
-      .get(`https://backend-d6mx.vercel.app/fetch/review/service/${id}`)
+      .get(`${API_BASE_URL}/fetch/review/service/${id}`)
       .then((res) => setReviews(res.data.getreview || []))
       .catch((err) => console.error("Error fetching reviews:", err));
   }, [id]);
@@ -124,7 +125,7 @@ const ProfessionalServicePage = () => {
     }
 
     axios
-      .post(`https://backend-d6mx.vercel.app/review/${userId}`, {
+      .post(`${API_BASE_URL}/review/${userId}`, {
         vendorids: vendorId,
         customerName: name,
         rating: reviewRating,
@@ -278,8 +279,8 @@ const ProfessionalServicePage = () => {
               ⭐{" "}
               {reviews.length
                 ? (
-                    reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
-                  ).toFixed(1)
+                  reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
+                ).toFixed(1)
                 : 0}{" "}
               ({reviews.length} reviews)
             </span>

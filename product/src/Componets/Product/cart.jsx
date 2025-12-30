@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import {
@@ -8,6 +9,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Footer from './footer';
 import NavaPro from './navbarproduct';
+import API_BASE_URL from "../../config";
 
 const CartPage = () => {
   const [products, setProducts] = useState([]);
@@ -16,7 +18,7 @@ const CartPage = () => {
   const id = localStorage.getItem("userid");
 
   const ondlete = (itemId) => {
-    axios.delete(`https://backend-d6mx.vercel.app/delete/${itemId}`)
+    axios.delete(`${API_BASE_URL} /delete/${itemId} `)
       .then(() => {
         setProducts(prev => prev.filter(item => item._id !== itemId));
         setToast({ show: true, message: "Item removed from cart.", variant: "success" });
@@ -28,7 +30,7 @@ const CartPage = () => {
 
   useEffect(() => {
     if (!id) return;
-    axios.get(`https://backend-d6mx.vercel.app/carts/${id}`)
+    axios.get(`${API_BASE_URL} /carts/${id} `, { withCredentials: true })
       .then(res => {
         const dataWithQuantity = res.data.map(item => ({
           ...item,
@@ -54,9 +56,9 @@ const CartPage = () => {
   };
 
   const subtotal = products.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  
+
   const shipping = 300
-  const total = subtotal  + shipping;
+  const total = subtotal + shipping;
 
   const handleCheckout = () => {
     if (products.length === 0) {
@@ -68,99 +70,99 @@ const CartPage = () => {
   };
 
   const styles = `
-    .cart-page-container {
-      background-color: #ffffff;
-      color: #1a202c;
-      min-height: 100vh;
-      padding-top: 2rem;
-      padding-bottom: 2rem;
-    }
-    .cart-item-card, .order-summary-card, .coupon-card {
-      background-color: #f8f9fa;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      color: #1a202c;
-    }
-    .cart-item-card .category-tag {
-      position: absolute;
-      top: -10px;
-      left: 20px;
-      background: linear-gradient(90deg, #FFD700, #FFC107);
-      color: #000;
-      font-size: 0.7rem;
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
-    }
-    .quantity-selector {
-      display: flex;
-      align-items: center;
-      background-color: #f1f1f1;
-      border-radius: 20px;
-      padding: 4px;
-    }
-    .quantity-btn {
-      background-color: #FFD700;
-      color: #000;
-      border: none;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      line-height: 1;
-    }
-    .quantity-btn:hover {
-      background-color: #FFC107;
-    }
-    .quantity-display {
-      min-width: 40px;
-      text-align: center;
-      font-weight: bold;
-    }
-    .remove-btn {
-      background: none;
-      border: none;
-      color: #6c757d;
-      font-size: 1.2rem;
-    }
-    .remove-btn:hover {
-      color: #e53e3e;
-    }
-    .order-summary-card .list-group-item {
-      background-color: transparent;
-      border: none;
-      color: #1a202c;
-      padding: 0.75rem 0;
-    }
-    .grand-total {
-      border-top: 1px solid #e2e8f0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .checkout-btn {
-      background: linear-gradient(to right, #FFD700, #FFC107);
-      border: none;
-      font-weight: bold;
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      color: #000;
-    }
-    .checkout-btn:hover {
-      background: linear-gradient(to right, #FFC107, #FFD700);
-    }
-    .payment-icons img {
-      height: 24px;
-      margin-right: 10px;
-    }
-    .delivery-info {
-      background-color: #f1f1f1;
-      border-radius: 8px;
-    }
-  `;
+  .cart - page - container {
+  background - color: #ffffff;
+  color: #1a202c;
+  min - height: 100vh;
+  padding - top: 2rem;
+  padding - bottom: 2rem;
+}
+    .cart - item - card, .order - summary - card, .coupon - card {
+  background - color: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border - radius: 12px;
+  color: #1a202c;
+}
+    .cart - item - card.category - tag {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: linear - gradient(90deg, #FFD700, #FFC107);
+  color: #000;
+  font - size: 0.7rem;
+  font - weight: bold;
+  padding: 4px 10px;
+  border - radius: 20px;
+  text - transform: uppercase;
+}
+    .quantity - selector {
+  display: flex;
+  align - items: center;
+  background - color: #f1f1f1;
+  border - radius: 20px;
+  padding: 4px;
+}
+    .quantity - btn {
+  background - color: #FFD700;
+  color: #000;
+  border: none;
+  border - radius: 50 %;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align - items: center;
+  justify - content: center;
+  font - size: 1.2rem;
+  line - height: 1;
+}
+    .quantity - btn:hover {
+  background - color: #FFC107;
+}
+    .quantity - display {
+  min - width: 40px;
+  text - align: center;
+  font - weight: bold;
+}
+    .remove - btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font - size: 1.2rem;
+}
+    .remove - btn:hover {
+  color: #e53e3e;
+}
+    .order - summary - card.list - group - item {
+  background - color: transparent;
+  border: none;
+  color: #1a202c;
+  padding: 0.75rem 0;
+}
+    .grand - total {
+  border - top: 1px solid #e2e8f0;
+  border - bottom: 1px solid #e2e8f0;
+}
+    .checkout - btn {
+  background: linear - gradient(to right, #FFD700, #FFC107);
+  border: none;
+  font - weight: bold;
+  width: 100 %;
+  padding: 12px;
+  border - radius: 8px;
+  color: #000;
+}
+    .checkout - btn:hover {
+  background: linear - gradient(to right, #FFC107, #FFD700);
+}
+    .payment - icons img {
+  height: 24px;
+  margin - right: 10px;
+}
+    .delivery - info {
+  background - color: #f1f1f1;
+  border - radius: 8px;
+}
+`;
 
   return (
     <>
@@ -224,55 +226,55 @@ const CartPage = () => {
             </Col>
 
             <Col lg={4}>
-  <Card className="order-summary-card p-3 sticky-top" style={{ top: '2rem' }}>
-    <h5 className="fw-bold">Order Summary</h5>
-    <hr style={{ borderColor: '#e2e8f0' }} />
+              <Card className="order-summary-card p-3 sticky-top" style={{ top: '2rem' }}>
+                <h5 className="fw-bold">Order Summary</h5>
+                <hr style={{ borderColor: '#e2e8f0' }} />
 
-    <div className="d-flex justify-content-between text-muted mb-2">
-      <span>Subtotal</span>
-      <span>₹{subtotal.toLocaleString('en-IN')}</span>
-    </div>
+                <div className="d-flex justify-content-between text-muted mb-2">
+                  <span>Subtotal</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                </div>
 
-    <div className="d-flex justify-content-between text-muted mb-2">
-      <span>Delivery</span>
-      <span className={shipping === 0 ? 'text-success' : 'text-muted'}>
-        {shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}
-      </span>
-    </div>
+                <div className="d-flex justify-content-between text-muted mb-2">
+                  <span>Delivery</span>
+                  <span className={shipping === 0 ? 'text-success' : 'text-muted'}>
+                    {shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')} `}
+                  </span>
+                </div>
 
-    <div className="grand-total d-flex justify-content-between fw-bold py-2 my-2">
-      <span>Total</span>
-      <span>₹{total.toLocaleString('en-IN')}</span>
-    </div>
+                <div className="grand-total d-flex justify-content-between fw-bold py-2 my-2">
+                  <span>Total</span>
+                  <span>₹{total.toLocaleString('en-IN')}</span>
+                </div>
 
-    <small className="text-muted d-block mb-3">
-      Free delivery on orders above ₹50,000
-    </small>
+                <small className="text-muted d-block mb-3">
+                  Free delivery on orders above ₹50,000
+                </small>
 
-    <Button className="checkout-btn my-3" onClick={handleCheckout}>
-      Proceed to Checkout <i className="bi bi-arrow-right"></i>
-    </Button>
+                <Button className="checkout-btn my-3" onClick={handleCheckout}>
+                  Proceed to Checkout <i className="bi bi-arrow-right"></i>
+                </Button>
 
-    <div className="text-center text-muted small mb-3">
-      <i className="bi bi-lock-fill"></i> Secure Checkout Protected
-    </div>
+                <div className="text-center text-muted small mb-3">
+                  <i className="bi bi-lock-fill"></i> Secure Checkout Protected
+                </div>
 
-    <div className="mb-3">
-      <span className="text-muted d-block mb-2">We Accept</span>
-      <div className="payment-icons">
-        <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" />
-        <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" />
-        <img src="https://img.icons8.com/color/48/bhim-upi.png" alt="UPI" />
-      </div>
-    </div>
+                <div className="mb-3">
+                  <span className="text-muted d-block mb-2">We Accept</span>
+                  <div className="payment-icons">
+                    <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" />
+                    <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" />
+                    <img src="https://img.icons8.com/color/48/bhim-upi.png" alt="UPI" />
+                  </div>
+                </div>
 
-    <div className="delivery-info p-3 text-center">
-      <i className="bi bi-truck fs-4 mb-2"></i>
-      <h6 className="mb-0">Estimated Delivery:</h6>
-      <p className="text-muted mb-0">1 Business Day</p>
-    </div>
-  </Card>
-</Col>
+                <div className="delivery-info p-3 text-center">
+                  <i className="bi bi-truck fs-4 mb-2"></i>
+                  <h6 className="mb-0">Estimated Delivery:</h6>
+                  <p className="text-muted mb-0">1 Business Day</p>
+                </div>
+              </Card>
+            </Col>
 
 
           </Row>

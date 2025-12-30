@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import { Container, Row, Col, Card, Spinner, Button, Badge } from 'react-bootstrap';
 import NavaPro from './navbarproduct';
 import Footer from './footer';
@@ -18,7 +19,7 @@ const ViewStore = () => {
     if (!vendorId) return;
 
     setLoading(true);
-    axios.post('https://backend-d6mx.vercel.app/api/viewstore', { id: vendorId })
+    axios.post(`${API_BASE_URL}/api/viewstore`, { id: vendorId })
       .then(res => {
         setProducts(res.data || []);
         if (res.data.length > 0) setVendor(res.data[0].Vendor);

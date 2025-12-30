@@ -9,6 +9,7 @@ import { Link as ScrollLink } from 'react-scroll';
 import { useNavigate } from 'react-router-dom';
 import 'remixicon/fonts/remixicon.css';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 
 
 import NavaPro from './navbarproduct';
@@ -38,16 +39,16 @@ const Homepage = () => {
   ];
 
   const handleCategoryClick = (type, cat) => {
-  const key = type.toLowerCase();
-  const searchTerm = cat.name || cat.title; // fallback to title if name is undefined
-  if (key === "materials") {
-    navigate(`/product?search=${encodeURIComponent(searchTerm)}`);
-  } else if (key === "service" || key === "services") {
-    navigate(`/service?search=${encodeURIComponent(searchTerm)}`);
-  } else {
-    console.error("Unknown category type for navigation:", type);
-  }
-};
+    const key = type.toLowerCase();
+    const searchTerm = cat.name || cat.title; // fallback to title if name is undefined
+    if (key === "materials") {
+      navigate(`/product?search=${encodeURIComponent(searchTerm)}`);
+    } else if (key === "service" || key === "services") {
+      navigate(`/service?search=${encodeURIComponent(searchTerm)}`);
+    } else {
+      console.error("Unknown category type for navigation:", type);
+    }
+  };
 
 
   const yellow = "#FFD700";
@@ -91,16 +92,16 @@ const Homepage = () => {
     }
   };
   // ⭐ Fetch Recently Viewed Products
-useEffect(() => {
-  const ids = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+  useEffect(() => {
+    const viewedIds = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
 
-  if (ids.length === 0) return;
+    if (viewedIds.length === 0) return;
 
-  axios
-    .post("https://backend-d6mx.vercel.app/recent-products", { ids })
-    .then(res => setRecentProducts(res.data))
-    .catch(err => console.log(err));
-}, []);  // ✅ Runs only on page load
+    axios
+      .post(`${API_BASE_URL}/recent-products`, { ids: viewedIds })
+      .then(res => setRecentProducts(res.data))
+      .catch(err => console.log(err));
+  }, []);  // ✅ Runs only on page load
 
 
 
@@ -173,12 +174,12 @@ useEffect(() => {
           </motion.p>
           <motion.div className="d-flex justify-content-center gap-3 flex-wrap" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}>
             <Button
-  className="px-4 py-2 fw-semibold text-dark"
-  style={{ backgroundColor: yellow, border: 'none' }}
-  onClick={() => navigate('/login')}
->
-  <FaPlayCircle className="me-2" /> Get Started
-</Button>
+              className="px-4 py-2 fw-semibold text-dark"
+              style={{ backgroundColor: yellow, border: 'none' }}
+              onClick={() => navigate('/login')}
+            >
+              <FaPlayCircle className="me-2" /> Get Started
+            </Button>
 
           </motion.div>
           <ScrollLink to="how-it-works" smooth={true} duration={500}>
@@ -191,52 +192,52 @@ useEffect(() => {
         </Container>
       </header>
       {/* ⭐ Recently Viewed Section */}
-{/* ⭐ Recently Viewed Section */}
-{recentProducts.length > 0 && (
-  <section className="py-5 bg-white">
-    <Container>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3 className="fw-bold">Recently Viewed</h3>
+      {/* ⭐ Recently Viewed Section */}
+      {recentProducts.length > 0 && (
+        <section className="py-5 bg-white">
+          <Container>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h3 className="fw-bold">Recently Viewed</h3>
 
-        <Button
-          variant="link"
-          className="text-danger fw-semibold p-0"
-          onClick={() => {
-            localStorage.removeItem("recentlyViewed");
-            setRecentProducts([]);
-          }}
-        >
-          Clear All
-        </Button>
-      </div>
-
-      <div className="recent-scroll d-flex gap-3 pb-3">
-        {recentProducts.map((prod) => (
-          <motion.div
-            key={prod._id}
-            className="recent-card shadow-sm"
-            whileHover={{ scale: 1.06, y: -5 }}
-            transition={{ type: "spring", stiffness: 200, damping: 12 }}
-            onClick={() => navigate(`/product/${prod._id}`)}
-          >
-            <div className="recent-img-wrapper">
-              <img
-                src={prod.ProductUrl?.[0] || "/placeholder.png"}
-                alt={prod.ProductName}
-                className="recent-img"
-              />
+              <Button
+                variant="link"
+                className="text-danger fw-semibold p-0"
+                onClick={() => {
+                  localStorage.removeItem("recentlyViewed");
+                  setRecentProducts([]);
+                }}
+              >
+                Clear All
+              </Button>
             </div>
 
-            <div className="p-2">
-              <h6 className="fw-bold text-truncate">{prod.ProductName}</h6>
-              <span className="text-dark fw-semibold">₹{prod.ProductPrice}</span>
+            <div className="recent-scroll d-flex gap-3 pb-3">
+              {recentProducts.map((prod) => (
+                <motion.div
+                  key={prod._id}
+                  className="recent-card shadow-sm"
+                  whileHover={{ scale: 1.06, y: -5 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 12 }}
+                  onClick={() => navigate(`/product/${prod._id}`)}
+                >
+                  <div className="recent-img-wrapper">
+                    <img
+                      src={prod.ProductUrl?.[0] || "/placeholder.png"}
+                      alt={prod.ProductName}
+                      className="recent-img"
+                    />
+                  </div>
+
+                  <div className="p-2">
+                    <h6 className="fw-bold text-truncate">{prod.ProductName}</h6>
+                    <span className="text-dark fw-semibold">₹{prod.ProductPrice}</span>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </motion.div>
-        ))}
-      </div>
-    </Container>
-  </section>
-)}
+          </Container>
+        </section>
+      )}
 
 
 
@@ -280,7 +281,7 @@ useEffect(() => {
                 return (
                   <Col lg={4} md={6} key={index} className="mb-4">
                     <motion.div variants={cardVariants}>
-                      <Card 
+                      <Card
                         className="bg-light text-dark border-light h-100 p-3 rounded-4 text-start cursor-pointer"
                         onClick={() => handleCategoryClick("service", service)}
                         style={{ cursor: "pointer" }}
@@ -321,7 +322,7 @@ useEffect(() => {
                 return (
                   <Col lg={3} md={6} key={index} className="mb-4">
                     <motion.div variants={cardVariants}>
-                      <Card 
+                      <Card
                         className="bg-light text-dark border-light h-100 p-3 rounded-4 text-start"
                         onClick={() => handleCategoryClick("materials", material)}
                         style={{ cursor: "pointer" }}

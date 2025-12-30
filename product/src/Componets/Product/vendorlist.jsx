@@ -4,6 +4,7 @@ import {
 } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Footer from './footer';
 import NavaPro from './navbarproduct';
@@ -43,7 +44,7 @@ const ProfessionalListPage = () => {
   }, [search]);
 
   const fetchVendors = (category) => {
-    let url = `https://backend-d6mx.vercel.app/fetch/services?category=${encodeURIComponent(category)}`;
+    let url = `${API_BASE_URL}/fetch/services?category=${encodeURIComponent(category)}`;
 
     axios
       .get(url)

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import { useNavigate } from 'react-router-dom';
 import { Toast, ToastContainer, Container, Row, Col, Form, Button, InputGroup } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,7 +28,7 @@ function CustomerLogin() {
       return;
     }
     try {
-      await axios.post("https://backend-d6mx.vercel.app/sendotp", { Email: email });
+      await axios.post(`${API_BASE_URL}/sendotp`, { Email: email });
       setOtpSent(true);
       showToast("OTP sent to your email", "success");
     } catch (err) {
@@ -43,9 +44,9 @@ function CustomerLogin() {
       return;
     }
     try {
-      const res = await axios.post("https://backend-d6mx.vercel.app/verifyotp", { Email: email, otp: otp });
+      const res = await axios.post(`${API_BASE_URL}/verifyotp`, { Email: email, otp: otp });
       if (res.data.message === "OTP verified") {
-        const loginRes = await axios.post("https://backend-d6mx.vercel.app/login-with-otp", { email });
+        const loginRes = await axios.post(`${API_BASE_URL}/login-with-otp`, { email });
         if (loginRes.data.message === "Success") {
           localStorage.setItem('userid', loginRes.data.user._id);
           localStorage.setItem('user_name', loginRes.data.user.Full_Name);
@@ -74,10 +75,13 @@ function CustomerLogin() {
       return;
     }
     try {
-      const res = await axios.post('https://backend-d6mx.vercel.app/fetch/userprofile', { email, password });
+      const res = await axios.post(
+        `${API_BASE_URL}/fetch/userprofile`,
+        { email, password },
+        { withCredentials: true }
+      );
       if (res.data.message === 'Success') {
-        localStorage.setItem('userid', res.data.user._id);
-        localStorage.setItem('user_name', res.data.user.Full_Name);
+
         showToast('Login successful!', 'success');
         setTimeout(() => navigate('/'), 1500);
       } else {
@@ -85,7 +89,8 @@ function CustomerLogin() {
       }
     } catch (err) {
       console.error('Login error', err);
-      showToast('Server error. Try again later.');
+      const errorMsg = err.response?.data?.message || 'Server error. Try again later.';
+      showToast(errorMsg, 'danger');
     }
   };
 
@@ -95,7 +100,7 @@ function CustomerLogin() {
       const decoded = jwtDecode(credentialResponse.credential);
       const { email, name, picture } = decoded;
 
-      const res = await axios.post("https://backend-d6mx.vercel.app/google-login/customer", {
+      const res = await axios.post(`${API_BASE_URL}/google-login/customer`, {
         email,
         name,
         picture,
@@ -107,11 +112,12 @@ function CustomerLogin() {
         showToast("Logged in successfully with Google!", "success");
         setTimeout(() => navigate('/'), 1500);
       } else {
-        showToast("Failed Google login", "danger");
+        showToast(res.data.message || "Failed Google login", "danger");
       }
     } catch (err) {
       console.error(err);
-      showToast("Google login failed", "danger");
+      const errorMsg = err.response?.data?.message || "Google login failed";
+      showToast(errorMsg, "danger");
     }
   };
 

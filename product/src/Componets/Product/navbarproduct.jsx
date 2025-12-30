@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import API_BASE_URL from "../../config";
 import axios from 'axios';
 import { Container, Navbar, Nav, Button, Badge, Dropdown } from 'react-bootstrap';
 import { motion } from 'framer-motion';
@@ -18,7 +20,7 @@ function NavaPro() {
     const storedId = localStorage.getItem("userid");
     if (storedId) {
       setUserId(storedId);
-      axios.get(`https://backend-d6mx.vercel.app/cart/${storedId}/count`)
+      axios.get(`${API_BASE_URL} /cart/${storedId}/count`)
         .then(res => setCount(res.data.count || 0))
         .catch(err => console.error('Failed to fetch cart count:', err));
     }
@@ -44,7 +46,7 @@ function NavaPro() {
     navigate("/login");
   };
 
-  
+
   // ✅ handle Enter key on search input
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter' && searchTerm.trim()) {
@@ -177,7 +179,7 @@ function NavaPro() {
                     <Dropdown.Item href="/myorder">My Orders</Dropdown.Item>
                     <Dropdown.Item href="/wishlist">Wishlist</Dropdown.Item>
                     <Dropdown.Item href="/support">Support</Dropdown.Item>
-                                        <Dropdown.Item href="/chat">Chat</Dropdown.Item>
+                    <Dropdown.Item href="/chat">Chat</Dropdown.Item>
 
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={handleLogout} className="text-danger">Logout</Dropdown.Item>
@@ -217,7 +219,7 @@ function NavaPro() {
           <Link to="/myorder" onClick={() => setShowMobileMenu(false)}> My Orders</Link>
           <Link to="/wishlist" onClick={() => setShowMobileMenu(false)}>Wishlist</Link>
           <Link to="/support" onClick={() => setShowMobileMenu(false)}>Support</Link>
-                    <Link to="/chat" onClick={() => setShowMobileMenu(false)}>chat</Link>
+          <Link to="/chat" onClick={() => setShowMobileMenu(false)}>chat</Link>
 
           <span className="text-danger" onClick={handleLogout}>Sign Out</span>
         </motion.div>

@@ -4,6 +4,7 @@ import {
   Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup
 } from 'react-bootstrap';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from './footer';
 
@@ -45,7 +46,7 @@ function ProductPage() {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`https://backend-d6mx.vercel.app/fetch?category=${initialSearch}`)
+      .get(`${API_BASE_URL}/fetch?category=${initialSearch}`)
       .then((res) => {
         setProducts(res.data);
         setLoading(false);
@@ -56,7 +57,7 @@ function ProductPage() {
         setLoading(false);
       });
   }, [initialSearch]);
-  
+
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -98,7 +99,7 @@ function ProductPage() {
   return (
     <>
       <div className="product-page-container">
-        
+
         <div className='sticky-top' style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '1rem 0', zIndex: 1020 }}>
           <Container>
             <div className="d-flex justify-content-between align-items-center">

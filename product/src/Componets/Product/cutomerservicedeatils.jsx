@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Tabs, Tab } from 'react-bootstrap';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +42,7 @@ function Services() {
   useEffect(() => {
     if (savedid) {
       axios
-        .get(`https://backend-d6mx.vercel.app/api/vendor/${savedid}/price`)
+        .get(`${API_BASE_URL}/api/vendor/${savedid}/price`)
         .then(res => setVendorPrice(Number(res.data.vendorPrice) || 0))
         .catch(() => setVendorPrice(0));
     }
@@ -51,7 +52,7 @@ function Services() {
   useEffect(() => {
     if (pid) {
       axios
-        .get(`https://backend-d6mx.vercel.app/fetch/location/booking/${pid}`)
+        .get(`${API_BASE_URL}/fetch/location/booking/${pid}`)
         .then(res => {
           const { address, customer } = res.data;
           if (address && customer) {
@@ -81,11 +82,19 @@ function Services() {
     if (!savedid) return;
 
     axios
-      .get(`https://backend-d6mx.vercel.app/datedeatils/${savedid}`)
+      .get(`${API_BASE_URL}/datedeatils/${savedid}`)
       .then((res) => {
         setBookedSlots(res.data);
 
-        const dates = res.data.map(item => item.serviceDate);
+        setBookedSlots(res.data);
+
+        const dates = res.data.map(item => {
+          // Parse ISO string to YYYY-MM-DD
+          const d = new Date(item.serviceDate);
+          // Adjust for timezone issues if needed, or just take the ISO date part string
+          // reliably getting YYYY-MM-DD
+          return d.toISOString().split('T')[0];
+        });
         setBlockedDates([...new Set(dates)]);
       })
       .catch(err => console.log("Error fetching booked slots:", err));
@@ -166,11 +175,17 @@ function Services() {
     };
 
     try {
-      await axios.post("https://backend-d6mx.vercel.app/api/booking", finalData);
+      await axios.post(`${API_BASE_URL}/api/booking`, finalData);
       toast.success("Booking Successful!");
       navigate("/myorder");
-    } catch {
-      toast.error("Booking failed");
+      toast.success("Booking Successful!");
+      navigate("/myorder");
+    } catch (err) {
+      if (err.response && err.response.status === 400) {
+        toast.error(err.response.data.message); // Show "Slot already booked"
+      } else {
+        toast.error("Booking failed");
+      }
     }
   };
 
@@ -211,9 +226,10 @@ function Services() {
               {/* ⭐ TIME SLOT BLOCKING */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                 {['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'].map(slot => {
-                  const isSlotBooked = bookedSlots.some(
-                    b => b.serviceDate === serviceDate && b.serviceTime === slot
-                  );
+                  const isSlotBooked = bookedSlots.some(b => {
+                    const bDate = new Date(b.serviceDate).toISOString().split('T')[0];
+                    return bDate === serviceDate && b.serviceTime === slot;
+                  });
 
                   return (
                     <Button

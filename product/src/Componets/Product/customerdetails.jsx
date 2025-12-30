@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Container, Form, Row, Col, Button, Card
 } from 'react-bootstrap';
-import axios from 'axios';
+import axios from "axios";
+import API_BASE_URL from "../../config";
 import { useNavigate } from 'react-router-dom';
 import NavaPro from './navbarproduct';
 import Footer from './footer';
@@ -25,9 +26,13 @@ function CheckoutForm() {
 
   useEffect(() => {
     if (!id) return;
-    axios.get(`https://backend-d6mx.vercel.app/carts/${id}`)
-      .then(res => setprodicts(res.data))
-      .catch(err => console.error('Failed to fetch cart:', err));
+    const userId = localStorage.getItem("userid"); // Ensure we have the ID to fetch cart
+    if (userId) {
+      axios
+        .get(`${API_BASE_URL}/carts/${userId}`, { withCredentials: true })
+        .then(res => setprodicts(res.data))
+        .catch(err => console.error('Failed to fetch cart:', err));
+    }
   }, [id]);
 
   const handleLocateMe = async () => {
@@ -41,7 +46,7 @@ function CheckoutForm() {
       setLatitude(latitude);
       setLongitude(longitude);
 
-      const apiKey = "c068b22bac464a629be19163f65ff6b6"; 
+      const apiKey = "c068b22bac464a629be19163f65ff6b6";
       const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
 
       try {
@@ -95,7 +100,7 @@ function CheckoutForm() {
     }));
 
     try {
-      const response = await axios.post("https://backend-d6mx.vercel.app/ordercart", { orders });
+      const response = await axios.post(`${API_BASE_URL}/ordercart`, { orders });
       if (response.status === 200 || response.status === 201) {
         alert("Order placed successfully!");
         navigate("/myorder");
@@ -220,7 +225,7 @@ function CheckoutForm() {
                   name="payment"
                   label={
                     method === 'cod' ? 'Cash on Delivery' :
-                    method === 'online' ? 'Online Payment' : 'UPI Payment'
+                      method === 'online' ? 'Online Payment' : 'UPI Payment'
                   }
                   checked={paymentMethod === method}
                   onChange={() => setPaymentMethod(method)}

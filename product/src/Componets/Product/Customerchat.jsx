@@ -4,11 +4,9 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import NavaPro from "./navbarproduct";
 import { socket } from "./socket";
+import API_BASE_URL from "../../config";
 
-const API_BASE =
-  process.env.NODE_ENV === "production"
-    ? "https://backend-d6mx.vercel.app"
-    : "http://localhost:5000";
+
 
 export default function CustomerChat() {
   const { vendorId } = useParams();
@@ -26,7 +24,7 @@ export default function CustomerChat() {
     if (!customerId || !vendorId) return;
 
     const initConversation = async () => {
-      const res = await axios.post(`${API_BASE}/api/chat/conversation`, {
+      const res = await axios.post(`${API_BASE_URL}/api/chat/conversation`, {
         userId: customerId,
         vendorId,
       });
@@ -60,7 +58,7 @@ export default function CustomerChat() {
 
     const fetchMessages = async () => {
       const res = await axios.get(
-        `${API_BASE}/api/chat/messages/${conversation._id}`
+        `${API_BASE_URL}/api/chat/messages/${conversation._id}`
       );
       setMessages(res.data);
     };
@@ -73,7 +71,7 @@ export default function CustomerChat() {
     if (!vendorId) return;
 
     axios
-      .get(`${API_BASE}/api/vendor/${vendorId}`)
+      .get(`${API_BASE_URL}/api/vendor/${vendorId}`)
       .then((res) => setVendorDetails(res.data))
       .catch(() => setVendorDetails(null));
   }, [vendorId]);
@@ -105,7 +103,7 @@ export default function CustomerChat() {
     ]);
 
     socket.emit("sendMessage", payload);
-    await axios.post(`${API_BASE}/api/chat/message`, payload);
+    await axios.post(`${API_BASE_URL}/api/chat/message`, payload);
   };
 
   /* ---------------- UI (UNCHANGED) ---------------- */
@@ -165,11 +163,10 @@ export default function CustomerChat() {
                   {messages.map((m, i) => (
                     <motion.div
                       key={m._id || i}
-                      className={`d-flex mb-3 ${
-                        m.senderId === customerId
-                          ? "justify-content-end"
-                          : "justify-content-start"
-                      }`}
+                      className={`d-flex mb-3 ${m.senderId === customerId
+                        ? "justify-content-end"
+                        : "justify-content-start"
+                        }`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                     >

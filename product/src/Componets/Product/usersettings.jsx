@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import NavaPro from './navbarproduct';
 import Footer from './footer';
 
@@ -16,13 +17,13 @@ const ProfileSettingsRedesigned = () => {
     const [initialProfile, setInitialProfile] = useState(null);
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
-   
-    
+
+
     const id = localStorage.getItem("userid");
 
     useEffect(() => {
         if (id) {
-            axios.get(`https://backend-d6mx.vercel.app/myprofile/${id}`)
+            axios.get(`${API_BASE_URL}/myprofile/${id}`)
                 .then(res => {
                     const fetchedData = {
                         Full_Name: res.data.Full_Name || '',
@@ -48,18 +49,18 @@ const ProfileSettingsRedesigned = () => {
         }));
     };
 
-    
+
 
     const handleSaveChanges = (e) => {
         e.preventDefault();
-        
+
         if (newPassword && newPassword !== confirmNewPassword) {
             alert("New passwords do not match!");
             return;
         }
 
         const dataToSave = { ...profile };
-        
+
         if (newPassword) {
             dataToSave.Password = newPassword;
         } else {
@@ -70,7 +71,7 @@ const ProfileSettingsRedesigned = () => {
 
         // Uncomment for real API call:
         /*
-        axios.put(`https://backend-d6mx.vercel.app/myprofile/${id}`, dataToSave)
+        axios.put(`${API_BASE_URL}/myprofile/${id}`, dataToSave)
             .then(res => {
                 alert("Profile updated successfully!");
                 setInitialProfile(profile);
@@ -208,7 +209,7 @@ const ProfileSettingsRedesigned = () => {
                 `}
             </style>
 
-            <NavaPro /> 
+            <NavaPro />
             <Container className="settings-container">
                 <form className="settings-form" onSubmit={handleSaveChanges}>
                     <div className="user-header">
@@ -218,7 +219,7 @@ const ProfileSettingsRedesigned = () => {
                             <p className="mb-0 small">{profile.Emailaddress}</p>
                         </div>
                     </div>
-                    
+
                     <div className="form-group-custom">
                         <label htmlFor="Full_Name">Full Name</label>
                         <input
@@ -242,7 +243,7 @@ const ProfileSettingsRedesigned = () => {
                             disabled
                         />
                     </div>
-                    
+
                     <div className="form-group-custom">
                         <label htmlFor="Phone_Number">Phone Number</label>
                         <input
@@ -267,13 +268,13 @@ const ProfileSettingsRedesigned = () => {
                         />
                     </div>
 
-                    
-                    
 
-                    
+
+
+
                 </form>
             </Container>
-            <Footer /> 
+            <Footer />
         </>
     );
 };

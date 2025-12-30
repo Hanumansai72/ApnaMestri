@@ -9,6 +9,7 @@ import {
   Spinner,
   InputGroup,
 } from "react-bootstrap";
+import API_BASE_URL from "../../config";
 
 const ForgetPassword = () => {
   const [step, setStep] = useState(1); // 1: enter email, 2: enter otp, 3: new password
@@ -32,7 +33,7 @@ const ForgetPassword = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch("https://backend-d6mx.vercel.app/sendotp", {
+      const res = await fetch(`${API_BASE_URL}/sendotp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: email }),
@@ -52,7 +53,7 @@ const ForgetPassword = () => {
     }
   };
 
-  
+
   const handleVerifyOtp = async () => {
     if (!otp.trim()) {
       showAlert("Please enter OTP.");
@@ -60,7 +61,7 @@ const ForgetPassword = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch("https://backend-d6mx.vercel.app/verifyotp", {
+      const res = await fetch(`${API_BASE_URL}/verifyotp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: email, otp }),
@@ -89,7 +90,7 @@ const ForgetPassword = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch("https://backend-d6mx.vercel.app/forgetpassword", {
+      const res = await fetch(`${API_BASE_URL}/forgetpassword`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: newPassword }),

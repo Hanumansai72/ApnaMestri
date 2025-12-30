@@ -3,6 +3,7 @@ import {
   Container, Row, Col, Card, Button, Badge, Form, Tabs, Tab, Modal
 } from 'react-bootstrap';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import NavaPro from './navbarproduct';
 import Footer from './footer';
 
@@ -20,11 +21,11 @@ function MyOrders() {
   useEffect(() => {
     if (!id) return;
 
-    axios.get(`https://backend-d6mx.vercel.app/orderdetails/${id}`)
+    axios.get(`${API_BASE_URL}/orderdetails/${id}`)
       .then(res => setProductList(res.data))
       .catch(err => console.error('Failed to fetch orders:', err));
 
-    axios.get(`https://backend-d6mx.vercel.app/cart/service/${id}`)
+    axios.get(`${API_BASE_URL}/cart/service/${id}`)
       .then(res => setServiceOrders(res.data))
       .catch(err => console.error('Failed to fetch service orders:', err));
   }, [id]);
@@ -38,12 +39,12 @@ function MyOrders() {
   // ✅ Cancel order (confirmed)
   const confirmCancel = async () => {
     try {
-      await axios.put(`https://backend-d6mx.vercel.app/api/cancel/${selectedOrderId}`);
+      await axios.put(`${API_BASE_URL}/api/cancel/${selectedOrderId}`);
       alert("Order cancelled successfully.");
       setShowCancelModal(false);
 
       // Refresh the order list
-      const res = await axios.get(`https://backend-d6mx.vercel.app/orderdetails/${id}`);
+      const res = await axios.get(`${API_BASE_URL}/orderdetails/${id}`);
       setProductList(res.data);
     } catch (error) {
       console.error("Error cancelling order:", error);

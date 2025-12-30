@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Button, Card, Spinner, Form, Toast, ToastContainer } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from "../../config";
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from './footer';
 import NavaPro from './navbarproduct';
@@ -38,7 +39,7 @@ const ProductPage = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
 
-  
+
 
   const showToast = (message, variant = 'success') => {
     setToast({ show: true, message, variant });
@@ -48,31 +49,31 @@ const ProductPage = () => {
     navigate("/viewstore", { state: { vendorId: product.Vendor?._id } });
   };
   useEffect(() => {
-  if (product?._id) {
-    const viewedKey = `viewed_${product._id}`;
-    const hasViewed = localStorage.getItem(viewedKey);
+    if (product?._id) {
+      const viewedKey = `viewed_${product._id}`;
+      const hasViewed = localStorage.getItem(viewedKey);
 
-    if (!hasViewed) {
-      axios
-        .post(`https://backend-d6mx.vercel.app/updateview/${product._id}`)
-        .then(() => {
-          localStorage.setItem(viewedKey, "true"); // ✅ Mark as viewed
-          console.log("Unique view recorded for product:", product._id);
-        })
-        .catch((err) => console.error("Error increasing view count:", err));
+      if (!hasViewed) {
+        axios
+          .post(`${API_BASE_URL}/updateview/${product._id}`)
+          .then(() => {
+            localStorage.setItem(viewedKey, "true"); // ✅ Mark as viewed
+            console.log("Unique view recorded for product:", product._id);
+          })
+          .catch((err) => console.error("Error increasing view count:", err));
+      }
     }
-  }
-}, [product?._id]);
+  }, [product?._id]);
 
 
-// ⭐ Fetch Recently Viewed Products
+  // ⭐ Fetch Recently Viewed Products
 
 
   // ✅ Wrapped in useCallback to safely use inside useEffect
   const fetchReviews = useCallback(() => {
     if (product?._id) {
       axios
-        .get(`https://backend-d6mx.vercel.app/fetch/review/${product._id}`)
+        .get(`${API_BASE_URL}/fetch/review/${product._id}`)
         .then((res) => setBackendReviews(res.data.getreview || []))
         .catch((err) => console.error("Error fetching reviews:", err));
     }
@@ -81,7 +82,7 @@ const ProductPage = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`https://backend-d6mx.vercel.app/product/${id}`)
+      .get(`${API_BASE_URL}/product/${id}`)
       .then((res) => {
         setProduct(res.data);
         setLoading(false);
@@ -98,7 +99,7 @@ const ProductPage = () => {
       fetchReviews();
       if (product.ProductCategory) {
         axios
-          .get(`https://backend-d6mx.vercel.app/related-products/${product.ProductCategory}?exclude=${product._id}`)
+          .get(`${API_BASE_URL}/related-products/${product.ProductCategory}?exclude=${product._id}`)
           .then((res) => setRelatedProducts(res.data))
           .catch((err) => console.error("Failed to fetch related products:", err));
       }
@@ -108,14 +109,14 @@ const ProductPage = () => {
   const handleQuantity = (delta) => setQuantity(q => Math.max(1, q + delta));
   const pricechange = Number(product?.ProductPrice || 0) + 70;
 
- // ⭐ Add to Recently Viewed
-useEffect(() => {
-  if (product?._id) {
-    const viewed = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
-    const updated = [product._id, ...viewed.filter(id => id !== product._id)];
-    localStorage.setItem("recentlyViewed", JSON.stringify(updated.slice(0, 10)));
-  }
-}, [product?._id]);
+  // ⭐ Add to Recently Viewed
+  useEffect(() => {
+    if (product?._id) {
+      const viewed = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+      const updated = [product._id, ...viewed.filter(id => id !== product._id)];
+      localStorage.setItem("recentlyViewed", JSON.stringify(updated.slice(0, 10)));
+    }
+  }, [product?._id]);
 
 
 
@@ -134,7 +135,7 @@ useEffect(() => {
       productprice: pricechange,
       productvendor: product.Vendor?.Business_Name || "Unknown Vendor"
     };
-    axios.post("https://backend-d6mx.vercel.app/api/cart", cartData)
+    axios.post(`${API_BASE_URL}/api/cart`, cartData)
       .then(() => showToast("Product added to cart!", "success"))
       .catch(() => showToast("Something went wrong.", "danger"));
   };
@@ -148,7 +149,7 @@ useEffect(() => {
       showToast("Please provide a rating and comment.", "danger");
       return;
     }
-    axios.post(`https://backend-d6mx.vercel.app/review/${userId}`, {
+    axios.post(`${API_BASE_URL}/review/${userId}`, {
       productId: product._id,
       customerName: name,
       rating: reviewRating,
@@ -257,7 +258,7 @@ useEffect(() => {
                 <span className="old-price">₹{(pricechange * 1.08).toFixed(0)}</span>
                 <span className="discount-badge">8% OFF</span>
               </div>
-                            <div className="seller-card d-flex justify-content-between align-items-center mb-4">
+              <div className="seller-card d-flex justify-content-between align-items-center mb-4">
                 <div className="d-flex align-items-center">
                   <div className="bg-warning rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
                     <i className="bi bi-shop fs-5"></i>
