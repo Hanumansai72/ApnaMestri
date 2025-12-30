@@ -9,7 +9,7 @@ import {
   Spinner,
   InputGroup,
 } from "react-bootstrap";
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 
 const ForgetPassword = () => {
   const [step, setStep] = useState(1); // 1: enter email, 2: enter otp, 3: new password

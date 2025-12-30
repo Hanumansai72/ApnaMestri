@@ -3,9 +3,10 @@ import {
   Container, Row, Col, Card, Button, Badge, Form, Tabs, Tab, Modal
 } from 'react-bootstrap';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
-import NavaPro from './navbarproduct';
-import Footer from './footer';
+import API_BASE_URL from "../../../config";
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
+import { useAuth } from '../Auth/AuthContext';
 
 function MyOrders() {
   const [productList, setProductList] = useState([]);
@@ -15,7 +16,8 @@ function MyOrders() {
   const [statusFilter, setStatusFilter] = useState('All Orders');
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const id = localStorage.getItem("userid");
+  const { user: authUser } = useAuth();
+  const id = authUser?.id;
 
   // ✅ Fetch orders
   useEffect(() => {

@@ -7,15 +7,17 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import Footer from './footer';
-import NavaPro from './navbarproduct';
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
+import { useAuth } from '../Auth/AuthContext';
 
 const CartPage = () => {
   const [products, setProducts] = useState([]);
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
   const navigate = useNavigate();
-  const id = localStorage.getItem("userid");
+  const { user: authUser } = useAuth();
+  const id = authUser?.id;
 
   const ondlete = (itemId) => {
     axios.delete(`${API_BASE_URL} /delete/${itemId} `)

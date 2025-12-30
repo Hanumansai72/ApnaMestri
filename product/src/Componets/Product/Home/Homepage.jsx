@@ -9,11 +9,11 @@ import { Link as ScrollLink } from 'react-scroll';
 import { useNavigate } from 'react-router-dom';
 import 'remixicon/fonts/remixicon.css';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 
 
-import NavaPro from './navbarproduct';
-import Footer from './footer';
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
 import './Homepage.css';
 
 const Homepage = () => {

@@ -2,10 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Button, Card, Spinner, Form, Toast, ToastContainer } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
-import { motion, AnimatePresence } from 'framer-motion';
-import Footer from './footer';
-import NavaPro from './navbarproduct';
+import API_BASE_URL from "../../../config";
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
+import { useAuth } from '../Auth/AuthContext';
 
 // Helper function to render star ratings
 const renderStars = (rating, color = "#ffc107") => {
@@ -24,8 +24,9 @@ const renderStars = (rating, color = "#ffc107") => {
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userid");
-  const name = localStorage.getItem("user_name");
+  const { user: authUser } = useAuth();
+  const userId = authUser?.id;
+  const name = authUser?.fullName || authUser?.user_name;
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);

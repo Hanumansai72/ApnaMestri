@@ -12,9 +12,10 @@ import {
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import API_BASE_URL from "../../config";
-import NavaPro from "./navbarproduct";
-import Footer from "./footer";
+import API_BASE_URL from "../../../config";
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
+import { useAuth } from "../Auth/AuthContext";
 
 // ⭐ Helper to render stars
 const renderStars = (rating, color = "#ffc107") => {
@@ -38,11 +39,12 @@ const ProfessionalServicePage = () => {
   const { id } = useParams(); // vendorId
   const navigate = useNavigate();
 
-  const userId = localStorage.getItem("userid");
-  const name = localStorage.getItem("user_name");
+  const { user: authUser } = useAuth();
+  const userId = authUser?.id;
+  const name = authUser?.fullName || authUser?.user_name;
 
   const [vendor, setVendor] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ Now used properly
+  const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -58,29 +60,24 @@ const ProfessionalServicePage = () => {
   const showToast = (message, variant = "success") =>
     setToast({ show: true, message, variant });
 
-  // 🚀 Navigate to chat
-  const handleMessageClick = (vendorId) => {
-    if (!userId || userId === "undefined") {
+  const handleMessageClick = (vId) => {
+    if (!userId) {
       showToast("Please login to chat with vendor", "danger");
       return;
     }
-    navigate(`/customer/chat/${vendorId}`);
+    navigate(`/customer/chat/${vId}`);
   };
 
-  // ✅ Hire vendor
-  const booknow = (vendorId) => {
-    localStorage.setItem("Customerid", vendorId);
+  const booknow = (vId) => {
+    localStorage.setItem("Customerid", vId);
     navigate("/myorder/service");
   };
 
-  // ✅ Fetch vendor details
   useEffect(() => {
     const fetchVendor = async () => {
       try {
         setLoading(true);
-        const res = await fetch(
-          `${API_BASE_URL}/profesionaldetails/${id}`
-        );
+        const res = await fetch(`${API_BASE_URL}/profesionaldetails/${id}`);
         const data = await res.json();
         setVendor(data);
         setVendorId(data._id);
@@ -93,7 +90,6 @@ const ProfessionalServicePage = () => {
     fetchVendor();
   }, [id]);
 
-  // ✅ Fetch projects
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/api/projects/${id}`)
@@ -101,7 +97,6 @@ const ProfessionalServicePage = () => {
       .catch((err) => console.error("Error fetching projects:", err));
   }, [id]);
 
-  // ✅ Wrap fetchReviews in useCallback (fixes missing dependency warning)
   const fetchReviews = useCallback(() => {
     axios
       .get(`${API_BASE_URL}/fetch/review/service/${id}`)
@@ -111,11 +106,10 @@ const ProfessionalServicePage = () => {
 
   useEffect(() => {
     if (id) fetchReviews();
-  }, [id, fetchReviews]); // ✅ Dependency fixed
+  }, [id, fetchReviews]);
 
-  // ✅ Submit review
   const handleSubmitReview = () => {
-    if (!userId || userId === "undefined") {
+    if (!userId) {
       showToast("Please log in to submit a review.", "danger");
       return;
     }
@@ -144,7 +138,6 @@ const ProfessionalServicePage = () => {
       });
   };
 
-  // ✅ Loading and fallback states
   if (loading)
     return (
       <div className="text-center mt-5">
@@ -164,7 +157,6 @@ const ProfessionalServicePage = () => {
     <>
       <NavaPro />
       <Container className="py-4" style={{ background: "#fff" }}>
-        {/* Header */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <Row>
             <Col md={2} className="text-center">
@@ -228,7 +220,6 @@ const ProfessionalServicePage = () => {
           </Row>
         </Card>
 
-        {/* About */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <h5>About {vendor.Owner_name}</h5>
           <p>
@@ -238,7 +229,6 @@ const ProfessionalServicePage = () => {
           </p>
         </Card>
 
-        {/* Projects */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Recent Projects</h5>
@@ -271,7 +261,6 @@ const ProfessionalServicePage = () => {
           </Row>
         </Card>
 
-        {/* Reviews */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5>Client Reviews</h5>
@@ -356,7 +345,7 @@ const ProfessionalServicePage = () => {
           show={toast.show}
           onClose={() => setToast({ ...toast, show: false })}
           bg={toast.variant}
-          delay={3000}
+          delay={1000}
           autohide
         >
           <Toast.Body>{toast.message}</Toast.Body>

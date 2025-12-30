@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
-import NavaPro from './navbarproduct';
-import Footer from './footer';
+import API_BASE_URL from "../../../config";
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
+import { useAuth } from '../Auth/AuthContext';
 
 const ProfileSettingsRedesigned = () => {
     const [profile, setProfile] = useState({
@@ -18,8 +19,8 @@ const ProfileSettingsRedesigned = () => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
-
-    const id = localStorage.getItem("userid");
+    const { user: authUser } = useAuth();
+    const id = authUser?.id;
 
     useEffect(() => {
         if (id) {
@@ -49,8 +50,6 @@ const ProfileSettingsRedesigned = () => {
         }));
     };
 
-
-
     const handleSaveChanges = (e) => {
         e.preventDefault();
 
@@ -69,8 +68,6 @@ const ProfileSettingsRedesigned = () => {
 
         console.log("Data to save:", dataToSave);
 
-        // Uncomment for real API call:
-        /*
         axios.put(`${API_BASE_URL}/myprofile/${id}`, dataToSave)
             .then(res => {
                 alert("Profile updated successfully!");
@@ -80,8 +77,6 @@ const ProfileSettingsRedesigned = () => {
                 console.error("Failed to update profile:", err);
                 alert("An error occurred while saving changes.");
             });
-        */
-        alert("Changes would be saved here. Check the console for the data object.");
     };
 
     return (
@@ -268,10 +263,9 @@ const ProfileSettingsRedesigned = () => {
                         />
                     </div>
 
-
-
-
-
+                    <div className="form-actions">
+                        <button type="submit" className="btn-custom btn-save">Save Changes</button>
+                    </div>
                 </form>
             </Container>
             <Footer />

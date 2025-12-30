@@ -1,5 +1,6 @@
 // pages/sidevendor.jsx
 import React from 'react';
+import API_BASE_URL from "../../../config";
 import { Form } from 'react-bootstrap';
 
 const allCategories = [
@@ -22,15 +23,15 @@ function SidebarFilters({ selectedTag, setSelectedTag, selectedCategories, setSe
   };
 
   return (
-    <div 
-      className="filter-panel" 
+    <div
+      className="filter-panel"
       style={{
         backgroundColor: '#fff',  // White background
         padding: '15px',
         borderRadius: '8px', // Rounded corners
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        height:"100%", // Soft shadow
-        marginTop:"20px"
+        height: "100%", // Soft shadow
+        marginTop: "20px"
       }}
     >
       <h5 className="text-dark mb-3">Filters</h5>

@@ -1,30 +1,33 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 import axios from 'axios';
 import { Container, Navbar, Nav, Button, Badge, Dropdown } from 'react-bootstrap';
 import { motion } from 'framer-motion';
+import { useAuth } from '../Auth/AuthContext';
 
 function NavaPro() {
   const [count, setCount] = useState(0);
-  const [userId, setUserId] = useState(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const inputRef = useRef(null);               // ✅ ref for search input
-  const [searchTerm, setSearchTerm] = useState(''); // ✅ state for search
+  const inputRef = useRef(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const userId = user?.id;
 
   useEffect(() => {
-    const storedId = localStorage.getItem("userid");
-    if (storedId) {
-      setUserId(storedId);
-      axios.get(`${API_BASE_URL} /cart/${storedId}/count`)
+    if (userId) {
+      axios.get(`${API_BASE_URL}/cart/${userId}/count`)
         .then(res => setCount(res.data.count || 0))
         .catch(err => console.error('Failed to fetch cart count:', err));
+    } else {
+      setCount(0);
     }
-  }, []);
+  }, [userId]);
 
   const yellowButtonStyle = {
     background: 'linear-gradient(90deg, #FFD700, #FFC107)',
@@ -41,8 +44,8 @@ function NavaPro() {
     { path: '/cart', icon: 'bi-cart-fill', label: 'Cart', badge: count > 0 },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("userid");
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 

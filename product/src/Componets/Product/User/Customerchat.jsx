@@ -2,15 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import NavaPro from "./navbarproduct";
 import { socket } from "./socket";
-import API_BASE_URL from "../../config";
+import { useAuth } from "../Auth/AuthContext";
+import API_BASE_URL from "../../../config";
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
 
 
 
 export default function CustomerChat() {
   const { vendorId } = useParams();
-  const customerId = localStorage.getItem("userid");
+  const { user: authUser } = useAuth();
+  const customerId = authUser?.id;
 
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -163,10 +166,10 @@ export default function CustomerChat() {
                   {messages.map((m, i) => (
                     <motion.div
                       key={m._id || i}
-                      className={`d-flex mb-3 ${m.senderId === customerId
+                      className={`d - flex mb - 3 ${m.senderId === customerId
                         ? "justify-content-end"
                         : "justify-content-start"
-                        }`}
+                        } `}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                     >

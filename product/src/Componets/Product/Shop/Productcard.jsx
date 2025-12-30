@@ -4,9 +4,9 @@ import {
   Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup
 } from 'react-bootstrap';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 import { motion, AnimatePresence } from 'framer-motion';
-import Footer from './footer';
+import Footer from '../Layout/footer';
 
 // Helper function to render star ratings
 const renderStars = (rating) => {

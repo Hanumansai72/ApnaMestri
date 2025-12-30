@@ -3,10 +3,11 @@ import {
   Container, Form, Row, Col, Button, Card
 } from 'react-bootstrap';
 import axios from "axios";
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 import { useNavigate } from 'react-router-dom';
-import NavaPro from './navbarproduct';
-import Footer from './footer';
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
+import { useAuth } from '../Auth/AuthContext';
 
 function CheckoutForm() {
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -21,15 +22,21 @@ function CheckoutForm() {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
 
-  const id = localStorage.getItem("userid");
+  const { user: authUser } = useAuth();
+  const id = authUser?.id;
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!id) return;
-    const userId = localStorage.getItem("userid"); // Ensure we have the ID to fetch cart
-    if (userId) {
+    if (authUser) {
+      setFullName(authUser.fullName || authUser.user_name || '');
+      setEmail(authUser.email || '');
+    }
+  }, [authUser]);
+
+  useEffect(() => {
+    if (id) {
       axios
-        .get(`${API_BASE_URL}/carts/${userId}`, { withCredentials: true })
+        .get(`${API_BASE_URL}/carts/${id}`, { withCredentials: true })
         .then(res => setprodicts(res.data))
         .catch(err => console.error('Failed to fetch cart:', err));
     }

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 import { useNavigate } from 'react-router-dom';
 import { Toast, ToastContainer, Container, Row, Col, Form, Button, InputGroup } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { useAuth } from './AuthContext';
 
 function CustomerLogin() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [loginMethod, setLoginMethod] = useState('password');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -48,8 +50,7 @@ function CustomerLogin() {
       if (res.data.message === "OTP verified") {
         const loginRes = await axios.post(`${API_BASE_URL}/login-with-otp`, { email });
         if (loginRes.data.message === "Success") {
-          localStorage.setItem('userid', loginRes.data.user._id);
-          localStorage.setItem('user_name', loginRes.data.user.Full_Name);
+          login(loginRes.data.user);
           showToast("Logged in successfully with OTP!", "success");
           setTimeout(() => navigate('/'), 1500);
         } else {
@@ -81,7 +82,7 @@ function CustomerLogin() {
         { withCredentials: true }
       );
       if (res.data.message === 'Success') {
-
+        login(res.data.user);
         showToast('Login successful!', 'success');
         setTimeout(() => navigate('/'), 1500);
       } else {
@@ -107,8 +108,7 @@ function CustomerLogin() {
       });
 
       if (res.data.message === "Success") {
-        localStorage.setItem("userid", res.data.user._id);
-        localStorage.setItem("user_name", res.data.user.Full_Name);
+        login(res.data.user);
         showToast("Logged in successfully with Google!", "success");
         setTimeout(() => navigate('/'), 1500);
       } else {

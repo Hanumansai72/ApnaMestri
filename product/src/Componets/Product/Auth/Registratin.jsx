@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 import { Link, useNavigate } from 'react-router-dom';
 import { Toast, ToastContainer, Form, Button, InputGroup } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
