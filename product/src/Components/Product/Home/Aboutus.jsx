@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import NavaPro from "./navbarproduct";
-import Footer from "./footer";
+import NavaPro from "../Layout/navbarproduct";
+import Footer from "../Layout/footer";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -313,37 +313,37 @@ export default function Aboutus() {
               variants={stagger}
             >
               {[
-  { n: "Vaibhav", r: "CO-Founder",},
-  { n: "Uttej", r: "CO-Founder" }
-].map((m, i) => (
-  <motion.div className="col-sm-6 col-lg-3" key={i} variants={fadeUp}>
-    <div className="card h-100 border-0 shadow-sm text-center p-4">
-      
-      <div className="d-flex justify-content-center">
-  <img
-    src={m.i || "https://via.placeholder.com/300"}
-    alt="Team"
-    style={{
-      width: "220px",   
-      height: "220px",  
-      objectFit: "cover",
-      border: "1px solid #f8f9fa",
-      borderRadius: "50%"
-    }}
-    className="mx-auto"
-  />
-</div>
+                { n: "Vaibhav", r: "CO-Founder", },
+                { n: "Uttej", r: "CO-Founder" }
+              ].map((m, i) => (
+                <motion.div className="col-sm-6 col-lg-3" key={i} variants={fadeUp}>
+                  <div className="card h-100 border-0 shadow-sm text-center p-4">
 
-      
-      {/* Card Body */}
-      <div className="card-body mt-3">
-        <h6 className="fw-semibold mb-1">{m.n}</h6>
-        <div className="text-secondary small mb-2">{m.r}</div>
-        <p className="mb-0 text-secondary">{m.d}</p>
-      </div>
-    </div>
-  </motion.div>
-))}
+                    <div className="d-flex justify-content-center">
+                      <img
+                        src={m.i || "https://via.placeholder.com/300"}
+                        alt="Team"
+                        style={{
+                          width: "220px",
+                          height: "220px",
+                          objectFit: "cover",
+                          border: "1px solid #f8f9fa",
+                          borderRadius: "50%"
+                        }}
+                        className="mx-auto"
+                      />
+                    </div>
+
+
+                    {/* Card Body */}
+                    <div className="card-body mt-3">
+                      <h6 className="fw-semibold mb-1">{m.n}</h6>
+                      <div className="text-secondary small mb-2">{m.r}</div>
+                      <p className="mb-0 text-secondary">{m.d}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
 
             </motion.div>
           </div>

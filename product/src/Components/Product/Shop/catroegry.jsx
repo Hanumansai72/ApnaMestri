@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import NavaPro from "./navbarproduct";
-import Footer from "./footer";
+import NavaPro from "../Layout/navbarproduct";
+import Footer from "../Layout/footer";
 
 const allCategories = {
   Materials: [
@@ -58,11 +58,11 @@ const allCategories = {
     { name: "Carpenter", desc: "Wood work", icon: "bi-hammer", tags: ["custom"], count: "690+" },
     { name: "Flooring Labour", desc: "Tile/marble", icon: "bi-border-width", tags: ["laying"], count: "350+" },
     { name: "False Ceiling Worker", desc: "Grid/POP", icon: "bi-columns", tags: ["gypsum"], count: "260+" },
-        { name: "Fabrication/Welder", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
-                { name: "Lift Technician", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
-        { name: "Dismantaling Expert", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
+    { name: "Fabrication/Welder", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
+    { name: "Lift Technician", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
+    { name: "Dismantaling Expert", desc: "Grid/POP", icon: "bi-gear", tags: ["gypsum"], count: "260+" },
 
-      
+
 
 
   ],
@@ -85,132 +85,132 @@ const CategoryDashboard = () => {
 
   return (
     <>
-    <NavaPro></NavaPro>
-    <div style={{ background: "#fff", color: "#000", minHeight: "100vh", paddingBottom: "50px", overflowX: "hidden" }}>
-      <Container className="py-5">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          <h1 style={{ color: "#FFD700", fontWeight: "bold", textAlign: "center" }}>
-            Civil Categories
-          </h1>
-          <p style={{ textAlign: "center", color: "#555", fontSize: "1rem", marginBottom: "30px" }}>
-            Find the perfect civil engineering service or construction material for your project
-          </p>
-        </motion.div>
+      <NavaPro></NavaPro>
+      <div style={{ background: "#fff", color: "#000", minHeight: "100vh", paddingBottom: "50px", overflowX: "hidden" }}>
+        <Container className="py-5">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+            <h1 style={{ color: "#FFD700", fontWeight: "bold", textAlign: "center" }}>
+              Civil Categories
+            </h1>
+            <p style={{ textAlign: "center", color: "#555", fontSize: "1rem", marginBottom: "30px" }}>
+              Find the perfect civil engineering service or construction material for your project
+            </p>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "40px", flexWrap: "wrap" }}
-        >
-          <Form.Control
-            style={{
-              width: "300px",
-              borderRadius: "30px",
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #ccc",
-              color: "#000",
-            }}
-            placeholder="Search categories..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div style={{ background: "#f8f9fa", borderRadius: "30px", display: "flex", overflow: "hidden" }}>
-            {["Services", "Materials"].map((tab) => (
-              <Button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  borderRadius: "0",
-                  background: activeTab === tab
-                    ? "linear-gradient(to right, #FFD700, #FFC107)"
-                    : "transparent",
-                  color: activeTab === tab ? "#000" : "#555",
-                  border: "none",
-                  padding: "8px 20px",
-                }}
-              >
-                {tab}
-              </Button>
-            ))}
-          </div>
-        </motion.div>
-
-        <Row>
-          <AnimatePresence>
-            {filteredCategories.map((cat) => (
-              <Col key={cat.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
-                <motion.div
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  layout
-                  whileHover={{ y: -5, scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "40px", flexWrap: "wrap" }}
+          >
+            <Form.Control
+              style={{
+                width: "300px",
+                borderRadius: "30px",
+                backgroundColor: "#f8f9fa",
+                border: "1px solid #ccc",
+                color: "#000",
+              }}
+              placeholder="Search categories..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div style={{ background: "#f8f9fa", borderRadius: "30px", display: "flex", overflow: "hidden" }}>
+              {["Services", "Materials"].map((tab) => (
+                <Button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
                   style={{
-                    backgroundColor: "#fff",
-                    borderRadius: "15px",
-                    padding: "20px",
-                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                    height: "100%",
-                    position: "relative",
-                    border: "1px solid #eee",
+                    borderRadius: "0",
+                    background: activeTab === tab
+                      ? "linear-gradient(to right, #FFD700, #FFC107)"
+                      : "transparent",
+                    color: activeTab === tab ? "#000" : "#555",
+                    border: "none",
+                    padding: "8px 20px",
                   }}
                 >
-                  <div style={{
-                    background: "linear-gradient(to bottom, #FFD700, #FFC107)",
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "10px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: "10px",
-                  }}>
-                    <i className={`bi ${cat.icon}`} style={{ color: "#000", fontSize: "18px" }}></i>
-                  </div>
-                  <h5 style={{ color: "#000" }}>{cat.name}</h5>
-                  <p style={{ color: "#555", fontSize: "0.85rem", minHeight: '3em' }}>{cat.desc}</p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginBottom: "10px" }}>
-                    {cat.tags.map((tag, i) => (
-                      <span key={i} style={{
-                        background: "#f0f0f0",
-                        color: "#555",
-                        padding: "2px 8px",
-                        borderRadius: "12px",
-                        fontSize: "0.7rem",
-                      }}>{tag}</span>
-                    ))}
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#555" }}>
-                    {cat.rating && <span><i className="bi bi-star-fill text-warning"></i> {cat.rating}</span>}
-                    <span>{cat.count}</span>
-                  </div>
-                  <motion.div whileTap={{ scale: 0.95 }}>
-                    <Button
-                      className="w-100 mt-3"
-                      style={{
-                        background: "linear-gradient(to right, #FFD700, #FFC107)",
-                        border: "none",
-                        color: "#000",
-                        fontWeight: "bold"
-                      }}
-                      onClick={() =>
-                        navigate(`/${activeTab === "Materials" ? "product" : "service"}?search=${encodeURIComponent(cat.name)}`)
-                      }
-                    >
-                      {activeTab === "Materials" ? "Order Now" : "Hire Now"}
-                    </Button>
+                  {tab}
+                </Button>
+              ))}
+            </div>
+          </motion.div>
+
+          <Row>
+            <AnimatePresence>
+              {filteredCategories.map((cat) => (
+                <Col key={cat.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
+                  <motion.div
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    layout
+                    whileHover={{ y: -5, scale: 1.03 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    style={{
+                      backgroundColor: "#fff",
+                      borderRadius: "15px",
+                      padding: "20px",
+                      boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                      height: "100%",
+                      position: "relative",
+                      border: "1px solid #eee",
+                    }}
+                  >
+                    <div style={{
+                      background: "linear-gradient(to bottom, #FFD700, #FFC107)",
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: "10px",
+                    }}>
+                      <i className={`bi ${cat.icon}`} style={{ color: "#000", fontSize: "18px" }}></i>
+                    </div>
+                    <h5 style={{ color: "#000" }}>{cat.name}</h5>
+                    <p style={{ color: "#555", fontSize: "0.85rem", minHeight: '3em' }}>{cat.desc}</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginBottom: "10px" }}>
+                      {cat.tags.map((tag, i) => (
+                        <span key={i} style={{
+                          background: "#f0f0f0",
+                          color: "#555",
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          fontSize: "0.7rem",
+                        }}>{tag}</span>
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#555" }}>
+                      {cat.rating && <span><i className="bi bi-star-fill text-warning"></i> {cat.rating}</span>}
+                      <span>{cat.count}</span>
+                    </div>
+                    <motion.div whileTap={{ scale: 0.95 }}>
+                      <Button
+                        className="w-100 mt-3"
+                        style={{
+                          background: "linear-gradient(to right, #FFD700, #FFC107)",
+                          border: "none",
+                          color: "#000",
+                          fontWeight: "bold"
+                        }}
+                        onClick={() =>
+                          navigate(`/${activeTab === "Materials" ? "product" : "service"}?search=${encodeURIComponent(cat.name)}`)
+                        }
+                      >
+                        {activeTab === "Materials" ? "Order Now" : "Hire Now"}
+                      </Button>
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              </Col>
-            ))}
-          </AnimatePresence>
-        </Row>
-      </Container>
-    </div>
-    <Footer></Footer>
+                </Col>
+              ))}
+            </AnimatePresence>
+          </Row>
+        </Container>
+      </div>
+      <Footer></Footer>
     </>
   );
 };

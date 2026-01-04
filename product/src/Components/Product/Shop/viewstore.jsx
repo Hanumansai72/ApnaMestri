@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import API_BASE_URL from "../../config";
+import API_BASE_URL from "../../../config";
 import { Container, Row, Col, Card, Spinner, Button, Badge } from 'react-bootstrap';
-import NavaPro from './navbarproduct';
-import Footer from './footer';
+import NavaPro from '../Layout/navbarproduct';
+import Footer from '../Layout/footer';
 import './ViewStore.css'; // We'll use this CSS for styling
 
 const ViewStore = () => {

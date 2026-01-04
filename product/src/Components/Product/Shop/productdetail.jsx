@@ -6,6 +6,8 @@ import API_BASE_URL from "../../../config";
 import NavaPro from '../Layout/navbarproduct';
 import Footer from '../Layout/footer';
 import { useAuth } from '../Auth/AuthContext';
+import { motion, AnimatePresence } from "framer-motion";
+
 
 // Helper function to render star ratings
 const renderStars = (rating, color = "#ffc107") => {
